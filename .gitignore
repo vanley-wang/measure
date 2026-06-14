@@ -24,6 +24,7 @@ Thumbs.db
 Data/
 训练数据样本/
 undersample/
+nnUNet_FXN_2023/
 
 # Model checkpoints / trained weights / artifacts
 checkpoints/
@@ -43,8 +44,15 @@ PCA_model/
 *.mat
 *.h5
 *.hdf5
+*.tr
 
-# Office/result artifacts
+# Images / Office / result artifacts
+*.png
+*.jpg
+*.jpeg
+*.tif
+*.tiff
+*.bmp
 *.xlsx
 *.xls
 *.pptx
