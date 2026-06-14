@@ -1,0 +1,56 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+ENV/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# IDE / editor
+.vscode/
+.idea/
+.history/
+.continue/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Project data and generated results
+Data/
+训练数据样本/
+undersample/
+
+# Model checkpoints / trained weights / artifacts
+checkpoints/
+models/
+model/
+PCA_model/
+*.pt
+*.pth
+*.ckpt
+*.onnx
+*.pkl
+*.pickle
+
+# Scientific / medical / MATLAB data files
+*.nii
+*.nii.gz
+*.mat
+*.h5
+*.hdf5
+
+# Office/result artifacts
+*.xlsx
+*.xls
+*.pptx
+*.ppt
+
+# Logs and temporary files
+*.log
+*.tmp
+*.temp
