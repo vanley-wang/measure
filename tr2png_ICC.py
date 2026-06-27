@@ -12,8 +12,8 @@ z_size = 800
 
 # 多个大文件夹路径，自己替换成实际路径
 ROOTS = [
-    r"Data/FXN_2023_new/FXN_20230701",
-    r"Data/FXN_2023_new/FXN_20230703"
+    r"E:\student\Private\student13\Measure_copy\Data\FXN\20230701\data",
+    r"E:\student\Private\student13\Measure_copy\Data\FXN\20230703\data"
 ]
 
 # 1个用法
