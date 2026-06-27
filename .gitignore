@@ -22,21 +22,23 @@ Thumbs.db
 
 # Project data and generated results
 Data/
+!Data/FXNJ?20230701/data/image/
+!Data/FXNJ?20230701/data/image/**
 训练数据样本/
 undersample/
 nnUNet_FXN_2023/
 
 # Model checkpoints / trained weights / artifacts
-checkpoints/
-models/
-model/
-PCA_model/
-*.pt
-*.pth
-*.ckpt
-*.onnx
-*.pkl
-*.pickle
+# checkpoints/
+# models/
+# model/
+# PCA_model/
+# *.pt
+# *.pth
+# *.ckpt
+# *.onnx
+# *.pkl
+# *.pickle
 
 # Scientific / medical / MATLAB data files
 *.nii
