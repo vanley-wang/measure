@@ -2,7 +2,7 @@ import os
 import pandas as pd
 
 
-Path = 'Data/FXN_2023_new/FXN_2023_Analysis.xlsx'
+Path = 'Data/nnUNet_FXN_2023/nnUNet_Analysis.xlsx'
 # Path = 'Data/icc016p6/icc016p620230911004/ICCO16P6_2023_Analysis.xlsx'
 Data_All = pd.read_excel(Path)
 

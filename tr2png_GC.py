@@ -11,8 +11,8 @@ Image.MAX_IMAGE_PIXELS = None
 
 # ==================== 路径配置 ====================
 ROOTS = [
-    r"Data/FXN_2023_new/FXN_20230701",
-    r"Data/FXN_2023_new/FXN_20230703",
+    r"Data/nnUNet_FXN_2023/FXN_0701",
+    r"Data/nnUNet_FXN_2023/FXN_0703",
 ]
 
 

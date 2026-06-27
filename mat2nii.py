@@ -8,13 +8,13 @@ from tqdm import tqdm
 # ==================== 配置区 ====================
 # 要处理的目录列表
 INPUT_DIRS = [
-    r"E:\student\Private\student13\Measure_copy\Data\FXN_2023_new（闭10新聚类）\FXN_20230703\scatt_mat",
-    r"E:\student\Private\student13\Measure_copy\Data\FXN_2023_new（闭10新聚类）\FXN_20230703\seg_fill",
-    r"E:\student\Private\student13\Measure_copy\Data\FXN_2023_new（闭10新聚类）\FXN_20230703\seg_label",
-    r"E:\student\Private\student13\Measure_copy\Data\FXN_2023_new（闭10新聚类）\FXN_20230703\seg_mat_test",
-    r"E:\student\Private\student13\Measure_copy\Data\FXN_2023_new（闭10新聚类）\FXN_20230701\seg_fill",
-    r"E:\student\Private\student13\Measure_copy\Data\FXN_2023_new（闭10新聚类）\FXN_20230701\seg_label",
-    r"E:\student\Private\student13\Measure_copy\Data\FXN_2023_new（闭10新聚类）\FXN_20230701\seg_mat_test",
+    r"Data\nnUNet_FXN_2023\FXN_0703\scatt_mat",
+    r"Data\nnUNet_FXN_2023\FXN_0703\seg_fill",
+    r"Data\nnUNet_FXN_2023\FXN_0703\seg_label",
+    r"Data\nnUNet_FXN_2023\FXN_0703\seg_mat_test",
+    r"Data\nnUNet_FXN_2023\FXN_0701\seg_fill",
+    r"Data\nnUNet_FXN_2023\FXN_0701\seg_label",
+    r"Data\nnUNet_FXN_2023\FXN_0701\seg_mat_test",
 ]
 
 # 不同目录对应的变量名映射

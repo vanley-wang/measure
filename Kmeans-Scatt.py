@@ -10,8 +10,8 @@ import glob
 
 # 1. 基础配置
 data_folders = [
-    os.path.join('Data', 'FXN_2023_new', 'FXN_20230701', 'measure_excel'),
-    os.path.join('Data', 'FXN_2023_new', 'FXN_20230703', 'measure_excel')
+    os.path.join('Data', 'nnUNet_FXN_2023', 'FXN_0701', 'measure_excel'),
+    os.path.join('Data', 'nnUNet_FXN_2023', 'FXN_0703', 'measure_excel')
 ]
 
 model_dir = 'model'

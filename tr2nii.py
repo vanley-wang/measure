@@ -9,10 +9,10 @@ Image.MAX_IMAGE_PIXELS = None
 
 # ==================== 配置区 ====================
 # 这里修改为你存放 32 个待预测 .tr 文件的目录
-INPUT_DIR = r"E:\student\Private\student13\Measure_copy\Data\FXN_2023\FXN_20230703\tr"
+INPUT_DIR = r"Data\nnUNet_FXN_2023\FXN_0703\tr"
 
 # nnUNet 预测需要的 NIfTI 输入目录
-OUTPUT_DIR = r"E:\student\Private\student13\Measure_copy\Data\nnUNet_raw_input_20230703"
+OUTPUT_DIR = r"Data\nnUNet_raw_input_0703"
 # 你为这批数据起的前缀名称
 PREFIX = "organoid" 
 

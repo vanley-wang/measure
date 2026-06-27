@@ -19,8 +19,8 @@ atp_database = {
 }
 
 # ================= 2. 读取数据 =================
-input_path = 'Data/FXN_2023/FXN_2023_Analysis.xlsx'
-output_path = 'Data/FXN_2023/wwl_FXN_2023生成结果/FXN_2023_PCA_Result.xlsx'
+input_path = 'Data/nnUNet_FXN_2023/nnUNet_Analysis.xlsx'
+output_path = 'Data/nnUNet_FXN_2023/nnUNet_PCA_Scores.xlsx'
 
 print("读取数据...")
 Data_All = pd.read_excel(input_path)

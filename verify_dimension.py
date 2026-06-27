@@ -3,7 +3,7 @@ import glob
 import nibabel as nib
 
 # 检查一个目录下的nii文件维度
-check_dir = r"E:\student\Private\student13\Measure_copy\Data\FXN_2023_new（闭10新聚类）\FXN_20230703\scatt_mat"
+check_dir = r"Data\nnUNet_FXN_2023\FXN_0703\scatt_mat"
 
 nii_files = glob.glob(os.path.join(check_dir, "*.nii.gz"))
 

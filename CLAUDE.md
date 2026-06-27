@@ -1,0 +1,457 @@
+# 类器官分割量化项目 — 完整执行手册
+
+> 适用场景：基于 **nnUNet 分割结果** 的类器官三维量化、聚类分型、PCA 综合评分、药效关联分析
+>
+> 数据格式：`.nii.gz`（nnUNet 推理输出）→ `.mat` → `.xlsx`
+
+---
+
+## 一、数据准备（前置条件）
+
+### 1.1 输入数据要求
+
+```
+Data/nnUNet_FXN_2023/
+├── FXN_0701_fixed/                    # Day3 原始 OCT 图像
+│   ├── B2_1_0000.nii.gz        	       # B2_0701 原始图
+│   ├── B3_1_0000.nii.gz        	       # B3_0701 原始图
+│   └── ...
+├── prediction/FXN_0701                # Day3 nnUNet 预测 mask
+│   ├── B2_1.nii.gz                    # B2_0701 分割结果
+│   └── ...
+├── FXN_0703_fixed/                    # Day5 原始 OCT 图像
+└── prediction/FXN_0703/               # Day5 nnUNet 预测 mask
+```
+
+> **补充脚本**：若原始数据为 `.tr` 格式，可使用仓库中的 **`tr2nii.py`** 将其转换为 nnUNet 输入格式（`_0000.nii.gz`）。
+
+### 1.2 药物分组映射
+
+```python
+Control: E11, F2, F6, F8, F9, F11
+20 μM:  B2, B3, B4, C2, C3, C4
+40 μM:  B5, B6, B7, C5, C6, C7
+80 μM:  B8, B9, B10, C8, C9, C10
+```
+
+---
+
+## 二、完整执行流程
+
+### Step 1：格式转换（`.nii.gz` → `.mat`）
+
+> 手册描述的 Step 1 功能为：读取 nnUNet 预测 mask + 原始 OCT 图像，做连通域标记，输出 `seg_fill`、`seg_label`、`scatt_mat` 三种 `.mat` 文件。当前仓库没有实现该功能的脚本。
+
+**仓库中相关的现有脚本（功能不完全等价）**：
+
+| 脚本                         | 功能                                    | 输入    | 输出                                             |
+| ---------------------------- | --------------------------------------- | ------- | ------------------------------------------------ |
+| `tr2nii.py`                | 原始 `.tr` → nnUNet 输入 `.nii.gz` | `.tr` | `_0000.nii.gz`                                 |
+| `prediction_tr_mat_GC.py`  | SAM2UNet 推理（GC 格式 `.tr`）        | `.tr` | `Data_Seg` 格式的 `.mat`（单文件二进制掩膜） |
+| `prediction_tr_mat_ICC.py` | SAM2UNet 推理（ICC 格式 `.tr`）       | `.tr` | `Data_Seg` 格式的 `.mat`（单文件二进制掩膜） |
+
+**目标输出结构**（需由外部流程或待补充脚本生成）：
+
+```
+Data/nnUNet_FXN_2023/FXN_0701/
+    ├── seg_fill/B2_0701_fill.mat      # 二值填充掩膜 (Data_fill)
+    ├── seg_label/B2_0701_label.mat    # 实例标签 (Data_label)
+    └── scatt_mat/B2_0701_scatt.mat    # OCT原始强度 (data_scatt)
+```
+
+**注意事项**：
+
+- Windows 下多进程可能报错，若出错改 `N_WORKERS = 1`
+- B2_0701 原始图可能损坏（gzip 解压失败），会自动跳过
+
+---
+
+### Step 2：提取形态学特征
+
+> 手册描述的 Step 2 功能为：从 `seg_label/*.mat` 读取每个类器官的实例标签，提取形态学特征，输出到 `measure_excel/*.xlsx`。当前仓库没有实现该功能的脚本，`measure_excel/*.xlsx` 需由外部流程生成，或需手动编写该脚本。
+
+**目标输出列结构**（供参考，后续 `cluster-merge.py` 实际使用 11 个特征）：
+
+| 列名                  | 含义                               |
+| --------------------- | ---------------------------------- |
+| Index                 | 唯一标识 (如 B2_0701_1)            |
+| Organoids_Volume      | 体积（像素数）                     |
+| Organoids_Volume_Fill | 填充后体积                         |
+| Organoids_Surface     | 表面积 proxy                       |
+| Cavity_Volume         | 囊腔体积 proxy                     |
+| CavityNum             | 囊腔数                             |
+| LongAxis              | 长轴长度                           |
+| ShortAxis             | 短轴长度                           |
+| Wall_Thickness        | 壁厚 proxy                         |
+| Sphericity            | 球形度 proxy                       |
+| Scatt_Mean            | **占位（NaN），Step 3 填充** |
+| Scatt_STD             | **占位（NaN），Step 3 填充** |
+
+> **重要**：后续 `cluster-merge.py` 实际加载的是 **11 个特征**（包含 `Scatt_Mean`、`Scatt_STD`），而非仅 9 个形态学特征。
+
+**依赖**：Step 1（`seg_label` 必须已生成）
+
+---
+
+### Step 3：合并散射统计
+
+**脚本**：`scatt.py` ✅ 仓库中存在
+
+**功能**：
+
+- 读取 `seg_label`（每个 organoid 的 mask）+ `scatt_mat`（OCT 强度）
+- 统计每个 organoid 区域内的散射均值/标准差
+- 合并到 `measure_excel/*.xlsx`
+
+**输入**（手册通用路径）：
+
+```
+Data/nnUNet_FXN_2023/FXN_0701/seg_label/*_label.mat
+Data/nnUNet_FXN_2023/FXN_0701/scatt_mat/*_scatt.mat
+```
+
+> **说明**：`scatt.py` 还会生成中间输出 `wwl_measure/scatt/*_scatt.xlsx`（独立的散射统计表），然后将其合并到 `wwl_measure/measure_excel/*.xlsx`。
+
+**输出**：更新 `measure_excel/*.xlsx`（填充 Scatt_Mean / Scatt_STD）
+
+**命令**：
+
+```bash
+python scatt.py
+```
+
+**依赖**：Step 1 + Step 2
+
+**注意事项**：
+
+- Windows 内存限制，建议 `max_workers=1`（代码默认使用 8，主函数中使用 16，可根据实际情况调低）
+- B2_0701 无 `scatt_mat`，Scatt 列保持 NaN
+
+---
+
+### Step 4：聚类分型（4 类表型）
+
+**脚本**：`cluster-merge.py` ✅ 仓库中存在
+
+**功能**：
+
+- 加载 KMeans 模型，对每个 organoid 预测聚类标签（K=6，后合并为 4 类）
+- 映射为生物学表型名称
+
+**模型**：
+
+> ⚠️ 手册原引用 `model/Kmeans-nnUNet-morph.pickle`（9 维）在仓库中不存在，实际代码使用的模型为：
+
+```
+model/Kmeans-scatt.pickle            # KMeans 模型（11维，K=6）
+model/scaler-scatt.pickle            # StandardScaler
+```
+
+**特征数量**：**11 个特征**（含 `Scatt_Mean`、`Scatt_STD`），而非 9 个纯形态学特征。
+
+**输出**（手册通用路径）：`Data/nnUNet_FXN_2023/FXN_0701/cluster_merge/B2_0701_merge.xlsx`
+
+**表型映射**（按实际代码 `cluster-merge.py` 中的 `numeric_map`）：
+
+| Cluster | 表型         | 说明             |
+| ------- | ------------ | ---------------- |
+| 0       | 巨大囊泡型   | 体积极大、有囊腔 |
+| 1       | 中等过渡型   | 体积中等、过渡态 |
+| 2       | 小体积基准型 | 体积小、细胞少   |
+| 3       | 高散射实心型 | 结构致密、散射高 |
+
+**命令**：
+
+```bash
+python cluster-merge.py
+```
+
+**依赖**：Step 2 + Step 3（需要完整 measure_excel，含 11 个特征）
+
+---
+
+### Step 5：孔板级汇总（各表型群体统计）
+
+**脚本**：`cluster_analysis_1.py` ✅ 仓库中存在
+
+**功能**：
+
+- 读取 `cluster_excel/*.xlsx`
+- 按 4 个 Cluster 分别统计：数量、平均体积、平均表面积、总囊腔体积、平均长/短轴、平均壁厚、球形度、散射均值/标准差
+- 在原 Excel 中追加 `Sheet2`
+
+**输入**：`Data/nnUNet_FXN_2023/FXN_0701/cluster_excel/*.xlsx`
+
+> ⚠️ **注意**：`cluster_analysis_1.py` 实际从 `cluster_excel/` 读取，而非 `cluster_merge/`。若 `cluster-merge.py` 输出在 `cluster_merge/`，需确保文件位置与 `cluster_analysis_1.py` 的读取路径一致。
+
+**输出**：每个 `.xlsx` 追加 `Sheet2`
+
+**命令**：
+
+```bash
+python cluster_analysis_1.py
+```
+
+**依赖**：Step 4
+
+---
+
+### Step 6：汇总为主表
+
+**脚本**：`cluster_analysis_2.py` ✅ 仓库中存在
+
+> 手册原引用 `merge_analysis.py` 在仓库中不存在。该功能实际由 **`cluster_analysis_2.py`** 执行。
+
+**功能**：
+
+- 读取所有 `cluster_excel/*.xlsx` 的 `Sheet2`
+- 合并为一张大表
+
+**输入**：`Data/nnUNet_FXN_2023/FXN_0701/cluster_excel/*.xlsx`（Sheet2）
+
+**输出**：`Data/nnUNet_FXN_2023/nnUNet_Analysis.xlsx`
+
+**命令**：
+
+```bash
+python cluster_analysis_2.py
+```
+
+**依赖**：Step 5
+
+---
+
+### Step 7：粗糙度计算（可选）
+
+**脚本**：`roughness.py` ✅ 仓库中存在
+
+**功能**：
+
+- 基于 3D Butterworth 滤波 + FFT 功率谱计算每个类器官的表面粗糙度
+- 只计算 Cluster 0 和 1（可根据需要调整 `TARGET_CLUSTERS`）
+
+**输入**：`seg_fill/*.mat` + `cluster_excel/*.xlsx`
+
+**输出**：`Data/nnUNet_FXN_2023/FXN_0701/roughness/*.xlsx`
+
+**命令**：
+
+```bash
+python roughness.py
+```
+
+**依赖**：Step 1（seg_fill）+ Step 4（cluster）
+
+---
+
+### Step 8：粗糙度汇总到主表（可选）
+
+**脚本**：`roughness_analysis.py` ✅ 仓库中存在
+
+**功能**：
+
+- 读取 `roughness/*.xlsx`
+- 汇总 Roughness_All、Roughness_Avg_1、Roughness_Avg_2 到主表
+
+**输入**：`nnUNet_Analysis.xlsx` + `roughness/*.xlsx`
+
+**输出**：更新 `nnUNet_Analysis.xlsx`
+
+**命令**：
+
+```bash
+python roughness_analysis.py
+```
+
+**依赖**：Step 6 + Step 7
+
+---
+
+### Step 9：PCA 综合评分
+
+**脚本**：`PCA.py` ✅ 仓库中存在
+
+**功能**：
+
+- 对 `nnUNet_Analysis.xlsx` 做 PCA 降维
+- 输出特征根、载荷矩阵、最终评分系数
+
+**输入**：`Data/nnUNet_FXN_2023/nnUNet_Analysis.xlsx`
+
+**输出**：`Data/nnUNet_FXN_2023/PCA_Model_Details.xlsx`
+
+> **特征说明**：`PCA.py` 使用的是 **15 个聚类级汇总特征**（如 `Cavity_Volume_All_1`、`Cyst_Thick_Avg_3`、`Short_Axis_Avg_2`、`Surface_Avg_3`、`Volume_Fill_Avg_2` 等），而非 9 个单器官形态特征。
+
+包含 4 个 Sheet：
+
+1. `1_Eigenvalues` — 方差解释率
+2. `2_Loadings_Matrix` — 载荷矩阵
+3. `3_Final_Coefficients` — 各特征对综合评分的贡献权重
+4. `4_Feature_Meta` — 特征分组映射
+
+**命令**：
+
+```bash
+python PCA.py
+```
+
+**依赖**：Step 6（或 Step 8）
+
+---
+
+### Step 10：计算每个孔的 PCA Score
+
+**目标脚本**：`compute_pca_scores.py`
+
+> ❌ **该脚本在当前仓库中不存在。**
+>
+> 该功能由以下现有脚本替代，但输出路径和行为与手册描述有所不同：
+
+**替代脚本**：
+
+| 脚本            | 输入路径                                     | 输出路径                                                        | 说明                                                       |
+| --------------- | -------------------------------------------- | --------------------------------------------------------------- | ---------------------------------------------------------- |
+| `PCA-test.py` | `Data/nnUNet_FXN_2023/nnUNet_Analysis.xlsx` | `Data/nnUNet_FXN_2023/Feature_Optimization_Sorted.xlsx` | 同时保存 PCA 模型到 `PCA_model/organoid_pca_scoring.pkl` |
+| `PCA-ICC.py`  | `Data/nnUNet_FXN_2023/nnUNet_Analysis.xlsx` | `Data/nnUNet_FXN_2023/nnUNet_PCA_Scores.xlsx`           | 功能与 `PCA-test.py` 类似，路径对应 ICC 组数据           |
+
+> ⚠️ **注意**：`PCA-test3.py` 的 `features_list` 为空（所有特征被注释掉），**无法产生有意义的 PCA 结果**，请勿使用。
+
+**目标输出列结构**（供参考）：
+
+| 列名   | 含义          |
+| ------ | ------------- |
+| Name   | 孔板标识      |
+| PC1    | 第1主成分得分 |
+| PC2    | 第2主成分得分 |
+| PC3    | 第3主成分得分 |
+| PC4    | 第4主成分得分 |
+| Result | 加权综合评分  |
+
+**依赖**：Step 9
+
+---
+
+### Step 11：药效关联分析
+
+**目标脚本**：`vol_rate_oac_efficacy_correlation.py`
+
+> ❌ **该脚本在当前仓库中不存在。**
+>
+> 当前仓库无此脚本，该步骤无法直接执行。如需进行 Day3 → Day5 的体积变化率与 OAC 药效浓度的关联分析，需手动编写脚本。
+
+**目标输出示例**（供参考）：
+
+```
+vol_rate_mean = [284.22, 92.89, 21.38, 0.71]   # Control, 20, 40, 80
+vol_ratio_mean = [0.0, -0.6223, -0.9294, -0.9979]
+oac_ratio_mean = [0.0, 1.1329, 1.6503, 2.2937]
+```
+
+**依赖**：Step 4（cluster_merge）
+
+---
+
+## 三、快速执行命令（复制即用）
+
+```bash
+# 1. 格式转换（nnunet_bridge.py 不存在，需外部生成或手动编写）
+# python nnunet_bridge.py
+
+# 2. 形态特征（measure_from_label.py 不存在，需外部生成或手动编写）
+# python measure_from_label.py
+
+# 3. 散射统计
+python scatt.py
+
+# 4. 聚类分型
+python cluster-merge.py
+
+# 5. 孔板汇总
+python cluster_analysis_1.py
+
+# 6. 汇总主表（merge_analysis.py 不存在，使用 cluster_analysis_2.py）
+python cluster_analysis_2.py
+
+# 7~8. 粗糙度（可选）
+python roughness.py
+python roughness_analysis.py
+
+# 9. PCA
+python PCA.py
+
+# 10. PCA Score（compute_pca_scores.py 不存在，使用替代脚本）
+python PCA-ICC.py               # 或 PCA-test.py，注意路径差异
+
+# 11. 药效关联（vol_rate_oac_efficacy_correlation.py 不存在）
+# python vol_rate_oac_efficacy_correlation.py
+```
+
+---
+
+## 四、可视化辅助脚本
+
+| 脚本                         | 功能                        | 输入                                | 输出                           | 状态      |
+| ---------------------------- | --------------------------- | ----------------------------------- | ------------------------------ | --------- |
+| `scatt_mip.py`             | 散射系数 MIP 投影图         | `scatt_mat` + `seg_label`       | `scatt_mip/*.png`            | ✅ 存在   |
+| `scatt_mip_compare.py`     | nnUNet vs SAM2UNet 散射对比 | 两个模型的 `.mat`                 | `scatt_mip_comparison/*.png` | ❌ 不存在 |
+| `plot_pca_oac.py`          | PCA Score vs OAC 散点图     | `nnUNet_PCA_Scores.xlsx`          | 控制台打印 + Excel             | ❌ 不存在 |
+| `validate_segmentation.py` | 分割质量客观验证            | `nnUNet_Analysis.xlsx` + SAM2UNet | 控制台统计                     | ❌ 不存在 |
+| `compare_models.py`        | 两模型全面对比              | 两个模型的 Analysis                 | 对比 Excel                     | ❌ 不存在 |
+
+---
+
+## 五、仓库中其他实际存在的辅助脚本
+
+以下脚本在仓库中存在，但未纳入上述主流程，可根据需要使用：
+
+| 脚本                         | 功能                                    | 说明                                                                            |
+| ---------------------------- | --------------------------------------- | ------------------------------------------------------------------------------- |
+| `tr2nii.py`                | 原始 `.tr` → nnUNet 输入 `.nii.gz` | 前置数据格式转换                                                                |
+| `prediction_tr_mat_GC.py`  | SAM2UNet 推理（GC 格式 `.tr`）        | 输出单文件 `Data_Seg.mat`                                                     |
+| `prediction_tr_mat_ICC.py` | SAM2UNet 推理（ICC 格式 `.tr`）       | 输出单文件 `Data_Seg.mat`                                                     |
+| `mat2nii.py`               | `.mat` → `.nii.gz` 反向转换        | 将 `seg_fill`、`seg_label`、`scatt_mat` 转回 NIfTI                        |
+| `clean_and_convert.py`     | `.mat` → `.nii.gz`（带清理）       | 与 `mat2nii.py` 类似，会先删除旧 `.nii.gz`                                  |
+| `Kmeans-Scatt.py`          | 训练 KMeans 模型                        | 生成 `model/Kmeans-scatt.pickle`（11维，K=6）和 `model/scaler-scatt.pickle` |
+| `feature_select.py`        | 方差阈值特征筛选                        | 对 `Analysis.xlsx` 做 `VarianceThreshold`，仅打印结果                       |
+
+---
+
+## 六、关键输出文件汇总
+
+| 文件路径                                               | 内容               | 用途      |
+| ------------------------------------------------------ | ------------------ | --------- |
+| `Data/nnUNet_FXN_2023/FXN_0701/measure_excel/*.xlsx` | 单细胞器特征       | 聚类输入  |
+| `Data/nnUNet_FXN_2023/FXN_0701/cluster_merge/*.xlsx` | 聚类结果 + 表型    | 药效分析  |
+| `Data/nnUNet_FXN_2023/nnUNet_Analysis.xlsx`          | 孔板级汇总主表     | PCA 输入  |
+| `Data/nnUNet_FXN_2023/PCA_Model_Details.xlsx`        | PCA 模型参数       | 汇报/论文 |
+| `Data/nnUNet_FXN_2023/nnUNet_PCA_Scores.xlsx`        | 每个孔的 PCA Score | 可视化    |
+
+> **说明**：上述为项目统一路径。所有脚本已统一硬编码为 `Data/nnUNet_FXN_2023/` 前缀，部分脚本（如 `scatt.py`、`roughness.py`）会在对应日期文件夹下自动生成 `wwl_measure/` 子文件夹存放中间结果。
+
+---
+
+## 七、常见问题速查
+
+### Q1：B2_0701 没有 Scatt 数据怎么办？
+
+**A**：原始图 `B2_1_0000.nii.gz`（或历史数据中的 `organoid_001_0000.nii.gz`）可能存在 gzip 损坏。该孔 Scatt 列为 NaN，不影响形态学特征。
+
+### Q2：scatt.py 内存不足报错？
+
+**A**：改 `max_workers=1`，或优化 `extract_scatt_stats_fast` 用 `np.bincount`。
+
+### Q3：聚类模型维度不匹配？
+
+**A**：当前仓库实际使用的是 **`model/Kmeans-scatt.pickle`**（11 维特征，含 `Scatt_Mean` 和 `Scatt_STD`），对应的 scaler 为 `model/scaler-scatt.pickle`。手册原引用的 `model/Kmeans-nnUNet-morph.pickle`（9 维纯形态特征）在仓库中不存在。请确保 `measure_excel` 包含完整的 11 列特征后再运行 `cluster-merge.py`。
+
+### Q4：nnUNet Scatt 值比 SAM2UNet 小很多？
+
+**A**：正常。nnUNet `.nii.gz` 预处理压缩了强度范围。绝对值不可跨模型对比，模型内相对比较仍有效。
+
+### Q5：PCA Score 正负值什么意思？
+
+**A**：Result = w1*PC1 + w2*PC2 + w3*PC3 + w4*PC4。正值表示该孔特征与 PC1 方向一致，负值相反。
+
+### Q6：为什么 `cluster_analysis_1.py` 报错找不到文件？
+
+**A**：`cluster_analysis_1.py` 从 `cluster_excel/` 读取，而 `cluster-merge.py` 输出到 `cluster_merge/`。请确保文件在正确的目录下，或修改脚本中的路径。

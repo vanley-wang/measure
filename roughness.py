@@ -157,8 +157,8 @@ def process_one_file(seg_file, seg_path, cluster_path, save_path):
 if __name__ == '__main__':
     # 请确保路径正确
     LOOPS = [
-        r"Data\FXN_2023\FXN_20230701",
-        r"Data\FXN_2023\FXN_20230703"
+        r"Data\nnUNet_FXN_2023\FXN_0701",
+        r"Data\nnUNet_FXN_2023\FXN_0703"
     ]
 
     print(f" 开始计算 | 目标数据类别: {TARGET_CLUSTERS} (将在汇总时显示为 {[x + 1 for x in TARGET_CLUSTERS]})")

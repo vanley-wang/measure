@@ -11,9 +11,9 @@ except ImportError:
 warnings.filterwarnings("ignore")
 
 # ================= 配置区域 =================
-A_path = r'E:\student\Private\student11\Measure\Measure_copy\Data\FXN_2023_new\FXN_2023_Analysis.xlsx'
-Path1 = r'E:\student\Private\student11\Measure\Measure_copy\Data\FXN_2023_new\FXN_20230701\roughness'
-Path2 = r'E:\student\Private\student11\Measure\Measure_copy\Data\FXN_2023_new\FXN_20230703\roughness'
+A_path = r'Data\nnUNet_FXN_2023\nnUNet_Analysis.xlsx'
+Path1 = r'Data\nnUNet_FXN_2023\FXN_0701\wwl_measure\roughness'
+Path2 = r'Data\nnUNet_FXN_2023\FXN_0703\wwl_measure\roughness'
 
 # 真实数据类别 (0, 1)
 TARGET_CLUSTERS = [0, 1]

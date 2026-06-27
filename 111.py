@@ -4,8 +4,8 @@ import numpy as np
 import glob
 
 # ================= 配置区域 =================
-DIR_DAY3 = 'Data/FXN_2023_new/FXN_20230701/cluster_merge'
-DIR_DAY5 = 'Data/FXN_2023_new/FXN_20230703/cluster_merge'
+DIR_DAY3 = 'Data/nnUNet_FXN_2023/FXN_0701/cluster_merge'
+DIR_DAY5 = 'Data/nnUNet_FXN_2023/FXN_0703/cluster_merge'
 
 # OAC 指定数据
 OAC_RATES = {'Control': -14.3, '20': 1.9, '40': 9.3, '80': 18.5}

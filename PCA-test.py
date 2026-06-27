@@ -8,8 +8,8 @@ import time
 import os
 
 # ================= 1. 配置参数 =================
-input_path = 'Data/FXN_2023_new/FXN_2023_Analysis.xlsx'
-log_save_path = 'Data/FXN_2023_new/Feature_Optimization_Sorted.xlsx'
+input_path = 'Data/nnUNet_FXN_2023/nnUNet_Analysis.xlsx'
+log_save_path = 'Data/nnUNet_FXN_2023/Feature_Optimization_Sorted.xlsx'
 
 # 搜索次数 (建议 50,000 或更多)
 n_iterations = 5000000

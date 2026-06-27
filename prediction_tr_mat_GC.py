@@ -23,8 +23,8 @@ CHECKPOINT_PATH = 'checkpoints/sam2_hiera_large.pt'
 
 # 数据根目录
 ROOTS = [
-    r"Data/FXN_2023_new/FXN_20230701",
-    r"Data/FXN_2023_new/FXN_20230703",
+    r"Data/nnUNet_FXN_2023/FXN_0701",
+    r"Data/nnUNet_FXN_2023/FXN_0703",
 ]
 
 # 解除 PIL 像素限制，否则读不进那个巨大的伪装 PNG

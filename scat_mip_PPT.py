@@ -4,9 +4,9 @@ from pptx.util import Cm, Pt
 from pptx.enum.text import PP_ALIGN
 
 # === 路径配置 ===
-path_0701 = 'Data/FXN_2023/FXN_20230701/scatt_mip'
-path_0703 = 'Data/FXN_2023/FXN_20230703/scatt_mip'
-output_pptx = 'Data/FXN_2023/散射系数投影图.pptx'
+path_0701 = 'Data/nnUNet_FXN_2023/FXN_0701/scatt_mip'
+path_0703 = 'Data/nnUNet_FXN_2023/FXN_0703/scatt_mip'
+output_pptx = 'Data/nnUNet_FXN_2023/散射系数投影图.pptx'
 
 # === 图像收集函数 ===
 def collect_images(path):

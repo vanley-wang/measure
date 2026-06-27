@@ -3,8 +3,8 @@ import pandas as pd
 
 # 定义两个大文件夹路径
 folders = [
-    'Data/FXN_2023/FXN_20230701',
-    'Data/FXN_2023/FXN_20230703'
+    'Data/nnUNet_FXN_2023/FXN_0701',
+    'Data/nnUNet_FXN_2023/FXN_0703'
     # 'Data/icc016p6/icc016p620230911004/0913',
     # 'Data/icc016p6/icc016p620230911004/0915'
 ]
@@ -44,13 +44,13 @@ for folder in folders:
         print(f"✅ 合并完成：{save_path}")
     else:
         print(f"⚠️ 没有可用的Sheet2文件在 {cluster_dir}")
-path1 = 'Data/FXN_2023_new/FXN_20230701/FXN_20230701_Analysis.xlsx'
-path2 = 'Data/FXN_2023_new/FXN_20230703/FXN_20230703_Analysis.xlsx'
+path1 = 'Data/nnUNet_FXN_2023/FXN_0701/FXN_0701_Analysis.xlsx'
+path2 = 'Data/nnUNet_FXN_2023/FXN_0703/FXN_0703_Analysis.xlsx'
 # path1 = 'Data/icc016p6/icc016p620230911004/0913/0913_Analysis.xlsx'
 # path2 = 'Data/icc016p6/icc016p620230911004/0915/0915_Analysis.xlsx'
 df1 = pd.read_excel(path1)
 df2 = pd.read_excel(path2)
 df_merged = pd.concat([df1, df2], ignore_index=True)
-df_merged.to_excel('Data/FXN_2023_new/FXN_2023_Analysis.xlsx', index=False)
+df_merged.to_excel('Data/nnUNet_FXN_2023/nnUNet_Analysis.xlsx', index=False)
 # df_merged.to_excel('Data/icc016p6/icc016p620230911004/ICCO16P6_2023_Analysis.xlsx', index=False)
 

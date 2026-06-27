@@ -8,8 +8,8 @@ from tqdm import tqdm
 
 # ==================== 配置区 ====================
 INPUT_DIRS = [
-    r"E:\student\Private\student13\Measure_copy\Data\FXN\20230701\data\image",
-    r"E:\student\Private\student13\Measure_copy\Data\FXN\20230703\data\image",
+    r"Data\nnUNet_FXN_2023\FXN_0701\data\image",
+    r"Data\nnUNet_FXN_2023\FXN_0703\data\image",
 ]
 
 # NIfTI affine 矩阵 (从已有文件提取: diag(-1, -1, 1, 1))

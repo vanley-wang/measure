@@ -3,9 +3,9 @@ import nibabel as nib
 import itertools
 import glob
 
-n_data = nib.load(r'E:/student/Private/student13/Measure_copy/训练数据样本/organoid_010_0000.nii.gz').get_fdata()
+n_data = nib.load(r'Data/训练数据样本/organoid_010_0000.nii.gz').get_fdata()
 
-files = glob.glob(r'E:/student/Private/student13/Measure_copy/Data/FXN_2023_new0/FXN_20230701/tr/*.tr')
+files = glob.glob(r'Data/nnUNet_FXN_2023/FXN_0701/tr/*.tr')
 
 def get_perms(vol):
     perms = []

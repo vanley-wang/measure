@@ -10,8 +10,8 @@ scaler_path = 'model/scaler-scatt.pickle'
 
 # 要处理的数据根目录
 root_folders = [
-    'Data/FXN_2023_new/FXN_20230701',
-    'Data/FXN_2023_new/FXN_20230703'
+    'Data/nnUNet_FXN_2023/FXN_0701',
+    'Data/nnUNet_FXN_2023/FXN_0703'
 ]
 
 # 输出文件夹名称

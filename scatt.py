@@ -108,8 +108,8 @@ def process_one_root_folder(root_dir, max_workers=8):
 
 if __name__ == "__main__":
     roots = [
-        r"Data\FXN_2023\FXN_20230701",
-        r"Data\FXN_2023\FXN_20230703"
+        r"Data\nnUNet_FXN_2023\FXN_0701",
+        r"Data\nnUNet_FXN_2023\FXN_0703"
     ]
     print(f"总共 {len(roots)} 个大文件夹；")
     for i, root in enumerate(roots):

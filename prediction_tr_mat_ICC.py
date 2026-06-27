@@ -25,8 +25,8 @@ net.eval()
 
 # 数据路径列表
 ROOTS = [
-    r"E:\student\Private\student11\Measure\Measure_copy\Data\FXN_2023\FXN_20230701",
-    r"E:\student\Private\student11\Measure\Measure_copy\Data\FXN_2023\FXN_20230703",
+    r"Data\nnUNet_FXN_2023\FXN_0701",
+    r"Data\nnUNet_FXN_2023\FXN_0703",
 ]
 
 

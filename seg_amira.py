@@ -10,8 +10,8 @@ from datetime import datetime
 
 # ==================== 全局配置区域 ====================
 # 1. 数据根目录 (请修改为您实际的路径)
-BASE_DIR = r'E:\student\Private\student11\Measure\Measure_copy\Data\FXN_2023_new'
-DATE_FOLDERS = ['FXN_20230701', 'FXN_20230703']
+BASE_DIR = r'Data\nnUNet_FXN_2023'
+DATE_FOLDERS = ['FXN_0701', 'FXN_0703']
 
 # 2. 输入文件夹名称
 DIR_IMG = 'image'  # 原始强度图 (PNG文件夹)

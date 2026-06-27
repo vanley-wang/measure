@@ -65,7 +65,7 @@ if __name__ == '__main__':
     #     Data_All.append(DF)
     # Data_All = pd.concat(Data_All,ignore_index=True)
 
-    path = 'E:\student\Private\student11\Measure\Measure_copy\Data\ICC005_20240424\measure\ICC005_0424_ALL.xlsx'
+    path = 'Data/ICC005_20240424/measure/ICC005_0424_ALL.xlsx'
     Data_All = pd.read_excel(path, sheet_name='Sheet1')
 
     # 表面积欠采样
@@ -79,7 +79,7 @@ if __name__ == '__main__':
     test3_1 = np.cbrt(6 * Data_All['Cavity_Volume'] / np.pi)
     test3_2 = np.cbrt(6 * undersampled_df['Cavity_Volume'] / np.pi)
 
-    save_path = ('E:/student/Private/student11/Measure/Measure_copy/Data/ICC005_20240424/undersampling'
+    save_path = ('Data/ICC005_20240424/undersampling'
                  '/ICC005_0424_undersampling.xlsx')
     dir_path = os.path.dirname(save_path)
     os.makedirs(dir_path, exist_ok=True)

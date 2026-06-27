@@ -9,10 +9,10 @@ except Exception as e:
     print('NO_NIBABEL', repr(e))
 
 mat_paths = [
-    r'Data/FXN_2023/FXN_20230701/scatt_mat/B4_0701_scatt.mat',
-    r'Data/FXN_2023/FXN_20230701/seg_fill/B4_0701_fill.mat',
-    r'Data/FXN_2023/FXN_20230701/seg_label/B4_0701_label.mat',
-    r'Data/FXN_2023/FXN_20230701/seg_mat/B4_0701.mat',
+    r'Data/nnUNet_FXN_2023/FXN_0701/scatt_mat/B4_0701_scatt.mat',
+    r'Data/nnUNet_FXN_2023/FXN_0701/seg_fill/B4_0701_fill.mat',
+    r'Data/nnUNet_FXN_2023/FXN_0701/seg_label/B4_0701_label.mat',
+    r'Data/nnUNet_FXN_2023/FXN_0701/seg_mat/B4_0701.mat',
 ]
 for p in mat_paths:
     print('\nMAT', p, 'exists=', os.path.exists(p), 'size=', os.path.getsize(p) if os.path.exists(p) else None)

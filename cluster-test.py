@@ -21,8 +21,8 @@ with open(scaler_path, 'rb') as f:
 
 # 多文件夹路径 (保持你原来的不变)
 root_folders = [
-    'Data/FXN_2023_new/FXN_20230701',
-    'Data/FXN_2023_new/FXN_20230703', # 如果有第二个文件夹就取消注释
+    'Data/nnUNet_FXN_2023/FXN_0701',
+    'Data/nnUNet_FXN_2023/FXN_0703', # 如果有第二个文件夹就取消注释
 ]
 
 for root in root_folders:

@@ -9,12 +9,12 @@ import time
 
 # ================= 1. 配置区 =================
 # 数据的根目录
-base_path = r'E:\student\Private\student11\Measure\Measure_copy\Data\FXN_2023_new'
+base_path = r'Data\nnUNet_FXN_2023'
 
 # 需要处理的子文件夹列表
 target_folders = [
-    'FXN_20230701',
-    'FXN_20230703'
+    'FXN_0701',
+    'FXN_0703'
 ]
 
 # 颜色/材料映射 (Cluster ID -> Amira Material ID)

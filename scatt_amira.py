@@ -9,10 +9,10 @@ from datetime import datetime
 # ================= 配置区域 =================
 # 根目录 (请修改为您实际的硬盘路径)
 # 注意：在 Windows 下路径建议使用 r'' 前缀防止转义
-BASE_DIR = r'E:\student\Private\student11\Measure\Measure_copy\Data\FXN_2023_new'
+BASE_DIR = r'Data\nnUNet_FXN_2023'
 
 # 需要处理的时间点文件夹
-DATE_FOLDERS = ['FXN_20230701', 'FXN_20230703']
+DATE_FOLDERS = ['FXN_0701', 'FXN_0703']
 
 # 输入子文件夹名称
 SCATT_INPUT_NAME = 'scatt_mat'

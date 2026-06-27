@@ -12,8 +12,8 @@ with open(model_path, 'rb') as f:
 
 
 root_folders = [
-    'Data/FXN_2023_new/FXN_20230701',
-    'Data/FXN_2023_new/FXN_20230703'
+    'Data/nnUNet_FXN_2023/FXN_0701',
+    'Data/nnUNet_FXN_2023/FXN_0703'
 ]
 # 每个文件夹下的 measure 文件夹
 for root in root_folders:

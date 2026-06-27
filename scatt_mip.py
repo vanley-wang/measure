@@ -8,17 +8,17 @@ from tqdm import tqdm
 
 # ================= 配置 =================
 N_WORKERS = 8  # 并行进程数
-BASE = "Data/FXN_2023"
+BASE = "Data/nnUNet_FXN_2023"
 FOLDERS = {
     '0701': {
-        'scatt_mat': os.path.join(BASE, 'FXN_20230701/scatt_mat'),
-        'seg_mat':   os.path.join(BASE, 'FXN_20230701/seg_mat'),
-        'output':    os.path.join(BASE, 'FXN_20230701/scatt_mip'),
+        'scatt_mat': os.path.join(BASE, 'FXN_0701/scatt_mat'),
+        'seg_mat':   os.path.join(BASE, 'FXN_0701/seg_mat'),
+        'output':    os.path.join(BASE, 'FXN_0701/scatt_mip'),
     },
     '0703': {
-        'scatt_mat': os.path.join(BASE, 'FXN_20230703/scatt_mat'),
-        'seg_mat':   os.path.join(BASE, 'FXN_20230703/seg_mat'),
-        'output':    os.path.join(BASE, 'FXN_20230703/scatt_mip'),
+        'scatt_mat': os.path.join(BASE, 'FXN_0703/scatt_mat'),
+        'seg_mat':   os.path.join(BASE, 'FXN_0703/seg_mat'),
+        'output':    os.path.join(BASE, 'FXN_0703/scatt_mip'),
     },
 }
 P_LOW, P_HIGH = 0.0, 99.9  # 用于色阶的分位数范围（同一方向，两个时间点合并后计算）

@@ -3,7 +3,7 @@ import scipy.io as sio
 import matplotlib.pyplot as plt
 import os
 
-file_path = r'Data/FXN_2023_new/FXN_20230701/scatt_mat/F5_0701_scatt.mat'
+file_path = r'Data/nnUNet_FXN_2023/FXN_0701/scatt_mat/F5_0701_scatt.mat'
 D_METERS = 5.5e-6  # 轴向分辨率 5.5 um
 
 def inverse_physics_model(mu_s_matrix, d_meters):

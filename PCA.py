@@ -7,9 +7,9 @@ import re
 
 # ================= 1. 初始化与配置 =================
 # 您原来的文件路径
-input_path = 'Data/FXN_2023_new/FXN_2023_Analysis.xlsx'
+input_path = 'Data/nnUNet_FXN_2023/nnUNet_Analysis.xlsx'
 # 新增：保存所有模型参数的 Excel 路径
-details_save_path = 'Data/FXN_2023_new/PCA_Model_Details.xlsx'
+details_save_path = 'Data/nnUNet_FXN_2023/PCA_Model_Details.xlsx'
 
 # 确保输出目录存在
 os.makedirs(os.path.dirname(details_save_path), exist_ok=True)
