@@ -64,6 +64,10 @@ print(f"特征已排序，共 {len(features_list)} 个")
 print("正在执行 PCA 计算...")
 # 提取数据
 existing_cols = [c for c in features_list if c in Data_All.columns]
+print(f"实际可用特征: {len(existing_cols)} / {len(features_list)}")
+if len(existing_cols) != len(features_list):
+    missing = [c for c in features_list if c not in Data_All.columns]
+    print(f"缺失特征: {missing}")
 Data = Data_All[existing_cols].fillna(0)
 
 # 标准化
@@ -86,7 +90,7 @@ print(f"正在生成详细数据表: {details_save_path} ...")
 group_data = []
 current_group = None
 g_idx = 0
-for feat in features_list:
+for feat in existing_cols:
     key = get_feature_sort_key(feat)
     group_num = key[0]
 
@@ -121,7 +125,7 @@ df_eigen = pd.DataFrame({
 # 行是特征，列是PC
 df_loadings = pd.DataFrame(
     pca.components_.T,
-    index=features_list,
+    index=existing_cols,
     columns=[f'Loading_{pc}' for pc in pc_names]
 )
 # 合并符号信息，方便查看
@@ -132,7 +136,7 @@ df_loadings = pd.concat([df_groups.set_index('Feature_Name')[['Symbol_Simple']],
 # 也就是每个原始特征(标准化后)在最终 Score 中的系数
 final_coefs = np.dot(pca.components_.T, weights)
 df_final_coef = pd.DataFrame({
-    'Feature_Name': features_list,
+    'Feature_Name': existing_cols,
     'Symbol': df_groups['Symbol_Simple'],
     'Coefficient (最终系数)': final_coefs,
     'Abs_Coefficient (系数绝对值)': np.abs(final_coefs)

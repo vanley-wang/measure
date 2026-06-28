@@ -51,19 +51,46 @@ print("读取数据...")
 Data_All = pd.read_excel(input_path)
 if 'Name' not in Data_All.columns: Data_All['Name'] = Data_All.index.astype(str)
 
-# ================= 3. 特征选择 (在此处粘贴自动筛选出的列表) =================
-# 举例：粘贴你筛选出的 Top 1 特征
+# ================= 3. 特征选择 =================
+# 优先级：1) 手动指定 2) 从 Feature_Optimization_Sorted.xlsx 读取 Top N 3) 自动检测全部
+OPTIMIZATION_PATH = 'Data/nnUNet_FXN_2023/Feature_Optimization_Sorted.xlsx'
+USE_TOP_N = 1  # 取优化结果的第 N 名（1=最佳）
+
 features_list = [
     # 'Cyst_Thick_Avg_4', 'Long_Axis_Avg_2', 'Long_Axis_Avg_3', 'Number_1', 'Number_2',
     # 'Roughness_All', 'Surface_Avg_1', 'Volume_Fill_Avg_1', 'Volume_Fill_Avg_2'
 ]
 
-# 【关键步骤】强制按字母排序
-features_list.sort()
-print(f"已强制排序特征，共 {len(features_list)} 个")
+if not features_list:
+    if os.path.exists(OPTIMIZATION_PATH):
+        # 从 PCA-test.py 的优化结果读取 Top N 特征组合
+        opt_df = pd.read_excel(OPTIMIZATION_PATH)
+        opt_df = opt_df.sort_values(by='Diff_Corr_Abs', ascending=False).reset_index(drop=True)
+        if USE_TOP_N - 1 < len(opt_df):
+            top_row = opt_df.iloc[USE_TOP_N - 1]
+            features_list = [f.strip() for f in top_row['Features_List'].split(',')]
+            print(f"从 {OPTIMIZATION_PATH} 读取 Top-{USE_TOP_N} 特征组合")
+            print(f"  Diff_Corr={top_row['Diff_Corr_Abs']:.4f}, Num_Features={top_row['Num_Features']}")
+        else:
+            print(f"[WARN] Top-{USE_TOP_N} 超出范围，使用全部特征")
+            features_list = [c for c in Data_All.columns if c != 'Name']
+    else:
+        # 回退：使用全部数值型列
+        features_list = [c for c in Data_All.columns if c != 'Name']
+        print(f"未找到优化结果，自动检测特征，共 {len(features_list)} 个")
+else:
+    features_list.sort()
+    print(f"手动指定特征，共 {len(features_list)} 个")
 
 existing_cols = [col for col in features_list if col in Data_All.columns]
-Data = Data_All[existing_cols].fillna(0)
+print(f"实际可用特征: {len(existing_cols)} 个")
+if len(existing_cols) != len(features_list):
+    missing = [c for c in features_list if c not in Data_All.columns]
+    print(f"[WARN] 缺失特征: {missing}")
+
+features_list = existing_cols
+features_list.sort()
+Data = Data_All[features_list].fillna(0)
 
 # ================= 4. PCA 计算 (由排序保证一致性) =================
 print("计算 PCA...")
