@@ -58,14 +58,14 @@ def process_one_well(raw_path, pred_path, out_root, date_suffix):
         # mask 二值化（nnUNet 输出已是 0/1，但以防万一）
         binary_mask = (pred_data >= 0.5).astype(np.uint8)
 
-        # --- 2. 填充孔洞（3D）---
-        # scipy.ndimage.binary_fill_holes 支持 3D
-        filled_mask = ndimage.binary_fill_holes(binary_mask).astype(np.uint8)
+        # --- 2. 对原始 mask 做 3D 连通域标记（供 measure_from_label.py 计算囊腔） ---
+        labeled_raw, _ = label(binary_mask, connectivity=3, return_num=True)
+        labeled_raw = labeled_raw.astype(np.uint32)
 
-        # --- 3. 3D 连通域标记 ---
-        # connectivity=3 表示 26-连通（3D 全连通），更符合类器官结构
-        labeled_mask, num_features = label(filled_mask, connectivity=3, return_num=True)
-        labeled_mask = labeled_mask.astype(np.uint32)
+        # --- 3. 整孔填充 + 再标记（供 scatt.py / roughness.py 使用实心 mask） ---
+        filled_mask = ndimage.binary_fill_holes(binary_mask).astype(np.uint8)
+        labeled_fill, num_features = label(filled_mask, connectivity=3, return_num=True)
+        labeled_fill = labeled_fill.astype(np.uint32)
 
         # --- 4. 维度对齐（兼容历史 .mat）---
         # .nii.gz 维度: (800, 512, 800)
@@ -73,7 +73,8 @@ def process_one_well(raw_path, pred_path, out_root, date_suffix):
         # 转换: transpose(1,0,2) 把前两个轴交换
         raw_mat = np.transpose(raw_data, (1, 0, 2))
         filled_mat = np.transpose(filled_mask, (1, 0, 2))
-        labeled_mat = np.transpose(labeled_mask, (1, 0, 2))
+        labeled_raw_mat = np.transpose(labeled_raw, (1, 0, 2))
+        labeled_fill_mat = np.transpose(labeled_fill, (1, 0, 2))
 
         # --- 5. 保存 .mat 文件 ---
         os.makedirs(os.path.join(out_root, 'seg_fill'), exist_ok=True)
@@ -83,7 +84,7 @@ def process_one_well(raw_path, pred_path, out_root, date_suffix):
         savemat(os.path.join(out_root, 'seg_fill', f'{out_name}_fill.mat'),
                 {'Data_fill': filled_mat})
         savemat(os.path.join(out_root, 'seg_label', f'{out_name}_label.mat'),
-                {'Data_label': labeled_mat})
+                {'Data_label': labeled_fill_mat, 'Data_label_raw': labeled_raw_mat})
         savemat(os.path.join(out_root, 'scatt_mat', f'{out_name}_scatt.mat'),
                 {'data_scatt': raw_mat})
 
