@@ -11,7 +11,7 @@ folders = [
 
 for folder in folders:
     # cluster_dir = os.path.join(folder, 'cluster_merge')
-    cluster_dir = os.path.join(folder, 'cluster_excel')
+    cluster_dir = os.path.join(folder, 'cluster_merge')
 
     if not os.path.exists(cluster_dir):
         print(f"⚠️ 路径不存在: {cluster_dir}")

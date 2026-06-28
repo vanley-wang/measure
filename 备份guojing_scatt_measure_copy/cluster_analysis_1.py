@@ -4,18 +4,18 @@ import pandas as pd
 import numpy as np
 
 path1 = 'Data/FXN_2023_new/FXN_20230701/cluster_merge'
-# path1 = 'Data/FXN_2023_new/FXN_20230701/cluster_excel'
+# path1 = 'Data/FXN_2023_new/FXN_20230701/cluster_merge'
 
 file_ls = os.listdir(path1)
 ROOTS1 = [os.path.join(path1, file) for file in file_ls]
 path2 = 'Data/FXN_2023_new/FXN_20230703/cluster_merge'
-# path2 = 'Data/FXN_2023_new/FXN_20230703/cluster_excel'
+# path2 = 'Data/FXN_2023_new/FXN_20230703/cluster_merge'
 
 file_ls = os.listdir(path2)
 ROOTS2 = [os.path.join(path2, file) for file in file_ls]
 ROOTS = ROOTS1 + ROOTS2
 
-# path2 = 'Data/FXN_2023_new/FXN_20230703/cluster_excel'
+# path2 = 'Data/FXN_2023_new/FXN_20230703/cluster_merge'
 # file_ls = os.listdir(path2)
 # ROOTS2 = [os.path.join(path2, file) for file in file_ls]
 # ROOTS = ROOTS2

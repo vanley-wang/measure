@@ -166,7 +166,7 @@ if __name__ == '__main__':
     for loop in LOOPS:
         seg_path = os.path.join(loop, "seg_fill")
         # cluster_path = os.path.join(loop, "cluster_merge")
-        cluster_path = os.path.join(loop, "cluster_excel")
+        cluster_path = os.path.join(loop, "cluster_merge")
         # save_path = os.path.join(loop, "roughness")
         # 新建 wwl_measure 文件夹，将结果保存在它的子文件夹 roughness 中
         wwl_measure_dir = os.path.join(loop, "wwl_measure")

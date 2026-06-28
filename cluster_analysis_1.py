@@ -3,21 +3,15 @@ from pathlib import Path
 import pandas as pd
 import numpy as np
 
-path1 = 'Data/nnUNet_FXN_2023/FXN_0701/cluster_excel'
+path1 = 'Data/nnUNet_FXN_2023/FXN_0701/cluster_merge'
 
 file_ls = os.listdir(path1)
 ROOTS1 = [os.path.join(path1, file) for file in file_ls]
-path2 = 'Data/nnUNet_FXN_2023/FXN_0703/cluster_excel'
-# path2 = 'Data/nnUNet_FXN_2023/FXN_0703/cluster_excel'
+path2 = 'Data/nnUNet_FXN_2023/FXN_0703/cluster_merge'
 
 file_ls = os.listdir(path2)
 ROOTS2 = [os.path.join(path2, file) for file in file_ls]
 ROOTS = ROOTS1 + ROOTS2
-
-# path2 = 'Data/nnUNet_FXN_2023/FXN_0703/cluster_excel'
-# file_ls = os.listdir(path2)
-# ROOTS2 = [os.path.join(path2, file) for file in file_ls]
-# ROOTS = ROOTS2
 
 for ROOT in ROOTS:
     DF = pd.read_excel(ROOT)

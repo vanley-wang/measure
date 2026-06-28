@@ -18,7 +18,7 @@ root_folders = [
 # 每个文件夹下的 measure 文件夹
 for root in root_folders:
     measure_folder = os.path.join(root, 'measure_excel')
-    save_folder = os.path.join(root, 'cluster_excel')
+    save_folder = os.path.join(root, 'cluster_merge')
     os.makedirs(save_folder, exist_ok=True)
 
     # 获取所有 Excel 文件

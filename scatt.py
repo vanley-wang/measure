@@ -3,29 +3,44 @@ import time
 import numpy as np
 import pandas as pd
 from scipy.io import loadmat
-from concurrent.futures import ProcessPoolExecutor, as_completed
 from tqdm import tqdm
 
 def extract_scatt_stats_fast(label_map, scatt_map):
-    """提取每个 label 区域的散射系数均值和标准差"""
+    """
+    用 np.bincount 向量化计算每个 label 的散射系数均值和标准差。
+    避免 Python 循环，内存占用更小，速度更快。
+    """
     assert label_map.shape == scatt_map.shape
-    flat_label = label_map.flatten()
-    flat_scatt = scatt_map.flatten()
 
+    # ravel() 产生视图，不额外复制数据
+    flat_label = label_map.ravel()
+    flat_scatt = scatt_map.ravel()
+
+    # 只保留前景体素（通常只占 10-20%，大幅减少内存）
     mask = flat_label > 0
     labels = flat_label[mask]
     values = flat_scatt[mask]
 
-    unique_labels = np.unique(labels)
-    means = []
-    stds = []
+    max_label = int(labels.max())
 
-    for lbl in unique_labels:
-        region_vals = values[labels == lbl]
-        means.append(int(round(np.mean(region_vals))))
-        stds.append(int(round(np.std(region_vals))))
+    # bincount 向量化：一次扫描完成所有 label 的求和/计数/平方和
+    sum_per_label = np.bincount(labels, weights=values, minlength=max_label + 1)
+    count_per_label = np.bincount(labels, minlength=max_label + 1)
+    sq_sum_per_label = np.bincount(labels, weights=values ** 2, minlength=max_label + 1)
 
-    return unique_labels, means, stds
+    # 过滤有效 label
+    valid_mask = count_per_label > 0
+    valid_labels = np.where(valid_mask)[0]
+
+    counts = count_per_label[valid_mask]
+    means = (sum_per_label[valid_mask] / counts).round().astype(int)
+
+    # std = sqrt(E[x^2] - E[x]^2)
+    variances = (sq_sum_per_label[valid_mask] / counts) - (means.astype(np.float64) ** 2)
+    variances = np.maximum(variances, 0)  # 防止浮点误差导致负数
+    stds = np.sqrt(variances).round().astype(int)
+
+    return valid_labels, means, stds
 
 def process_one_sample(seg_label_dir, scatt_mat_dir, output_dir, measure_dir, fname):
     try:
@@ -75,19 +90,16 @@ def process_one_sample(seg_label_dir, scatt_mat_dir, output_dir, measure_dir, fn
     except Exception as e:
         return f"❌ 错误处理 {fname}: {e}"
 
-def process_one_root_folder(root_dir, max_workers=8):
+def process_one_root_folder(root_dir):
     seg_label_dir = os.path.join(root_dir, "seg_label")
     scatt_mat_dir = os.path.join(root_dir, "scatt_mat")
     # output_dir = os.path.join(root_dir, "scatt")
     # measure_dir = os.path.join(root_dir, "measure_excel")
     
-    # 新建 wwl_measure 文件夹，并将保存结果放置在它的子文件中
-    wwl_measure_dir = os.path.join(root_dir, "wwl_measure")
-    output_dir = os.path.join(wwl_measure_dir, "scatt")
-    measure_dir = os.path.join(wwl_measure_dir, "measure_excel")
+    # 输出到根目录下的 scatt/ 和 measure_excel/
+    output_dir = os.path.join(root_dir, "scatt")
+    measure_dir = os.path.join(root_dir, "measure_excel")
 
-    os.makedirs(output_dir, exist_ok=True)
-    os.makedirs(measure_dir, exist_ok=True)
     os.makedirs(output_dir, exist_ok=True)
     os.makedirs(measure_dir, exist_ok=True)
 
@@ -96,15 +108,10 @@ def process_one_root_folder(root_dir, max_workers=8):
 
     print(f"\n📁 正在处理大文件夹: {root_dir}, 共 {len(mat_files)} 个孔位文件夹")
 
-    with ProcessPoolExecutor(max_workers=max_workers) as executor:
-        futures = {
-            executor.submit(process_one_sample, seg_label_dir, scatt_mat_dir, output_dir, measure_dir, fname): fname
-            for fname in mat_files
-        }
-
-        for future in tqdm(as_completed(futures), total=len(futures), desc=f"{folder_suffix} 孔位文件夹", unit="folder"):
-            result = future.result()
-            print(result)
+    # 单线程处理（Windows 下多进程加载 mat 文件会导致内存爆炸）
+    for fname in tqdm(mat_files, desc=f"{folder_suffix} wells", unit="well"):
+        result = process_one_sample(seg_label_dir, scatt_mat_dir, output_dir, measure_dir, fname)
+        print(result)
 
 if __name__ == "__main__":
     roots = [
@@ -115,5 +122,5 @@ if __name__ == "__main__":
     for i, root in enumerate(roots):
         print(f"\n[{i+1}/{len(roots)}] 开始处理大文件夹: {root}")
         start_time = time.time()
-        process_one_root_folder(root, max_workers=16)
+        process_one_root_folder(root)
         print(f"✅ 处理完成: {root}, 耗时 {time.time() - start_time:.2f}s\n")

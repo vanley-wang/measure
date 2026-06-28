@@ -3,7 +3,8 @@ import glob
 import numpy as np
 import pandas as pd
 from scipy.io import loadmat
-from skimage.measure import regionprops, marching_cubes, mesh_surface_area
+from scipy import ndimage
+from skimage.measure import label as sk_label
 from tqdm import tqdm
 import argparse
 
@@ -11,101 +12,98 @@ import argparse
 BASE_DIR = "Data/nnUNet_FXN_2023"
 BATCHES = ['FXN_0701', 'FXN_0703']
 MIN_VOLUME = 50          # 最小体积阈值（体素数），小于此值的噪声将被过滤
-MAX_WORKERS = 4          # 并行进程数，Windows 报错请改为 1
 USE_MARCHING_CUBES = True  # True=用 marching_cubes 计算表面积（慢但更准）；False=边界体素 proxy（快）
 
 
 def compute_surface_area(mask_3d):
-    """计算 3D 单实例 mask 的表面积 proxy"""
+    """
+    计算 3D 单实例 mask 的表面积 proxy。
+    关键优化：先裁切到 bounding box，再算边界体素，避免在全体积上操作。
+    """
+    coords = np.where(mask_3d)
+    if len(coords[0]) == 0:
+        return 0.0
+    z_min, z_max = coords[0].min(), coords[0].max() + 1
+    y_min, y_max = coords[1].min(), coords[1].max() + 1
+    x_min, x_max = coords[2].min(), coords[2].max() + 1
+
+    cropped = mask_3d[z_min:z_max, y_min:y_max, x_min:x_max]
+
     if USE_MARCHING_CUBES:
         try:
-            verts, faces, _, _ = marching_cubes(mask_3d, level=0.5)
+            from skimage.measure import marching_cubes, mesh_surface_area
+            verts, faces, _, _ = marching_cubes(cropped, level=0.5)
             return mesh_surface_area(verts, faces)
         except Exception:
-            pass  # 回退到边界体素法
-    # 回退：3D 边界体素计数 × 1.0（作为 proxy）
-    from scipy import ndimage
-    eroded = ndimage.binary_erosion(mask_3d)
-    boundary = mask_3d & (~eroded)
+            pass
+
+    eroded = ndimage.binary_erosion(cropped)
+    boundary = cropped & (~eroded)
     return float(np.count_nonzero(boundary))
-
-
-def map_raw_to_fill_id(label_raw, label_fill):
-    """
-    建立原始标记 ID -> 填充后标记 ID 的映射。
-    对每个原始实例，在填充后标记中找到重叠体素最多的对应 ID。
-    """
-    mapping = {}
-    raw_ids = np.unique(label_raw)
-    raw_ids = raw_ids[raw_ids > 0]
-    for rid in raw_ids:
-        raw_mask = (label_raw == rid)
-        overlap = label_fill[raw_mask]
-        overlap = overlap[overlap > 0]
-        if len(overlap) == 0:
-            continue
-        # 众数 = 重叠最多的填充后 ID
-        fid = int(np.bincount(overlap).argmax())
-        mapping[rid] = fid
-    return mapping
 
 
 def process_one_well(label_path, fill_path, date_suffix):
     """
-    处理单个孔位的 seg_label + seg_fill，提取形态学特征。
-    利用 Data_label_raw（原始未填充标记）计算原始体积与囊腔信息，
-    利用 Data_label（填充后标记）计算表面积等后续特征，保证与 scatt.py ID 一致。
-    返回 list of dict（每个 dict 对应一个 organoid）。
+    处理单个孔位的 seg_label，提取形态学特征。
+    核心优化：使用 scipy.ndimage.find_objects 一次性获取所有标签的 bbox（C 实现），
+    之后每个器官只操作小裁切，避免在全尺寸 512x800x800 上反复扫描。
     """
     rows = []
     try:
         label_mat = loadmat(label_path)
-        fill_mat = loadmat(fill_path)
+        label_data = label_mat['Data_label']           # 填充后标记
+        label_raw = label_mat['Data_label_raw']        # 原始未填充标记
 
-        label_data = label_mat['Data_label']           # 填充后标记（供 scatt.py）
-        label_raw = label_mat['Data_label_raw']        # 原始未填充标记（供囊腔计算）
+        well_id = os.path.basename(label_path).split('_')[0]
 
-        well_id = os.path.basename(label_path).split('_')[0]  # e.g. B2
+        # 一次性获取所有填充标签的 bbox（C 实现，非常快，只需扫描全体积 1 次）
+        slices = ndimage.find_objects(label_data)
+        if not slices:
+            return [], None
 
-        # 建立原始 ID -> 填充后 ID 映射
-        id_mapping = map_raw_to_fill_id(label_raw, label_data)
+        for fill_id in range(1, len(slices) + 1):
+            sl = slices[fill_id - 1]
+            if sl is None:
+                continue
 
-        raw_ids = np.unique(label_raw)
-        raw_ids = raw_ids[raw_ids > 0]
-
-        for raw_id in raw_ids:
-            if raw_id not in id_mapping:
-                continue  # 原始实例在填充后找不到对应（极少见）
-            fill_id = id_mapping[raw_id]
-
-            raw_mask = (label_raw == raw_id).astype(np.uint8)
-            fill_mask = (label_data == fill_id).astype(np.uint8)
-
-            volume = int(np.count_nonzero(raw_mask))
+            # 裁切后的填充区域（通常只有几十×几十×几十）
+            crop_fill = label_data[sl]
+            fill_mask = (crop_fill == fill_id)
             volume_fill = int(np.count_nonzero(fill_mask))
 
             if volume_fill < MIN_VOLUME:
-                continue  # 过滤噪声（用填充后体积判断更稳）
+                continue
 
-            # 囊腔 = 填充后 mask 减去原始 mask
-            cavity_mask = fill_mask & (~raw_mask.astype(bool))
+            # 在对应裁切区域中找重叠最多的原始标签
+            crop_raw = label_raw[sl]
+            overlap = crop_raw[fill_mask]
+            overlap = overlap[overlap > 0]
+            if len(overlap) == 0:
+                continue
+            raw_id = int(np.bincount(overlap).argmax())
+
+            raw_mask = (crop_raw == raw_id)
+            volume = int(np.count_nonzero(raw_mask))
+
+            # 囊腔（小裁切上计算）
+            cavity_mask = fill_mask & (~raw_mask)
             cavity_volume = int(np.count_nonzero(cavity_mask))
-            # 孔洞连通域数（26-连通）
-            from skimage.measure import label as sk_label
             _, cavity_num = sk_label(cavity_mask, connectivity=3, return_num=True)
 
-            # 表面积等形态特征基于填充后的实心 mask（更稳定）
+            # 表面积（小裁切上计算）
             surface = compute_surface_area(fill_mask)
 
-            props = regionprops(fill_mask)
-            if not props:
-                continue
-            p = props[0]
-
-            bbox = p.bbox
-            dims = [bbox[3] - bbox[0], bbox[4] - bbox[1], bbox[5] - bbox[2]]
-            long_axis = float(max(dims))
-            short_axis = float(min(dims))
+            # bbox 尺寸直接从 slice 获取，无需 regionprops
+            long_axis = float(max(
+                sl[0].stop - sl[0].start,
+                sl[1].stop - sl[1].start,
+                sl[2].stop - sl[2].start
+            ))
+            short_axis = float(min(
+                sl[0].stop - sl[0].start,
+                sl[1].stop - sl[1].start,
+                sl[2].stop - sl[2].start
+            ))
 
             wall_thickness = max(1.0, volume_fill / (surface + 1e-6) * 0.25)
             sphericity = (np.pi ** (1 / 3)) * ((6 * volume_fill) ** (2 / 3)) / (surface + 1e-6)
@@ -186,8 +184,6 @@ if __name__ == '__main__':
     parser.add_argument('--base-dir', default=BASE_DIR, help='Project root directory')
     parser.add_argument('--batch', choices=['0701', '0703', 'all'], default='all',
                         help='Process single batch only')
-    parser.add_argument('--workers', type=int, default=MAX_WORKERS,
-                        help='Parallel workers (set 1 if Windows error)')
     parser.add_argument('--min-volume', type=int, default=MIN_VOLUME,
                         help='Minimum organoid volume (voxels) to keep')
     parser.add_argument('--fast', action='store_true',
@@ -195,7 +191,6 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     BASE_DIR = args.base_dir
-    MAX_WORKERS = args.workers
     MIN_VOLUME = args.min_volume
     USE_MARCHING_CUBES = not args.fast
 
