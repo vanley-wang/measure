@@ -2,6 +2,8 @@ import os
 import numpy as np
 import h5py
 from scipy.io import loadmat
+import matplotlib
+matplotlib.use('Agg')  # Windows 多进程稳定后端
 import matplotlib.pyplot as plt
 from concurrent.futures import ProcessPoolExecutor
 from tqdm import tqdm
@@ -12,12 +14,12 @@ BASE = "Data/nnUNet_FXN_2023"
 FOLDERS = {
     '0701': {
         'scatt_mat': os.path.join(BASE, 'FXN_0701/scatt_mat'),
-        'seg_mat':   os.path.join(BASE, 'FXN_0701/seg_mat'),
+        'seg_label': os.path.join(BASE, 'FXN_0701/seg_label'),
         'output':    os.path.join(BASE, 'FXN_0701/scatt_mip'),
     },
     '0703': {
         'scatt_mat': os.path.join(BASE, 'FXN_0703/scatt_mat'),
-        'seg_mat':   os.path.join(BASE, 'FXN_0703/seg_mat'),
+        'seg_label': os.path.join(BASE, 'FXN_0703/seg_label'),
         'output':    os.path.join(BASE, 'FXN_0703/scatt_mip'),
     },
 }
@@ -72,7 +74,7 @@ def save_with_fixed_range(arr2d, save_path, vmin, vmax):
 def process_sample_pair(args):
     """
     对一个样本（如 C11）：
-      1) 读 0701/0703 的 scatt_mat + seg_mat（掩膜变量名 Data_Seg，不旋转）
+      1) 读 0701/0703 的 scatt_mat + seg_label（掩膜变量名 Data_label，不旋转）
       2) 计算均值投影：Z、Y（各时间点各一张）
       3) 色阶：
          - Z方向：将 projZ_0701 与 projZ_0703 合并，取 0–99.9% 分位数为 vminZ/vmaxZ
@@ -84,8 +86,8 @@ def process_sample_pair(args):
         # 读数据与掩膜
         d1 = load_mat_variable(paths_0701['scatt'], 'data_scatt')
         d3 = load_mat_variable(paths_0703['scatt'], 'data_scatt')
-        m1 = load_mat_variable(paths_0701['mask'],  'Data_Seg')  # 不旋转
-        m3 = load_mat_variable(paths_0703['mask'],  'Data_Seg')
+        m1 = load_mat_variable(paths_0701['mask'],  'Data_label')
+        m3 = load_mat_variable(paths_0703['mask'],  'Data_label')
 
         if d1.shape != m1.shape or d3.shape != m3.shape:
             print(f"⚠️ 尺寸不匹配，跳过 {sample}: d1{d1.shape}, m1{m1.shape}, d3{d3.shape}, m3{m3.shape}")
@@ -142,18 +144,21 @@ def process_sample_pair(args):
 
 # ================= 主程序：收集成对样本并并行处理 =================
 def main():
-    # 收集样本（只保留 0701 & 0703 都齐的）
+    # 收集样本（只保留 0701 & 0703 的 scatt_mat 和 seg_label 都存在的）
     pairs = {}
     for day in ['0701', '0703']:
         scatt_dir = FOLDERS[day]['scatt_mat']
-        seg_dir   = FOLDERS[day]['seg_mat']
+        seg_dir   = FOLDERS[day]['seg_label']
         files = [f for f in os.listdir(scatt_dir) if f.endswith('_scatt.mat')]
         for f in files:
             prefix = f.replace('_scatt.mat', '')  # e.g. C11_0701
             sample = prefix.split('_')[0]         # C11
+            mask_path = os.path.join(seg_dir, f'{prefix}_label.mat')
+            if not os.path.isfile(mask_path):
+                continue  # seg_label 缺失则跳过该样本
             pairs.setdefault(sample, {})[day] = {
                 'scatt': os.path.join(scatt_dir, f),
-                'mask':  os.path.join(seg_dir,  f'{prefix}.mat'),
+                'mask':  mask_path,
             }
 
     tasks = []
