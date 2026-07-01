@@ -16,19 +16,21 @@ BASE = "Data/nnUNet_FXN_2023"
 BATCHES = ['FXN_0701', 'FXN_0703']
 
 # 聚类颜色映射 (R, G, B)
-# 0=巨大囊泡型(黄), 1=中等过渡型(蓝), 2=小体积基准型(绿), 3=高散射实心型(红)
+# 论文标准四类表型 (cluster_category.md):
+# 0=大囊状健康类器官(红/Cluster1), 1=大实心健康类器官(黄/Cluster2),
+# 2=小实心休眠/幼类器官(绿/Cluster3), 3=极小高致密受损类器官(蓝/Cluster4)
 CLUSTER_COLORS = {
-    0: np.array([255, 255, 0], dtype=np.float32),   # 黄
-    1: np.array([0, 0, 255], dtype=np.float32),     # 蓝
-    2: np.array([0, 255, 0], dtype=np.float32),     # 绿
-    3: np.array([255, 0, 0], dtype=np.float32),     # 红
+    0: np.array([255, 0, 0], dtype=np.float32),     # 红 - Cluster1 大囊状
+    1: np.array([255, 255, 0], dtype=np.float32),   # 黄 - Cluster2 大实心
+    2: np.array([0, 255, 0], dtype=np.float32),     # 绿 - Cluster3 小实心
+    3: np.array([0, 0, 255], dtype=np.float32),     # 蓝 - Cluster4 高致密受损
 }
 
 LABEL_DESC = {
-    0: '巨大囊泡型',
-    1: '中等过渡型',
-    2: '小体积基准型',
-    3: '高散射实心型',
+    0: '大囊状健康类器官 (Cluster 1)',
+    1: '大实心健康类器官 (Cluster 2)',
+    2: '小实心休眠/幼类器官 (Cluster 3)',
+    3: '极小高致密受损类器官 (Cluster 4)',
 }
 
 
@@ -70,13 +72,12 @@ def create_color_mip(label_vol, id_to_cluster, axis=0):
 
     rgb = np.zeros((h, w, 3), dtype=np.float32)
 
-    # 为提速：一次性把 label_vol 映射为 cluster_vol（0=背景, 1~4=cluster+1）
-    cluster_vol = np.zeros_like(label_vol, dtype=np.uint8)
-    for oid, cid in id_to_cluster.items():
-        cluster_vol[label_vol == oid] = cid + 1  # +1 避免和背景 0 冲突
-
+    # 按 cluster 批量做 np.isin，避免逐个 ID 扫描（性能关键！）
     for cid, color in CLUSTER_COLORS.items():
-        mask = (cluster_vol == cid + 1)
+        oids = [oid for oid, c in id_to_cluster.items() if c == cid]
+        if not oids:
+            continue
+        mask = np.isin(label_vol, oids)
         if not np.any(mask):
             continue
         mip = np.max(mask, axis=axis).astype(np.float32)
@@ -105,7 +106,7 @@ def process_one_well(args):
         id_to_cluster = build_id_to_cluster(df)
 
         if not id_to_cluster:
-            return f"⚠️ {well_name}: 无有效 ID 映射"
+            return f"[WARN] {well_name}: 无有效 ID 映射"
 
         # 3. 生成 Z-MIP (axis=0) 和 Y-MIP (axis=1)
         rgb_z = create_color_mip(label_vol, id_to_cluster, axis=0)
@@ -116,10 +117,10 @@ def process_one_well(args):
         Image.fromarray(rgb_z).save(os.path.join(out_dir, f"{well_name}_Z_MIP.png"))
         Image.fromarray(rgb_y).save(os.path.join(out_dir, f"{well_name}_Y_MIP.png"))
 
-        return f"✅ {well_name}: Z/Y MIP 已保存"
+        return f"[OK] {well_name}: Z/Y MIP 已保存"
 
     except Exception as e:
-        return f"❌ {well_name}: {e}"
+        return f"[ERR] {well_name}: {e}"
 
 
 def main():
@@ -128,7 +129,7 @@ def main():
         root = os.path.join(BASE, batch)
         label_dir = os.path.join(root, 'seg_label')
         merge_dir = os.path.join(root, 'cluster_merge')
-        out_dir = os.path.join(root, 'cluster_mip')
+        out_dir = os.path.join(root, 'cluster_mip_new')
 
         if not os.path.exists(merge_dir):
             print(f"[WARN] 跳过 {batch}: 无 cluster_merge 目录")
@@ -147,7 +148,7 @@ def main():
             tasks.append((well_name, label_path, merge_path, out_dir))
 
     if not tasks:
-        print("⚠️ 未找到任何可处理任务")
+        print("[WARN] 未找到任何可处理任务")
         return
 
     print(f">>> 共 {len(tasks)} 个孔位待处理，启动 {N_WORKERS} 进程...")
@@ -155,10 +156,10 @@ def main():
         results = list(tqdm(executor.map(process_one_well, tasks), total=len(tasks)))
 
     for r in results:
-        if r and ("❌" in r or "⚠️" in r):
+        if r and ("[ERR]" in r or "[WARN]" in r):
             print(r)
 
-    print("\n🎉 全部完成！输出目录: */cluster_mip/")
+    print("\n[Done] 全部完成！输出目录: */cluster_mip/")
     print("   每孔包含: {well}_Z_MIP.png, {well}_Y_MIP.png")
 
 

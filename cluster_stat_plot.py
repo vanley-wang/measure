@@ -7,6 +7,10 @@ from scipy import ndimage
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+
+# 尝试设置中文字体，避免图表中文乱码
+plt.rcParams['font.sans-serif'] = ['SimHei', 'Microsoft YaHei', 'Arial Unicode MS', 'DejaVu Sans']
+plt.rcParams['axes.unicode_minus'] = False
 from matplotlib.gridspec import GridSpec
 from concurrent.futures import ProcessPoolExecutor
 from tqdm import tqdm
@@ -17,18 +21,21 @@ BASE = "Data/nnUNet_FXN_2023"
 BATCHES = ['FXN_0701', 'FXN_0703']
 
 # 聚类颜色 (与 cluster_mip.py 保持一致)
+# 论文标准四类表型 (cluster_category.md):
+# 0=大囊状健康类器官(红/Cluster1), 1=大实心健康类器官(黄/Cluster2),
+# 2=小实心休眠/幼类器官(绿/Cluster3), 3=极小高致密受损类器官(蓝/Cluster4)
 CLUSTER_COLORS = {
-    0: '#FFFF00',  # 黄 - 巨大囊泡型
-    1: '#0000FF',  # 蓝 - 中等过渡型
-    2: '#00FF00',  # 绿 - 小体积基准型
-    3: '#FF0000',  # 红 - 高散射实心型
+    0: '#FF0000',  # 红 - Cluster1 大囊状
+    1: '#FFFF00',  # 黄 - Cluster2 大实心
+    2: '#00FF00',  # 绿 - Cluster3 小实心
+    3: '#0000FF',  # 蓝 - Cluster4 高致密受损
 }
 
 LABEL_DESC = {
-    0: '巨大囊泡型',
-    1: '中等过渡型',
-    2: '小体积基准型',
-    3: '高散射实心型',
+    0: '大囊状健康类器官 (Cluster 1)',
+    1: '大实心健康类器官 (Cluster 2)',
+    2: '小实心休眠/幼类器官 (Cluster 3)',
+    3: '极小高致密受损类器官 (Cluster 4)',
 }
 
 
@@ -46,16 +53,27 @@ def extract_id_from_index(val):
 def compute_centroids(label_vol, id_to_cluster):
     """
     计算每个实例的 centroid (z, y, x)。
+    使用 find_objects 先获取 bbox，避免在全体积上反复扫描。
     返回 dict: {cluster_id: [(z, y, x, volume), ...]}
     """
     coords_by_cluster = {i: [] for i in range(4)}
+    slices = ndimage.find_objects(label_vol)
+    if not slices:
+        return coords_by_cluster
 
     for oid, cid in id_to_cluster.items():
-        mask = (label_vol == oid)
+        if oid < 1 or oid > len(slices) or slices[oid - 1] is None:
+            continue
+        sl = slices[oid - 1]
+        crop = label_vol[sl]
+        mask = (crop == oid)
         if not np.any(mask):
             continue
         vol = int(np.count_nonzero(mask))
-        cz, cy, cx = ndimage.center_of_mass(mask)
+        cz_rel, cy_rel, cx_rel = ndimage.center_of_mass(mask)
+        cz = cz_rel + sl[0].start
+        cy = cy_rel + sl[1].start
+        cx = cx_rel + sl[2].start
         coords_by_cluster[cid].append((cz, cy, cx, vol))
 
     return coords_by_cluster
@@ -74,7 +92,7 @@ def process_one_well(args):
                 id_to_cluster[oid] = int(row['Cluster'])
 
         if not id_to_cluster:
-            return f"⚠️ {well_name}: 无有效 ID 映射"
+            return f"[WARN] {well_name}: 无有效 ID 映射"
 
         # 2. 统计信息
         counts = df['Cluster'].value_counts().to_dict()
@@ -202,10 +220,10 @@ def process_one_well(args):
         plt.savefig(out_path, dpi=200, bbox_inches='tight')
         plt.close(fig)
 
-        return f"✅ {well_name}: 统计图已保存"
+        return f"[OK] {well_name}: 统计图已保存"
 
     except Exception as e:
-        return f"❌ {well_name}: {e}"
+        return f"[ERR] {well_name}: {e}"
 
 
 def main():
@@ -233,7 +251,7 @@ def main():
             tasks.append((well_name, label_path, merge_path, out_dir))
 
     if not tasks:
-        print("⚠️ 未找到任何可处理任务")
+        print("[WARN] 未找到任何可处理任务")
         return
 
     print(f">>> 共 {len(tasks)} 个孔位待处理，启动 {N_WORKERS} 进程...")
@@ -241,10 +259,10 @@ def main():
         results = list(tqdm(executor.map(process_one_well, tasks), total=len(tasks)))
 
     for r in results:
-        if r and ("❌" in r or "⚠️" in r):
+        if r and ("[ERR]" in r or "[WARN]" in r):
             print(r)
 
-    print("\n🎉 全部完成！输出目录: */cluster_stat/")
+    print("\n[Done] 全部完成！输出目录: */cluster_stat/")
     print("   每孔包含: {well}_stat.png")
 
 

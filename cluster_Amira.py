@@ -18,12 +18,15 @@ target_folders = [
 ]
 
 # 颜色/材料映射 (Cluster ID -> Amira Material ID)
-# 对应关系：0=紫(大), 1=蓝(小), 2=红(实), 3=黄(中)
+# 论文标准四类表型 (cluster_category.md):
+# 0=红/大囊状健康类器官(Cluster1), 1=黄/大实心健康类器官(Cluster2),
+# 2=绿/小实心休眠/幼类器官(Cluster3), 3=蓝/极小高致密受损类器官(Cluster4)
+# Amira Material ID 顺序与 Cluster ID 一一对应
 CLUSTER_TO_LABEL_MAP = {
-    0: 1,
-    1: 2,
-    2: 3,
-    3: 4
+    0: 1,   # 红 -> Material 1
+    1: 2,   # 黄 -> Material 2
+    2: 3,   # 绿 -> Material 3
+    3: 4,   # 蓝 -> Material 4
 }
 
 
@@ -51,12 +54,17 @@ def process_single_well_task(args):
 
         # 2. 智能获取图像矩阵 (Data_label)
         # 优先查找 'Data_label'，如果没有则取第一个非系统变量
+        # 保持原始 dtype (uint32)，避免 astype 额外分配 1.2 GB 内存
         if 'Data_label' in mat_content:
-            instance_vol = mat_content['Data_label'].astype(np.int32)
+            instance_vol = mat_content['Data_label']
         else:
             keys = [k for k in mat_content.keys() if not k.startswith('__')]
             if not keys: return f"⚠️ {well_name} .mat 文件为空"
-            instance_vol = mat_content[keys[0]].astype(np.int32)
+            instance_vol = mat_content[keys[0]]
+
+        # 立即释放 mat 字典，减少内存峰值
+        mat_content.clear()
+        del mat_content
 
         # 3. 清洗 Excel 中的 Index 列 (关键修复！)
         # 将 "B4_0701_1" 这种字符串转换为数字 1
@@ -89,14 +97,11 @@ def process_single_well_task(args):
             # 找出该 Cluster 包含的所有 ID
             target_ids = df[df['Cluster'] == cluster_id]['Clean_ID'].tolist()
 
-            # 使用 numpy 掩码批量赋值 (极速)
+            # 使用 numpy 掩码批量赋值
+            # assume_unique=False 安全；uint32 与 Python int 比较无需额外转型
             mask = np.isin(instance_vol, target_ids)
             final_label_vol[mask] = label_val
-
-            # 统计实际匹配到的体素块数量 (用于验证)
-            if np.any(mask):
-                # 简单统计匹配到的 unique ID 数量比较耗时，这里只统计是否有像素被赋值
-                pass
+            del mask  # 立即释放掩码内存，降低峰值
 
                 # 5. 保存结果
         if not os.path.exists(output_dir):
@@ -113,7 +118,7 @@ def process_single_well_task(args):
         return f"✅ {well_name}: 处理完成"
 
     except Exception as e:
-        return f"❌ {well_name} 出错: {e}"
+        return f"❌ {well_name} 出错: {type(e).__name__}: {e}"
 
 
 # ================= 3. 主程序 (并行控制器) =================
@@ -142,12 +147,11 @@ if __name__ == "__main__":
         print("未找到任何任务！请检查路径。")
         exit()
 
-    # 2. 配置并行池 (核心修复点)
-    # Windows 限制最大句柄数为 64，所以我们必须限制 num_cores <= 60
-    # 即使你的 CPU 有 144 核，也只能用 60 个，否则会崩溃
-    max_safe_cores = 30
+    # 2. 配置并行池
+    # 每个进程峰值内存约 2-3 GB（加载 .mat + 生成掩码 + 输出图像）
+    # 限制并发数以避免总内存撑爆；8 核是保守安全值
+    max_safe_cores = 8
     num_cores = min(max_safe_cores, cpu_count() - 1)
-    # 确保至少有 1 个核
     num_cores = max(1, num_cores)
 
     print(f"\n🚀 启动并行加速引擎")
