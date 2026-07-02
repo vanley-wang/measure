@@ -1,83 +1,129 @@
 import pandas as pd
 import os
 import glob
-import pickle
+import argparse
 
-# ================= 1. 配置路径 =================
-# 模型包路径 (含 kmeans + scaler + raw_to_final 映射)
-model_path = 'model/Kmeans-scatt.pickle'
+from cluster_utils import (
+    load_model_package,
+    rule_classify_df,
+    PHENOTYPE_NAMES,
+)
 
-# 要处理的数据根目录
-root_folders = [
+# ================= 配置 =================
+DEFAULT_MODEL_PATH = 'model/Kmeans-scatt.pickle'
+
+ROOT_FOLDERS = [
     'Data/nnUNet_FXN_2023/FXN_0701',
     'Data/nnUNet_FXN_2023/FXN_0703'
 ]
 
-# 输出文件夹名称
-output_folder_name = 'cluster_merge'
+OUTPUT_FOLDER_NAME = 'cluster_merge'
 
-# 对应的中文说明 (与论文四类表型一致)
-# 0=红/大囊状, 1=黄/大实心, 2=绿/小实心, 3=蓝/高致密受损
-label_desc = {
-    0: '大囊状健康类器官',
-    1: '大实心健康类器官',
-    2: '小实心休眠/幼类器官',
-    3: '极小高致密受损类器官',
-}
+# ============================================================================
 
-# ================= 2. 执行批处理 =================
-print("正在加载模型包...")
-with open(model_path, 'rb') as f:
-    model_pkg = pickle.load(f)
+def process_file(file_path: str, model_pkg: dict, method: str) -> pd.DataFrame:
+    """
+    Apply clustering model to a single well's measurement file.
 
-kmeans = model_pkg['kmeans']
-scaler = model_pkg['scaler']
-raw_to_final = model_pkg['raw_to_final']
-features = model_pkg['feature_names']
+    Args:
+        file_path: path to measure_excel/*.xlsx
+        model_pkg: loaded model package dict
+        method: 'kmeans' | 'gmm' | 'rule'
 
-for root in root_folders:
-    input_dir = os.path.join(root, 'measure_excel')
-    output_dir = os.path.join(root, output_folder_name)
+    Returns:
+        DataFrame with added 'Cluster' and 'Phenotype_Desc' columns
+    """
+    df = pd.read_excel(file_path)
+    features = model_pkg['feature_names']
 
-    if not os.path.exists(input_dir):
-        print(f"跳过: 找不到 {input_dir}")
-        continue
-    os.makedirs(output_dir, exist_ok=True)
+    if not all(col in df.columns for col in features):
+        missing = [c for c in features if c not in df.columns]
+        raise ValueError(f"Missing feature columns: {missing}")
 
-    files = glob.glob(os.path.join(input_dir, '*.xlsx'))
-    print(f"\n>>> 处理文件夹: {os.path.basename(root)} (共 {len(files)} 个文件) <<<")
+    if method == 'rule':
+        # Rule-based: per-well adaptive thresholds, no scaler needed
+        labels = rule_classify_df(df[features])
+        df['Cluster'] = labels.values
 
-    for file_path in files:
-        try:
-            # 1. 读取
-            df = pd.read_excel(file_path)
+    elif method in ('kmeans', 'gmm'):
+        # Model-based: preprocess + predict
+        preprocessor = model_pkg.get('preprocessor')
+        scaler = model_pkg.get('scaler')
+        model = model_pkg['model']
+        raw_to_final = model_pkg.get('raw_to_final', {})
 
-            if not all(col in df.columns for col in features):
-                print(f"  [跳过] 缺少特征列: {os.path.basename(file_path)}")
-                continue
+        # If new unified preprocessor exists, use it; else fallback to legacy scaler
+        if preprocessor is not None:
+            X = preprocessor.transform(df[features])
+        elif scaler is not None:
+            X = scaler.transform(df[features])
+        else:
+            raise ValueError("Model package missing both preprocessor and scaler")
 
-            # 2. 预测原始分类 (得到 0~3)
-            X = df[features]
-            X_std = scaler.transform(X)  # 必须使用 transform
-            raw_labels = kmeans.predict(X_std)
+        raw_labels = model.predict(X)
 
-            # 3. 应用论文标准表型映射 (根据质心特征自动判定)
-            final_labels = [raw_to_final[l] for l in raw_labels]
+        # Map raw cluster IDs to phenotype labels
+        if raw_to_final:
+            final_labels = [raw_to_final.get(l, l) for l in raw_labels]
+        else:
+            final_labels = raw_labels  # identity mapping
 
-            # 4. 写入结果
-            df['Cluster'] = final_labels
-            df['Phenotype_Desc'] = [label_desc[mid] for mid in final_labels]
+        df['Cluster'] = final_labels
 
-            # 5. 保存
-            file_name = os.path.basename(file_path)
-            save_name = file_name.replace('.xlsx', '_merge.xlsx')
-            save_path = os.path.join(output_dir, save_name)
+        # For GMM, also save probability for QC
+        if method == 'gmm' and hasattr(model, 'predict_proba'):
+            probs = model.predict_proba(X)
+            max_prob = probs.max(axis=1)
+            df['Cluster_Prob'] = max_prob.round(4)
 
-            df.to_excel(save_path, index=False)
+    else:
+        raise ValueError(f"Unknown method: {method}")
 
-        except Exception as e:
-            print(f"  [错误] {os.path.basename(file_path)}: {e}")
+    df['Phenotype_Desc'] = [PHENOTYPE_NAMES.get(int(c), 'Unknown') for c in df['Cluster']]
+    return df
 
-    print(f"  -> 结果已保存至: {output_dir}")
 
-print("\n全部完成！Cluster 列已按论文标准四类表型赋值 (0=红/大囊状, 1=黄/大实心, 2=绿/小实心, 3=蓝/高致密受损)。")
+def main():
+    parser = argparse.ArgumentParser(description='Apply clustering model to all wells')
+    parser.add_argument('--model', default=DEFAULT_MODEL_PATH, help='Path to model pickle')
+    parser.add_argument('--method', choices=['kmeans', 'gmm', 'rule'], default='kmeans',
+                        help='Clustering method to use')
+    parser.add_argument('--roots', nargs='+', default=ROOT_FOLDERS,
+                        help='Root data folders to process')
+    args = parser.parse_args()
+
+    print(f">>> Loading model: {args.model} (method={args.method})")
+    model_pkg = load_model_package(args.model)
+    print(f"    model_type: {model_pkg.get('model_type', 'unknown')}")
+
+    for root in args.roots:
+        input_dir = os.path.join(root, 'measure_excel')
+        output_dir = os.path.join(root, OUTPUT_FOLDER_NAME)
+
+        if not os.path.exists(input_dir):
+            print(f"[WARN] Skipping {root}: measure_excel not found")
+            continue
+
+        os.makedirs(output_dir, exist_ok=True)
+        files = sorted(glob.glob(os.path.join(input_dir, '*.xlsx')))
+        print(f"\n>>> Processing {os.path.basename(root)}: {len(files)} files")
+
+        for fp in files:
+            try:
+                df = process_file(fp, model_pkg, args.method)
+
+                # Save
+                fname = os.path.basename(fp).replace('.xlsx', '_merge.xlsx')
+                out_path = os.path.join(output_dir, fname)
+                df.to_excel(out_path, index=False)
+
+            except Exception as e:
+                print(f"  [ERR] {os.path.basename(fp)}: {e}")
+
+        print(f"  -> Saved to: {output_dir}")
+
+    print("\n[Done] All wells processed.")
+
+
+if __name__ == "__main__":
+    main()

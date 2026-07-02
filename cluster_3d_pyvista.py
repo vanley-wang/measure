@@ -147,12 +147,13 @@ def render_well_pyvista(well_name, label_vol, id_to_cluster, out_dir,
         intensity=0.4
     ))
 
-    # 相机设置：Z 轴俯视，动态计算中心与距离
-    bounds = all_verts.ptp(axis=0).max()
+    # 相机设置：Z 轴俯视，平行投影消除近大远小畸变
+    bounds = np.ptp(all_verts, axis=0).max()
     plotter.camera.position = (center[0], center[1], center[2] + bounds * 2.5)
     plotter.camera.focal_point = center
     plotter.camera.view_up = (0, -1, 0)
     plotter.camera.zoom(0.8)
+    plotter.camera.enable_parallel_projection()  # 平行投影，体积比例真实
 
     # 截图
     img = plotter.screenshot()

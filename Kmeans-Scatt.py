@@ -19,6 +19,8 @@ if not os.path.exists(model_dir):
     os.makedirs(model_dir)
 
 # 特征列表 (共11个，含形态学 + 散射系数)
+# 虽然核心区分度来自体积/空腔/OAC，但加入球度、粗糙度等辅助特征
+# 能帮助 K-means 在局部孔位更稳定地分离大囊状与大实心
 features_list = [
     'Organoids_Volume',
     'Organoids_Volume_Fill',
