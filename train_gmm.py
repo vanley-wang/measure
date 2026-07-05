@@ -14,6 +14,7 @@ from sklearn.mixture import GaussianMixture
 
 from cluster_utils import (
     RAW_FEATURES,
+    REDUCED_RAW_FEATURES,
     Preprocessor,
     map_phenotypes_by_centroids,
     compute_phenotype_prototypes,
@@ -61,10 +62,21 @@ def main():
                         help='GMM covariance type')
     parser.add_argument('--max-iter', type=int, default=500,
                         help='Maximum EM iterations')
+    parser.add_argument('--reduced', action='store_true',
+                        help='Use 5-dim reduced feature set')
     args = parser.parse_args()
 
+    if args.reduced:
+        features = REDUCED_RAW_FEATURES
+        model_type_label = '5D Reduced'
+        if args.output == OUTPUT_PATH:
+            args.output = os.path.join(MODEL_DIR, 'GMM-5d.pickle')
+    else:
+        features = RAW_FEATURES
+        model_type_label = '10D Full'
+
     print("=" * 60)
-    print("GMM Training for Organoid Phenotype Clustering")
+    print(f"GMM Training for Organoid Phenotype Clustering ({model_type_label})")
     print("=" * 60)
 
     # 1. Load data
@@ -73,14 +85,14 @@ def main():
     print(f"Total organoids: {len(Data_All)}")
 
     # Ensure all raw features exist
-    missing = [f for f in RAW_FEATURES if f not in Data_All.columns]
+    missing = [f for f in features if f not in Data_All.columns]
     if missing:
         raise ValueError(f"Missing required columns: {missing}")
 
     # 2. Preprocess
-    print("\n--- Preprocessing (log1p + engineer + standardize) ---")
-    preprocessor = Preprocessor()
-    X = preprocessor.fit_transform(Data_All[RAW_FEATURES])
+    print(f"\n--- Preprocessing ({model_type_label}: log1p + engineer + standardize) ---")
+    preprocessor = Preprocessor(mode='reduced' if args.reduced else 'full')
+    X = preprocessor.fit_transform(Data_All[features])
     print(f"Processed features: {preprocessor.get_feature_names()}")
     print(f"Feature matrix shape: {X.shape}")
 
@@ -105,7 +117,7 @@ def main():
 
     # 5. Map raw clusters to phenotype labels
     print("\n--- Mapping raw clusters to phenotypes ---")
-    raw_to_final = map_phenotypes_by_centroids(Data_All[RAW_FEATURES], raw_labels)
+    raw_to_final = map_phenotypes_by_centroids(Data_All[features], raw_labels)
 
     for raw_id, final_id in sorted(raw_to_final.items()):
         print(f"  Raw {raw_id} -> {final_id} ({PHENOTYPE_NAMES[final_id]})")
@@ -123,7 +135,7 @@ def main():
         model=gmm,
         model_type='gmm',
         preprocessor=preprocessor,
-        feature_names=RAW_FEATURES,
+        feature_names=features,
         extra={
             'raw_to_final': raw_to_final,
             'covariance_type': args.covariance_type,

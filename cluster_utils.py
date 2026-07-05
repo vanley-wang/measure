@@ -56,6 +56,25 @@ PROCESSED_FEATURES = [f for f in LOG_FEATURES + KEEP_FEATURES + ENGINEERED_FEATU
                       if f not in DROP_FEATURES]
 
 # ============================================================================
+# 1b. Reduced feature definitions (5-dim, collinearity-free)
+# ============================================================================
+
+REDUCED_RAW_FEATURES = [
+    'Organoids_Volume_Fill',
+    'Sphericity',
+    'Scatt_Mean',
+    'Scatt_STD',
+    'Cavity_Volume',
+]
+
+# Only Volume_Fill needs log1p in reduced set
+REDUCED_LOG_FEATURES = ['Organoids_Volume_Fill']
+REDUCED_KEEP_FEATURES = ['Sphericity', 'Scatt_Mean', 'Scatt_STD']
+REDUCED_ENGINEERED_FEATURES = ['Cavity_Ratio']
+
+REDUCED_PROCESSED_FEATURES = REDUCED_LOG_FEATURES + REDUCED_KEEP_FEATURES + REDUCED_ENGINEERED_FEATURES
+
+# ============================================================================
 # 2. Phenotype definitions
 # ============================================================================
 
@@ -81,16 +100,30 @@ class Preprocessor:
     """
     Organoid feature preprocessor.
 
+    Supports two modes:
+      - 'full'  (default): 10-dim feature set (backward compatible)
+      - 'reduced': 5-dim collinearity-free feature set
+
     Steps:
       1. Compute Cavity_Ratio = Cavity_Volume / (Volume_Fill + 1)
-      2. Drop constant/redundant features
+      2. Drop constant/redundant features (full mode only)
       3. Log1p-transform skewed volume features
       4. Fit / transform with StandardScaler
     """
 
-    def __init__(self):
+    def __init__(self, mode='full'):
+        if mode not in ('full', 'reduced'):
+            raise ValueError("mode must be 'full' or 'reduced'")
+        self.mode = mode
         self.scaler = StandardScaler()
         self._fitted = False
+
+        if mode == 'reduced':
+            self._log_features = REDUCED_LOG_FEATURES
+            self._processed_features = REDUCED_PROCESSED_FEATURES
+        else:
+            self._log_features = LOG_FEATURES
+            self._processed_features = PROCESSED_FEATURES
 
     def _engineer(self, df: pd.DataFrame) -> pd.DataFrame:
         """Add engineered features without modifying original df."""
@@ -102,19 +135,20 @@ class Preprocessor:
     def _select_and_transform(self, df: pd.DataFrame) -> pd.DataFrame:
         """Drop, log-transform, and select final feature columns."""
         df = df.copy()
-        # Drop
-        for col in DROP_FEATURES:
-            if col in df.columns:
-                df.drop(columns=[col], inplace=True)
+        # Drop (only in full mode)
+        if self.mode == 'full':
+            for col in DROP_FEATURES:
+                if col in df.columns:
+                    df.drop(columns=[col], inplace=True)
         # Log1p transform
-        for col in LOG_FEATURES:
+        for col in self._log_features:
             if col in df.columns:
                 df[col] = np.log1p(df[col])
         # Select
-        missing = [c for c in PROCESSED_FEATURES if c not in df.columns]
+        missing = [c for c in self._processed_features if c not in df.columns]
         if missing:
             raise ValueError(f"Missing required columns: {missing}")
-        return df[PROCESSED_FEATURES]
+        return df[self._processed_features]
 
     def fit(self, df: pd.DataFrame):
         """Fit the scaler on raw feature DataFrame."""
@@ -138,7 +172,7 @@ class Preprocessor:
         return self.transform(df)
 
     def get_feature_names(self) -> list:
-        return list(PROCESSED_FEATURES)
+        return list(self._processed_features)
 
 
 # ============================================================================
@@ -224,17 +258,18 @@ def build_means_init(prototypes: dict, preprocessor: Preprocessor) -> np.ndarray
     for GMM means_init.
     """
     rows = []
+    processed_features = preprocessor.get_feature_names()
     for cid in sorted(prototypes.keys()):
         proto = prototypes[cid]
         # Build a single-row DataFrame with the prototype values
         row = {k: v for k, v in proto.items()}
         # Fill missing columns with 0 (they'll be standardized anyway)
-        for f in PROCESSED_FEATURES:
+        for f in processed_features:
             if f not in row:
                 row[f] = 0.0
         rows.append(row)
 
-    proto_df = pd.DataFrame(rows)[PROCESSED_FEATURES]
+    proto_df = pd.DataFrame(rows)[processed_features]
     return preprocessor.scaler.transform(proto_df)
 
 

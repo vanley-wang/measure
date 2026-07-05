@@ -1,3 +1,4 @@
+import argparse
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -8,7 +9,13 @@ import pickle
 import os
 import glob
 
+from cluster_utils import RAW_FEATURES, REDUCED_RAW_FEATURES, Preprocessor
+
 # 1. 基础配置
+parser = argparse.ArgumentParser(description='Train KMeans for organoid clustering')
+parser.add_argument('--reduced', action='store_true', help='Use 5-dim reduced feature set')
+args = parser.parse_args()
+
 data_folders = [
     os.path.join('Data', 'nnUNet_FXN_2023', 'FXN_0701', 'measure_excel'),
     os.path.join('Data', 'nnUNet_FXN_2023', 'FXN_0703', 'measure_excel')
@@ -18,22 +25,16 @@ model_dir = 'model'
 if not os.path.exists(model_dir):
     os.makedirs(model_dir)
 
-# 特征列表 (共11个，含形态学 + 散射系数)
-# 虽然核心区分度来自体积/空腔/OAC，但加入球度、粗糙度等辅助特征
-# 能帮助 K-means 在局部孔位更稳定地分离大囊状与大实心
-features_list = [
-    'Organoids_Volume',
-    'Organoids_Volume_Fill',
-    'Organoids_Surface',
-    'Cavity_Volume',
-    'CavityNum',
-    'LongAxis',
-    'ShortAxis',
-    'Wall_Thickness',
-    'Sphericity',
-    'Scatt_Mean',
-    'Scatt_STD'
-]
+if args.reduced:
+    features_list = REDUCED_RAW_FEATURES
+    print("【使用 5维精简特征集】")
+else:
+    features_list = RAW_FEATURES
+    print("【使用 10维完整特征集】")
+
+# 设置 Pandas 显示选项
+pd.set_option('display.max_columns', None)
+pd.set_option('display.width', 1000)
 
 # 设置 Pandas 显示选项
 pd.set_option('display.max_columns', None)
@@ -68,17 +69,22 @@ Data_Features = Data_All[features_list].copy()
 Data_Features = Data_Features.fillna(0)  # 简单填充缺失值，防止报错
 
 # ==========================================
-# 3. 标准化 (并保存 scaler)
+# 3. 标准化 (并保存 scaler / preprocessor)
 # ==========================================
 print("\n--- 正在标准化 ---")
-scaler = StandardScaler()
-Data_Std = scaler.fit_transform(Data_Features)
-
-# 保存 Scaler
-scaler_path = os.path.join(model_dir, 'scaler-scatt.pickle')
-with open(scaler_path, 'wb') as f:
-    pickle.dump(scaler, f)
-print(f"StandardScaler 已保存 -> {scaler_path}")
+if args.reduced:
+    preprocessor = Preprocessor(mode='reduced')
+    Data_Std = preprocessor.fit_transform(Data_All[features_list])
+    scaler = preprocessor.scaler
+    print(f"Preprocessor (reduced) 已拟合，输出维度: {Data_Std.shape}")
+else:
+    scaler = StandardScaler()
+    Data_Std = scaler.fit_transform(Data_Features)
+    # 保存传统 scaler（向后兼容）
+    scaler_path = os.path.join(model_dir, 'scaler-scatt.pickle')
+    with open(scaler_path, 'wb') as f:
+        pickle.dump(scaler, f)
+    print(f"StandardScaler 已保存 -> {scaler_path}")
 
 # ==========================================
 # 4. 手肘法分析 (可视化 - 期刊风格 & 保存)
@@ -188,7 +194,7 @@ print(f"原始类别 {raw_c3} -> 小实心(绿, 2)   [体积最小]")
 print(f"原始类别 {raw_c4} -> 高致密受损(蓝, 3) [OAC最高]")
 
 # ==========================================
-# 7. 保存模型包 (含 scaler + 类别映射)
+# 7. 保存模型包 (含 scaler/preprocessor + 类别映射)
 # ==========================================
 model_package = {
     'kmeans': final_model,
@@ -196,7 +202,11 @@ model_package = {
     'raw_to_final': raw_to_final,
     'feature_names': features_list,
 }
-model_path = os.path.join(model_dir, 'Kmeans-scatt.pickle')
+if args.reduced:
+    model_package['preprocessor'] = preprocessor
+    model_path = os.path.join(model_dir, 'Kmeans-5d.pickle')
+else:
+    model_path = os.path.join(model_dir, 'Kmeans-scatt.pickle')
 with open(model_path, 'wb') as f:
     pickle.dump(model_package, f)
 print(f"模型包已保存 -> {model_path}")
