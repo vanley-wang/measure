@@ -76,3 +76,10 @@ OAC_RATES = {
 - Prefer loading `.mat` or `.npy` OCT pre-processed data.
 - Group-level stats: compute per-organoid OAC mean → aggregate by group → calculate relative change rates.
 - Plotting: use consistent group colors (Control=gray, 20μM=blue, 40μM=orange, 80μM=red if not otherwise specified).
+
+## 10. Directory Layout (reorganized 2026-08-13)
+- All scripts live under `src/0X_<function>/` (numbered by pipeline stage): `01_segmentation`, `02_data_io`, `03_oac_scattering`, `04_clustering`, `05_features`, `06_data_prep`, `07_analysis`, `08_visualization`, plus `diagnostics/`.
+- Shared libraries stay at repo root: `cluster_utils.py` (imported by ~17 scripts) and `SAM2UNet.py` (depends on root-level `sam2/` package). Do not move them.
+- Run scripts **from the repo root** as `python src/0X_group/script.py`. Scripts that import the root shared libs have a `sys.path` bootstrap at the top (auto-inserted) so no `PYTHONPATH` is needed.
+- Data/model/output paths (`Data/...`, `model/...`, `reports/...`) are relative to the repo root (CWD), not to the script file.
+- See `执行手册.md` "零、目录结构" for the full script-to-path mapping table.

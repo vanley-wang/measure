@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+import os as _os, sys as _sys
+_sys.path.insert(0, _os.path.abspath(_os.path.join(_os.path.dirname(__file__), '..', '..')))
+
 import os
 import torch
 import cv2 as cv
