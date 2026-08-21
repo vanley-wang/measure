@@ -29,16 +29,16 @@ undersample/
 nnUNet_FXN_2023/
 
 # Model checkpoints / trained weights / artifacts
-# checkpoints/
-# models/
-# model/
-# PCA_model/
-# *.pt
-# *.pth
-# *.ckpt
-# *.onnx
-# *.pkl
-# *.pickle
+checkpoints/
+models/
+model/
+PCA_model/
+*.pt
+*.pth
+*.ckpt
+*.onnx
+*.pkl
+*.pickle
 
 # Scientific / medical / MATLAB data files
 *.nii
