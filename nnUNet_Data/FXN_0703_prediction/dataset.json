@@ -1,0 +1,324 @@
+{
+    "name": "organoid",
+    "description": "OCT imaging of organoid segmentation",
+    "tensorImageSize": "3D",
+    "reference": "OCT organoid dataset",
+    "licence": "Internal use",
+    "release": "1.0",
+    "modality": {
+        "0": "OCT"
+    },
+    "channel_names": {
+        "0": "OCT"
+    },
+    "labels": {
+        "background": 0,
+        "organoid": 1
+    },
+    "numTraining": 65,
+    "numTest": 39,
+    "file_ending": ".nii.gz",
+    "training": [
+        {
+            "image": "./imagesTr/organoid_000_0000.nii.gz",
+            "label": "./labelsTr/organoid_000.nii.gz"
+        },
+        {
+            "image": "./imagesTr/organoid_001_0000.nii.gz",
+            "label": "./labelsTr/organoid_001.nii.gz"
+        },
+        {
+            "image": "./imagesTr/organoid_002_0000.nii.gz",
+            "label": "./labelsTr/organoid_002.nii.gz"
+        },
+        {
+            "image": "./imagesTr/organoid_003_0000.nii.gz",
+            "label": "./labelsTr/organoid_003.nii.gz"
+        },
+        {
+            "image": "./imagesTr/organoid_004_0000.nii.gz",
+            "label": "./labelsTr/organoid_004.nii.gz"
+        },
+        {
+            "image": "./imagesTr/organoid_005_0000.nii.gz",
+            "label": "./labelsTr/organoid_005.nii.gz"
+        },
+        {
+            "image": "./imagesTr/organoid_006_0000.nii.gz",
+            "label": "./labelsTr/organoid_006.nii.gz"
+        },
+        {
+            "image": "./imagesTr/organoid_007_0000.nii.gz",
+            "label": "./labelsTr/organoid_007.nii.gz"
+        },
+        {
+            "image": "./imagesTr/organoid_008_0000.nii.gz",
+            "label": "./labelsTr/organoid_008.nii.gz"
+        },
+        {
+            "image": "./imagesTr/organoid_009_0000.nii.gz",
+            "label": "./labelsTr/organoid_009.nii.gz"
+        },
+        {
+            "image": "./imagesTr/organoid_010_0000.nii.gz",
+            "label": "./labelsTr/organoid_010.nii.gz"
+        },
+        {
+            "image": "./imagesTr/organoid_011_0000.nii.gz",
+            "label": "./labelsTr/organoid_011.nii.gz"
+        },
+        {
+            "image": "./imagesTr/organoid_012_0000.nii.gz",
+            "label": "./labelsTr/organoid_012.nii.gz"
+        },
+        {
+            "image": "./imagesTr/organoid_013_0000.nii.gz",
+            "label": "./labelsTr/organoid_013.nii.gz"
+        },
+        {
+            "image": "./imagesTr/organoid_014_0000.nii.gz",
+            "label": "./labelsTr/organoid_014.nii.gz"
+        },
+        {
+            "image": "./imagesTr/organoid_015_0000.nii.gz",
+            "label": "./labelsTr/organoid_015.nii.gz"
+        },
+        {
+            "image": "./imagesTr/organoid_016_0000.nii.gz",
+            "label": "./labelsTr/organoid_016.nii.gz"
+        },
+        {
+            "image": "./imagesTr/organoid_017_0000.nii.gz",
+            "label": "./labelsTr/organoid_017.nii.gz"
+        },
+        {
+            "image": "./imagesTr/organoid_018_0000.nii.gz",
+            "label": "./labelsTr/organoid_018.nii.gz"
+        },
+        {
+            "image": "./imagesTr/organoid_019_0000.nii.gz",
+            "label": "./labelsTr/organoid_019.nii.gz"
+        },
+        {
+            "image": "./imagesTr/organoid_020_0000.nii.gz",
+            "label": "./labelsTr/organoid_020.nii.gz"
+        },
+        {
+            "image": "./imagesTr/organoid_021_0000.nii.gz",
+            "label": "./labelsTr/organoid_021.nii.gz"
+        },
+        {
+            "image": "./imagesTr/organoid_022_0000.nii.gz",
+            "label": "./labelsTr/organoid_022.nii.gz"
+        },
+        {
+            "image": "./imagesTr/organoid_023_0000.nii.gz",
+            "label": "./labelsTr/organoid_023.nii.gz"
+        },
+        {
+            "image": "./imagesTr/organoid_024_0000.nii.gz",
+            "label": "./labelsTr/organoid_024.nii.gz"
+        },
+        {
+            "image": "./imagesTr/organoid_025_0000.nii.gz",
+            "label": "./labelsTr/organoid_025.nii.gz"
+        },
+        {
+            "image": "./imagesTr/organoid_026_0000.nii.gz",
+            "label": "./labelsTr/organoid_026.nii.gz"
+        },
+        {
+            "image": "./imagesTr/organoid_027_0000.nii.gz",
+            "label": "./labelsTr/organoid_027.nii.gz"
+        },
+        {
+            "image": "./imagesTr/organoid_028_0000.nii.gz",
+            "label": "./labelsTr/organoid_028.nii.gz"
+        },
+        {
+            "image": "./imagesTr/organoid_029_0000.nii.gz",
+            "label": "./labelsTr/organoid_029.nii.gz"
+        },
+        {
+            "image": "./imagesTr/organoid_030_0000.nii.gz",
+            "label": "./labelsTr/organoid_030.nii.gz"
+        },
+        {
+            "image": "./imagesTr/organoid_031_0000.nii.gz",
+            "label": "./labelsTr/organoid_031.nii.gz"
+        },
+        {
+            "image": "./imagesTr/organoid_032_0000.nii.gz",
+            "label": "./labelsTr/organoid_032.nii.gz"
+        },
+        {
+            "image": "./imagesTr/organoid_033_0000.nii.gz",
+            "label": "./labelsTr/organoid_033.nii.gz"
+        },
+        {
+            "image": "./imagesTr/organoid_034_0000.nii.gz",
+            "label": "./labelsTr/organoid_034.nii.gz"
+        },
+        {
+            "image": "./imagesTr/organoid_035_0000.nii.gz",
+            "label": "./labelsTr/organoid_035.nii.gz"
+        },
+        {
+            "image": "./imagesTr/organoid_036_0000.nii.gz",
+            "label": "./labelsTr/organoid_036.nii.gz"
+        },
+        {
+            "image": "./imagesTr/organoid_037_0000.nii.gz",
+            "label": "./labelsTr/organoid_037.nii.gz"
+        },
+        {
+            "image": "./imagesTr/organoid_038_0000.nii.gz",
+            "label": "./labelsTr/organoid_038.nii.gz"
+        },
+        {
+            "image": "./imagesTr/organoid_039_0000.nii.gz",
+            "label": "./labelsTr/organoid_039.nii.gz"
+        },
+        {
+            "image": "./imagesTr/organoid_040_0000.nii.gz",
+            "label": "./labelsTr/organoid_040.nii.gz"
+        },
+        {
+            "image": "./imagesTr/organoid_041_0000.nii.gz",
+            "label": "./labelsTr/organoid_041.nii.gz"
+        },
+        {
+            "image": "./imagesTr/organoid_042_0000.nii.gz",
+            "label": "./labelsTr/organoid_042.nii.gz"
+        },
+        {
+            "image": "./imagesTr/organoid_043_0000.nii.gz",
+            "label": "./labelsTr/organoid_043.nii.gz"
+        },
+        {
+            "image": "./imagesTr/organoid_044_0000.nii.gz",
+            "label": "./labelsTr/organoid_044.nii.gz"
+        },
+        {
+            "image": "./imagesTr/organoid_045_0000.nii.gz",
+            "label": "./labelsTr/organoid_045.nii.gz"
+        },
+        {
+            "image": "./imagesTr/organoid_046_0000.nii.gz",
+            "label": "./labelsTr/organoid_046.nii.gz"
+        },
+        {
+            "image": "./imagesTr/organoid_047_0000.nii.gz",
+            "label": "./labelsTr/organoid_047.nii.gz"
+        },
+        {
+            "image": "./imagesTr/organoid_048_0000.nii.gz",
+            "label": "./labelsTr/organoid_048.nii.gz"
+        },
+        {
+            "image": "./imagesTr/organoid_049_0000.nii.gz",
+            "label": "./labelsTr/organoid_049.nii.gz"
+        },
+        {
+            "image": "./imagesTr/organoid_050_0000.nii.gz",
+            "label": "./labelsTr/organoid_050.nii.gz"
+        },
+        {
+            "image": "./imagesTr/organoid_051_0000.nii.gz",
+            "label": "./labelsTr/organoid_051.nii.gz"
+        },
+        {
+            "image": "./imagesTr/organoid_052_0000.nii.gz",
+            "label": "./labelsTr/organoid_052.nii.gz"
+        },
+        {
+            "image": "./imagesTr/organoid_053_0000.nii.gz",
+            "label": "./labelsTr/organoid_053.nii.gz"
+        },
+        {
+            "image": "./imagesTr/organoid_054_0000.nii.gz",
+            "label": "./labelsTr/organoid_054.nii.gz"
+        },
+        {
+            "image": "./imagesTr/organoid_055_0000.nii.gz",
+            "label": "./labelsTr/organoid_055.nii.gz"
+        },
+        {
+            "image": "./imagesTr/organoid_056_0000.nii.gz",
+            "label": "./labelsTr/organoid_056.nii.gz"
+        },
+        {
+            "image": "./imagesTr/organoid_057_0000.nii.gz",
+            "label": "./labelsTr/organoid_057.nii.gz"
+        },
+        {
+            "image": "./imagesTr/organoid_058_0000.nii.gz",
+            "label": "./labelsTr/organoid_058.nii.gz"
+        },
+        {
+            "image": "./imagesTr/organoid_059_0000.nii.gz",
+            "label": "./labelsTr/organoid_059.nii.gz"
+        },
+        {
+            "image": "./imagesTr/organoid_060_0000.nii.gz",
+            "label": "./labelsTr/organoid_060.nii.gz"
+        },
+        {
+            "image": "./imagesTr/organoid_061_0000.nii.gz",
+            "label": "./labelsTr/organoid_061.nii.gz"
+        },
+        {
+            "image": "./imagesTr/organoid_062_0000.nii.gz",
+            "label": "./labelsTr/organoid_062.nii.gz"
+        },
+        {
+            "image": "./imagesTr/organoid_063_0000.nii.gz",
+            "label": "./labelsTr/organoid_063.nii.gz"
+        },
+        {
+            "image": "./imagesTr/organoid_064_0000.nii.gz",
+            "label": "./labelsTr/organoid_064.nii.gz"
+        }
+    ],
+    "test": [
+        "./imagesTs/organoid_071_0000.nii.gz",
+        "./imagesTs/organoid_072_0000.nii.gz",
+        "./imagesTs/organoid_073_0000.nii.gz",
+        "./imagesTs/organoid_074_0000.nii.gz",
+        "./imagesTs/organoid_075_0000.nii.gz",
+        "./imagesTs/organoid_076_0000.nii.gz",
+        "./imagesTs/organoid_077_0000.nii.gz",
+        "./imagesTs/organoid_078_0000.nii.gz",
+        "./imagesTs/organoid_079_0000.nii.gz",
+        "./imagesTs/organoid_080_0000.nii.gz",
+        "./imagesTs/organoid_081_0000.nii.gz",
+        "./imagesTs/organoid_082_0000.nii.gz",
+        "./imagesTs/organoid_083_0000.nii.gz",
+        "./imagesTs/organoid_084_0000.nii.gz",
+        "./imagesTs/organoid_085_0000.nii.gz",
+        "./imagesTs/organoid_086_0000.nii.gz",
+        "./imagesTs/organoid_087_0000.nii.gz",
+        "./imagesTs/organoid_088_0000.nii.gz",
+        "./imagesTs/organoid_089_0000.nii.gz",
+        "./imagesTs/organoid_090_0000.nii.gz",
+        "./imagesTs/organoid_091_0000.nii.gz",
+        "./imagesTs/organoid_092_0000.nii.gz",
+        "./imagesTs/organoid_093_0000.nii.gz",
+        "./imagesTs/organoid_094_0000.nii.gz",
+        "./imagesTs/organoid_095_0000.nii.gz",
+        "./imagesTs/organoid_096_0000.nii.gz",
+        "./imagesTs/organoid_097_0000.nii.gz",
+        "./imagesTs/organoid_098_0000.nii.gz",
+        "./imagesTs/organoid_099_0000.nii.gz",
+        "./imagesTs/organoid_100_0000.nii.gz",
+        "./imagesTs/organoid_101_0000.nii.gz",
+        "./imagesTs/organoid_102_0000.nii.gz",
+        "./imagesTs/organoid_103_0000.nii.gz",
+        "./imagesTs/organoid_104_0000.nii.gz",
+        "./imagesTs/organoid_105_0000.nii.gz",
+        "./imagesTs/organoid_106_0000.nii.gz",
+        "./imagesTs/organoid_107_0000.nii.gz",
+        "./imagesTs/organoid_108_0000.nii.gz",
+        "./imagesTs/organoid_109_0000.nii.gz"
+    ]
+}
