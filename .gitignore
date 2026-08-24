@@ -1,3 +1,12 @@
+# Ignore checkpoints (large model files)
+checkpoints/
+
+# Python
+__pycache__/
+*.py[cod]
+
+# PyTorch / models
+*.pt
 # Python
 __pycache__/
 *.py[cod]
