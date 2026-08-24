@@ -26,14 +26,27 @@ def load_and_score(path):
 
     df = pd.read_excel(path)
     score_col = find_column(df.columns, ["得分差值", "Result_Diff", "Diff", "差值", "Result"])
+    start_col = find_column(df.columns, ["Result", "Score", "得分", "综合得分", "PCA_Score"])
+    end_col = find_column(df.columns, ["Result.1", "Result_End", "终点", "终点得分", "终点结果"])
     atp_col = find_column(df.columns, ["ATP"])
 
-    if score_col is None:
+    if score_col is None and (start_col is None or end_col is None):
         raise ValueError(f"{path} 中找不到得分列，现有列: {list(df.columns)}")
     if atp_col is None:
         raise ValueError(f"{path} 中找不到 ATP 列，现有列: {list(df.columns)}")
 
-    valid = df[[score_col, atp_col]].dropna()
+    if score_col is not None:
+        valid = df[[score_col, atp_col]].dropna()
+        if len(valid) < 3 and start_col is not None and end_col is not None:
+            derived = df[[start_col, end_col, atp_col]].dropna().copy()
+            derived["derived_diff"] = derived[end_col] - derived[start_col]
+            valid = derived[["derived_diff", atp_col]].rename(columns={"derived_diff": score_col})
+    else:
+        valid = df[[start_col, end_col, atp_col]].dropna().copy()
+        valid["derived_diff"] = valid[end_col] - valid[start_col]
+        score_col = "derived_diff"
+        valid = valid[[score_col, atp_col]]
+
     if len(valid) < 3:
         raise ValueError(f"{path} 可用于相关性计算的数据不足，当前只有 {len(valid)} 行")
 

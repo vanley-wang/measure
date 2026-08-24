@@ -45,7 +45,16 @@ def summarize_file(path):
     if end_col is None:
         raise ValueError(f"{path} 中找不到终点得分列，现有列: {list(df.columns)}")
     if diff_col is None:
-        raise ValueError(f"{path} 中找不到差值列，现有列: {list(df.columns)}")
+        if start_col is None or end_col is None:
+            raise ValueError(f"{path} 中找不到差值列，且无法由起点/终点计算，现有列: {list(df.columns)}")
+        diff_col = "__derived_diff__"
+        df[diff_col] = df[end_col] - df[start_col]
+    else:
+        if df[[diff_col, atp_col]].dropna().shape[0] < 3:
+            if start_col is None or end_col is None:
+                raise ValueError(f"{path} 中差值列不可用，且无法由起点/终点计算，现有列: {list(df.columns)}")
+            diff_col = "__derived_diff__"
+            df[diff_col] = df[end_col] - df[start_col]
 
     r_start, p_start, n_start = compute_corr(df, start_col, atp_col)
     r_end, p_end, n_end = compute_corr(df, end_col, atp_col)
