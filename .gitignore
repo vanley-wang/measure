@@ -22,11 +22,10 @@ Thumbs.db
 
 # Project data and generated results
 Data/
-!Data/FXNJ?20230701/data/image/
-!Data/FXNJ?20230701/data/image/**
-训练数据样本/
 undersample/
 nnUNet_FXN_2023/
+!reports/*.xlsx
+!reports/figures/*.png
 
 # Model checkpoints / trained weights / artifacts
 checkpoints/
