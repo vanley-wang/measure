@@ -32,20 +32,35 @@ import joblib
 # }
 
 # ICC
+# atp_database = {
+#     'B10': 601300, 'B11': 11180000, 'B2': 5391000, 'B3': 6538000,
+#     'B4': 7103000, 'B5': 1264000, 'B6': 2548000, 'B7': 1579000,
+#     'B8': 3637000, 'B9': 140300, 'C10': 211800, 'C11': 13930000,
+#     'C2': 4460000, 'C3': 8336000, 'C4': 6800000, 'C5': 330900,
+#     'C6': 238900, 'C7': 682100, 'C8': 211300, 'C9': 465900,
+#     'D11': 11240000, 'E11': 12840000, 'F10': 21910000, 'F11': 14700000,
+#     'F2': 26980000, 'F3': 14110000, 'F4': 13740000, 'F5': 17250000,
+#     'F6': 20320000, 'F7': 20000000, 'F8': 17170000, 'F9': 15830000
+# }
+
+#论文ICC
 atp_database = {
     'B10': 601300, 'B11': 11180000, 'B2': 5391000, 'B3': 6538000,
-    'B4': 7103000, 'B5': 1264000, 'B6': 2548000, 'B7': 1579000,
-    'B8': 3637000, 'B9': 140300, 'C10': 211800, 'C11': 13930000,
-    'C2': 4460000, 'C3': 8336000, 'C4': 6800000, 'C5': 330900,
+    'B4': 7103000, 'B5': 511900, 'B6': 404500, 'B7': 403900,
+    'B8': 312700, 'B9': 140300, 'C10': 211800, 'C11': 13930000,
+    'C2': 6336000, 'C3': 8336000, 'C4': 6800000, 'C5': 330900,
     'C6': 238900, 'C7': 682100, 'C8': 211300, 'C9': 465900,
-    'D11': 11240000, 'E11': 12840000, 'F10': 21910000, 'F11': 14700000,
-    'F2': 26980000, 'F3': 14110000, 'F4': 13740000, 'F5': 17250000,
+    'D11': 11240000, 'E11': 14700000, 'F10': 21910000, 'F11': 11180000,
+    'F2': 18240000, 'F3': 14110000, 'F4': 13740000, 'F5': 17250000,
     'F6': 20320000, 'F7': 20000000, 'F8': 17170000, 'F9': 15830000
 }
 
 # ================= 2. 读取数据 =================
-input_path = 'Data/nnUNet_FXN_2023/nnUNet_Analysis.xlsx'
-output_path = 'Data/nnUNet_FXN_2023/nnUNet_PCA_Scores.xlsx'
+# input_path = 'Data/nnUNet_FXN_2023/nnUNet_Analysis.xlsx'
+# output_path = 'Data/nnUNet_FXN_2023/nnUNet_PCA_Scores_lunwen.xlsx'
+
+input_path = 'Data/FXN_2023_new（ICC）/FXN_2023_Analysis.xlsx'
+output_path = 'Data/FXN_2023_new（ICC）/FXN_PCA_Scores_lunwen.xlsx'
 
 print("读取数据...")
 Data_All = pd.read_excel(input_path)
@@ -53,7 +68,7 @@ if 'Name' not in Data_All.columns: Data_All['Name'] = Data_All.index.astype(str)
 
 # ================= 3. 特征选择 =================
 # 优先级：1) 手动指定 2) 从 Feature_Optimization_Sorted.xlsx 读取 Top N 3) 自动检测全部
-OPTIMIZATION_PATH = 'Data/nnUNet_FXN_2023/Feature_Optimization_Sorted.xlsx'
+OPTIMIZATION_PATH = 'Data/FXN_2023_new（ICC）/Feature_Optimization_Sorted.xlsx'
 USE_TOP_N = 1  # 取优化结果的第 N 名（1=最佳）
 
 features_list = [
