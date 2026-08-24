@@ -12,11 +12,16 @@ import pickle
 import os
 import glob
 
-from cluster_utils import RAW_FEATURES, REDUCED_RAW_FEATURES, Preprocessor
+from cluster_utils import (
+    RAW_FEATURES, REDUCED_RAW_FEATURES,
+    RECONSTRUCTED_PROCESSED_FEATURES, SIZE_FEATURES,
+    Preprocessor,
+)
 
 # 1. 基础配置
 parser = argparse.ArgumentParser(description='Train KMeans for organoid clustering')
 parser.add_argument('--reduced', action='store_true', help='Use 5-dim reduced feature set')
+parser.add_argument('--reconstructed', action='store_true', help='Use 6-dim PCA-reconstructed feature set')
 args = parser.parse_args()
 
 data_folders = [
@@ -28,11 +33,21 @@ model_dir = 'model'
 if not os.path.exists(model_dir):
     os.makedirs(model_dir)
 
-if args.reduced:
+if args.reconstructed:
+    features_list = RAW_FEATURES  # Preprocessor 需要原始特征来计算 PCA
+    preprocessor_mode = 'reconstructed'
+    print("【使用 6维 PCA 重构特征集】")
+    print(f"  组 A (大小): {SIZE_FEATURES} → log1p → PCA → Size_PC1")
+    print(f"  组 B (散射): Scatt_Mean, Scatt_STD → 保持原值")
+    print(f"  组 C (形态): Cavity_Ratio, CavityNum, Sphericity")
+    print(f"  最终特征: {RECONSTRUCTED_PROCESSED_FEATURES}")
+elif args.reduced:
     features_list = REDUCED_RAW_FEATURES
+    preprocessor_mode = 'reduced'
     print("【使用 5维精简特征集】")
 else:
     features_list = RAW_FEATURES
+    preprocessor_mode = 'full'
     print("【使用 10维完整特征集】")
 
 # 设置 Pandas 显示选项
@@ -68,22 +83,32 @@ if not df_list:
     raise ValueError("未读取到数据，请检查路径!")
 
 Data_All = pd.concat(df_list, ignore_index=True)
+
+before = len(Data_All)
+Data_All = Data_All.dropna(subset=features_list)
+after = len(Data_All)
+if before != after:
+    print(f"  已剔除 {before - after} 个含 NaN 的样本 (剩余 {after})")
+
 Data_Features = Data_All[features_list].copy()
-Data_Features = Data_Features.fillna(0)  # 简单填充缺失值，防止报错
 
 # ==========================================
-# 3. 标准化 (并保存 scaler / preprocessor)
+# 3. 标准化 (使用 Preprocessor，支持 full/reduced/reconstructed)
 # ==========================================
 print("\n--- 正在标准化 ---")
-if args.reduced:
-    preprocessor = Preprocessor(mode='reduced')
-    Data_Std = preprocessor.fit_transform(Data_All[features_list])
+if args.reduced or args.reconstructed:
+    preprocessor = Preprocessor(mode=preprocessor_mode)
+    Data_Std = preprocessor.fit_transform(Data_Features)
     scaler = preprocessor.scaler
-    print(f"Preprocessor (reduced) 已拟合，输出维度: {Data_Std.shape}")
+    print(f"Preprocessor ({preprocessor_mode}) 已拟合，输出维度: {Data_Std.shape}")
+    if args.reconstructed:
+        pca_info = preprocessor.get_size_pca_info()
+        print(f"  Size PCA 方差解释率: {pca_info['explained_variance_ratio']:.3f} "
+              f"({pca_info['explained_variance_ratio']*100:.1f}%)")
+        print(f"  Size PCA 载荷: {pca_info['components']}")
 else:
     scaler = StandardScaler()
     Data_Std = scaler.fit_transform(Data_Features)
-    # 保存传统 scaler（向后兼容）
     scaler_path = os.path.join(model_dir, 'scaler-scatt.pickle')
     with open(scaler_path, 'wb') as f:
         pickle.dump(scaler, f)
@@ -208,6 +233,10 @@ model_package = {
 if args.reduced:
     model_package['preprocessor'] = preprocessor
     model_path = os.path.join(model_dir, 'Kmeans-5d.pickle')
+elif args.reconstructed:
+    model_package['preprocessor'] = preprocessor
+    model_package['feature_names'] = RECONSTRUCTED_PROCESSED_FEATURES
+    model_path = os.path.join(model_dir, 'Kmeans-reconstructed.pickle')
 else:
     model_path = os.path.join(model_dir, 'Kmeans-scatt.pickle')
 with open(model_path, 'wb') as f:

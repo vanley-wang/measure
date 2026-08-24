@@ -1,0 +1,60 @@
+============================================================
+Dose Response Analysis (Plan C: Healthy Fraction)
+============================================================
+Loaded 21437 rows (dropped 1 NaN)
+
+KMeans-10d...
+   Conc    Healthy%       Blue%   Wells   Organoids
+      0 uM       14.0%        0.9%      28        9258
+     20 uM       16.1%        0.6%      11        2999
+     40 uM       12.3%        1.2%      12        4552
+     80 uM       12.5%        0.9%      12        4628
+
+GMM-10d...
+  [WARN] model/GMM-scatt.pickle: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- Organoids_Volume
+- Wall_Thickness
+Feature names seen at fit time, yet now missing:
+- Cavity_Ratio
+
+  [SKIP]
+
+KMeans-5d...
+  [WARN] model/Kmeans-5d.pickle: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- Cavity_Volume
+Feature names seen at fit time, yet now missing:
+- Cavity_Ratio
+
+  [SKIP]
+
+GMM-5d...
+  [WARN] model/GMM-5d.pickle: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- Cavity_Volume
+Feature names seen at fit time, yet now missing:
+- Cavity_Ratio
+
+  [SKIP]
+
+--- Generating plots ---
+  Saved healthy_dose_response.png
+  Saved healthy_dose_response_combined.png
+
+======================================================================
+=== Healthy (Red+Yellow) Dose Response ===
+======================================================================
+     Model Control  20uM  40uM  80uM Spearman_Rho P_Value    R2       Direction
+KMeans-10d   14.0% 16.1% 12.3% 12.5%       -0.600   0.400 0.346 DOWN (expected)
+
+======================================================================
+=== Blue (Damaged) Dose Response (auxiliary) ===
+======================================================================
+     Model Control 20uM 40uM 80uM Spearman_Rho P_Value
+KMeans-10d    0.9% 0.6% 1.2% 0.9%        0.600   0.400
+
+--- Saving Excel ---
+  Saved reports\dose_response_analysis.xlsx
+
+[Done] Plan C analysis complete.

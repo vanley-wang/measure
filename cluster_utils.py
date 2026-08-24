@@ -13,6 +13,7 @@ import pickle
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
 
 # ============================================================================
 # 1. Feature definitions
@@ -75,6 +76,32 @@ REDUCED_ENGINEERED_FEATURES = ['Cavity_Ratio']
 REDUCED_PROCESSED_FEATURES = REDUCED_LOG_FEATURES + REDUCED_KEEP_FEATURES + REDUCED_ENGINEERED_FEATURES
 
 # ============================================================================
+# 1c. Reconstructed feature definitions (6-dim, PCA-synthesized size)
+# ============================================================================
+
+# Group A: Size features (log1p → PCA → Size_PC1)
+SIZE_FEATURES = [
+    'Organoids_Volume_Fill',
+    'Organoids_Surface',
+    'LongAxis',
+    'ShortAxis',
+]
+
+# Group B: Scattering features (keep as-is, no transform)
+SCATT_FEATURES = ['Scatt_Mean', 'Scatt_STD']
+
+# Group C: Morphology features (keep as-is, no transform)
+MORPH_FEATURES = ['Sphericity', 'CavityNum']
+
+# Engineered features (computed from raw columns)
+RECONSTRUCTED_ENGINEERED = ['Cavity_Ratio']
+
+# Final processed 6-dim feature list
+RECONSTRUCTED_PROCESSED_FEATURES = (
+    ['Size_PC1'] + SCATT_FEATURES + MORPH_FEATURES + RECONSTRUCTED_ENGINEERED
+)
+
+# ============================================================================
 # 2. Phenotype definitions
 # ============================================================================
 
@@ -100,20 +127,26 @@ class Preprocessor:
     """
     Organoid feature preprocessor.
 
-    Supports two modes:
-      - 'full'  (default): 10-dim feature set (backward compatible)
-      - 'reduced': 5-dim collinearity-free feature set
+    Supports three modes:
+      - 'full'         (default): 10-dim feature set (backward compatible)
+      - 'reduced':      5-dim collinearity-free feature set
+      - 'reconstructed': 6-dim PCA-synthesized feature set
+          Group A (Size):  Volume_Fill/Surface/LongAxis/ShortAxis
+                           → log1p → StandardScaler → PCA(1) → Size_PC1
+          Group B (Scatt): Scatt_Mean, Scatt_STD → keep as-is
+          Group C (Morph): Cavity_Ratio, CavityNum, Sphericity → keep as-is
 
     Steps:
       1. Compute Cavity_Ratio = Cavity_Volume / (Volume_Fill + 1)
       2. Drop constant/redundant features (full mode only)
       3. Log1p-transform skewed volume features
-      4. Fit / transform with StandardScaler
+      4. (reconstructed) PCA-synthesize size features into Size_PC1
+      5. Fit / transform with StandardScaler
     """
 
     def __init__(self, mode='full'):
-        if mode not in ('full', 'reduced'):
-            raise ValueError("mode must be 'full' or 'reduced'")
+        if mode not in ('full', 'reduced', 'reconstructed'):
+            raise ValueError("mode must be 'full', 'reduced', or 'reconstructed'")
         self.mode = mode
         self.scaler = StandardScaler()
         self._fitted = False
@@ -121,6 +154,11 @@ class Preprocessor:
         if mode == 'reduced':
             self._log_features = REDUCED_LOG_FEATURES
             self._processed_features = REDUCED_PROCESSED_FEATURES
+        elif mode == 'reconstructed':
+            self._log_features = SIZE_FEATURES
+            self._processed_features = RECONSTRUCTED_PROCESSED_FEATURES
+            self._size_pca = PCA(n_components=1, random_state=42)
+            self._size_scaler = StandardScaler()
         else:
             self._log_features = LOG_FEATURES
             self._processed_features = PROCESSED_FEATURES
@@ -128,23 +166,40 @@ class Preprocessor:
     def _engineer(self, df: pd.DataFrame) -> pd.DataFrame:
         """Add engineered features without modifying original df."""
         df = df.copy()
-        # Cavity ratio: 0 means solid, >0 means cystic
         df['Cavity_Ratio'] = df['Cavity_Volume'] / (df['Organoids_Volume_Fill'].clip(lower=1))
         return df
 
     def _select_and_transform(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Drop, log-transform, and select final feature columns."""
+        """Drop, log-transform, PCA-synthesize, and select final feature columns."""
         df = df.copy()
+
         # Drop (only in full mode)
         if self.mode == 'full':
             for col in DROP_FEATURES:
                 if col in df.columns:
                     df.drop(columns=[col], inplace=True)
+
         # Log1p transform
         for col in self._log_features:
             if col in df.columns:
                 df[col] = np.log1p(df[col])
-        # Select
+
+        # Reconstructed mode: PCA-synthesize size features into Size_PC1
+        if self.mode == 'reconstructed':
+            missing_size = [c for c in SIZE_FEATURES if c not in df.columns]
+            if missing_size:
+                raise ValueError(f"Missing size features for PCA: {missing_size}")
+
+            if self._fitted:
+                X_size = df[SIZE_FEATURES].values
+                X_size_std = self._size_scaler.transform(X_size)
+                df['Size_PC1'] = self._size_pca.transform(X_size_std).flatten()
+            else:
+                X_size = df[SIZE_FEATURES].values
+                X_size_std = self._size_scaler.fit_transform(X_size)
+                df['Size_PC1'] = self._size_pca.fit_transform(X_size_std).flatten()
+
+        # Select final columns
         missing = [c for c in self._processed_features if c not in df.columns]
         if missing:
             raise ValueError(f"Missing required columns: {missing}")
@@ -173,6 +228,17 @@ class Preprocessor:
 
     def get_feature_names(self) -> list:
         return list(self._processed_features)
+
+    def get_size_pca_info(self) -> dict:
+        """Return PCA info for size features (reconstructed mode only)."""
+        if self.mode != 'reconstructed':
+            raise RuntimeError("get_size_pca_info() only available in 'reconstructed' mode")
+        if not self._fitted:
+            raise RuntimeError("Preprocessor must be fit() first")
+        return {
+            'explained_variance_ratio': self._size_pca.explained_variance_ratio_[0],
+            'components': dict(zip(SIZE_FEATURES, self._size_pca.components_[0].round(4))),
+        }
 
 
 # ============================================================================

@@ -2,14 +2,17 @@ import os as _os, sys as _sys
 _sys.path.insert(0, _os.path.abspath(_os.path.join(_os.path.dirname(__file__), '..', '..')))
 
 """
-Blue 类器官剂量响应深度分析
+类器官剂量响应深度分析 (方案 C 修正版)
 
-结合聚类结果与药物浓度，分析受损（Blue/Cluster 3）类器官比例
-随 Icaritin 浓度变化的趋势。同时对比 Control 与加药组的孔体积变化。
+基于 10D K-Means 聚类结果，以 Healthy (Red+Yellow) 比例作为主要药效终点。
+药物抑制类器官生长 → Healthy 比例随浓度下降。
+
+同时保留 Blue 受损比例作为辅助指标。
 
 输出：
+  reports/figures/healthy_dose_response.png
   reports/figures/blue_dose_response.png
-  reports/blue_dose_analysis.xlsx
+  reports/dose_response_analysis.xlsx
 """
 import os
 import glob
@@ -81,7 +84,13 @@ def load_all_data():
             df = pd.read_excel(fp)
             df['_well'] = os.path.basename(fp).replace('.xlsx', '')
             df_list.append(df)
-    return pd.concat(df_list, ignore_index=True)
+    df = pd.concat(df_list, ignore_index=True)
+    before = len(df)
+    df = df.dropna(subset=RAW_FEATURES)
+    after = len(df)
+    if before != after:
+        print(f"  已剔除 {before - after} 个含 NaN 的样本 (剩余 {after})")
+    return df
 
 
 def get_model_labels(df, model_path):
@@ -125,20 +134,23 @@ def get_model_labels(df, model_path):
 
 
 def compute_dose_stats(df, labels):
-    """Compute per-concentration Blue fraction and related stats."""
+    """Compute per-concentration Healthy + Blue fractions and related stats."""
     df = df.copy()
     df['Cluster'] = labels
     df['_conc'] = df['_well'].apply(infer_concentration)
 
-    # Per-well stats first
+    # Per-well stats
     well_stats = df.groupby('_well').agg(
         Conc=('_conc', 'first'),
         Total=('Cluster', 'size'),
-        Blue=('Cluster', lambda s: (s == 3).sum()),
         Red=('Cluster', lambda s: (s == 0).sum()),
+        Yellow=('Cluster', lambda s: (s == 1).sum()),
+        Blue=('Cluster', lambda s: (s == 3).sum()),
         Volume_Mean=('Organoids_Volume_Fill', 'mean'),
         OAC_Mean=('Scatt_Mean', 'mean'),
     )
+    well_stats['Healthy'] = well_stats['Red'] + well_stats['Yellow']
+    well_stats['Healthy_Fraction'] = well_stats['Healthy'] / well_stats['Total']
     well_stats['Blue_Fraction'] = well_stats['Blue'] / well_stats['Total']
     well_stats['Red_Fraction'] = well_stats['Red'] / well_stats['Total']
 
@@ -146,6 +158,8 @@ def compute_dose_stats(df, labels):
     conc_stats = well_stats.groupby('Conc').agg(
         N_Wells=('Blue', 'size'),
         Total_Organoids=('Total', 'sum'),
+        Healthy_Mean=('Healthy_Fraction', 'mean'),
+        Healthy_Std=('Healthy_Fraction', 'std'),
         Blue_Mean=('Blue_Fraction', 'mean'),
         Blue_Std=('Blue_Fraction', 'std'),
         Red_Mean=('Red_Fraction', 'mean'),
@@ -244,9 +258,93 @@ def plot_combined_blue_dose(all_conc_stats, save_path):
     print(f"  综合剂量响应图已保存 -> {save_path}")
 
 
+def plot_healthy_dose_response(all_conc_stats, save_path):
+    """方案 C: Healthy (Red+Yellow) 比例 vs 药物浓度（主要药效终点）"""
+    fig, axes = plt.subplots(2, 2, figsize=(14, 11))
+    colors = {'KMeans-10d': '#1f77b4', 'GMM-10d': '#ff7f0e',
+              'KMeans-5d': '#2ca02c', 'GMM-5d': '#d62728'}
+
+    for idx, (name, conc_stats) in enumerate(all_conc_stats.items()):
+        ax = axes[idx // 2, idx % 2]
+        conc_stats = conc_stats[conc_stats['Conc'] >= 0].sort_values('Conc')
+        x = conc_stats['Conc'].values
+        y = conc_stats['Healthy_Mean'].values
+        yerr = conc_stats['Healthy_Std'].fillna(0).values
+
+        ax.errorbar(x, y * 100, yerr=yerr * 100, fmt='o-', color=colors[name],
+                    capsize=5, capthick=2, lw=2, markersize=8, label=name)
+        ax.set_xlabel('Icaritin Concentration (μM)', fontsize=11)
+        ax.set_ylabel('Healthy (Red+Yellow) Fraction (%)', fontsize=11)
+        ax.set_title(name, fontsize=12, fontweight='bold')
+        ax.set_xticks([0, 20, 40, 80])
+        ax.set_xlim(-5, 95)
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+
+        for conc, vol_change in WELL_VOLUME_CHANGE.items():
+            if conc in x:
+                ax.annotate(f'+{vol_change}%', xy=(conc, y[list(x).index(conc)] * 100),
+                           xytext=(0, 12), textcoords='offset points',
+                           ha='center', fontsize=8, color='gray')
+
+        if len(x) >= 3:
+            rho, pval = spearmanr(x, y)
+            lr = linregress(x, y)
+            ax.axline((x[0], lr.intercept + lr.slope * x[0]),
+                     slope=lr.slope, color=colors[name], linestyle='--', alpha=0.5)
+            sig = '***' if pval < 0.001 else '**' if pval < 0.01 else '*' if pval < 0.05 else ''
+            ax.text(0.95, 0.05, f"Spearman rho={rho:.3f}{sig}\np={pval:.3f}",
+                   transform=ax.transAxes, ha='right', va='bottom',
+                   fontsize=9, bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.3))
+
+    plt.tight_layout()
+    plt.savefig(save_path, dpi=300, bbox_inches='tight')
+    plt.close()
+    print(f"  Healthy dose-response 图已保存 -> {save_path}")
+
+
+def plot_healthy_combined(all_conc_stats, save_path):
+    """综合图: Healthy 比例 + 孔体积变化"""
+    fig, ax1 = plt.subplots(figsize=(10, 6))
+    colors = {'KMeans-10d': '#1f77b4', 'GMM-10d': '#ff7f0e',
+              'KMeans-5d': '#2ca02c', 'GMM-5d': '#d62728'}
+
+    for name, conc_stats in all_conc_stats.items():
+        conc_stats = conc_stats[conc_stats['Conc'] >= 0].sort_values('Conc')
+        x = conc_stats['Conc'].values
+        y = conc_stats['Healthy_Mean'].values
+        ax1.plot(x, y * 100, 'o-', color=colors[name], lw=2, markersize=8, label=name)
+
+    ax1.set_xlabel('Icaritin Concentration (μM)', fontsize=12)
+    ax1.set_ylabel('Healthy (Red+Yellow) Fraction (%)', fontsize=12, color='black')
+    ax1.tick_params(axis='y', labelcolor='black')
+    ax1.set_xticks([0, 20, 40, 80])
+    ax1.set_xlim(-5, 95)
+    ax1.spines['top'].set_visible(False)
+
+    ax2 = ax1.twinx()
+    vol_x = list(WELL_VOLUME_CHANGE.keys())
+    vol_y = list(WELL_VOLUME_CHANGE.values())
+    ax2.bar(vol_x, vol_y, width=8, alpha=0.2, color='gray', label='Well volume change')
+    ax2.set_ylabel('Well Volume Change (%)', fontsize=12, color='gray')
+    ax2.tick_params(axis='y', labelcolor='gray')
+    ax2.spines['top'].set_visible(False)
+
+    lines1, labels1 = ax1.get_legend_handles_labels()
+    lines2, labels2 = ax2.get_legend_handles_labels()
+    ax1.legend(lines1 + lines2, labels1 + labels2, loc='lower left', fontsize=9)
+
+    ax1.set_title('Healthy (Red+Yellow) Organoid Fraction vs Icaritin Concentration\n(4 Models + Well Volume Change)', fontsize=13, fontweight='bold')
+
+    plt.tight_layout()
+    plt.savefig(save_path, dpi=300, bbox_inches='tight')
+    plt.close()
+    print(f"  Healthy 综合图已保存 -> {save_path}")
+
+
 def main():
     print("=" * 60)
-    print("Blue 类器官剂量响应深度分析")
+    print("类器官剂量响应分析 (方案 C: Healthy 比例)")
     print("=" * 60)
 
     # 1. Load data
@@ -270,9 +368,9 @@ def main():
         all_conc_stats[name] = conc_stats
         all_well_stats[name] = well_stats
 
-        # Print summary
+        print(f"    {'Conc':>5s}  {'Healthy%':>10s}  {'Blue%':>10s}  {'Wells':>6s}  {'Organoids':>10s}")
         for _, row in conc_stats.iterrows():
-            print(f"    Conc={row['Conc']:3.0f}μM: Blue={row['Blue_Mean']*100:.1f}% ± {row['Blue_Std']*100:.1f}%  (N={row['N_Wells']} wells, n={row['Total_Organoids']} organoids)")
+            print(f"    {int(row['Conc']):5d}μM  {row['Healthy_Mean']*100:9.1f}%  {row['Blue_Mean']*100:9.1f}%  {int(row['N_Wells']):6d}  {int(row['Total_Organoids']):10d}")
 
     if len(all_conc_stats) < 2:
         print("\n[ERR] 可用模型不足，无法继续。")
@@ -280,12 +378,42 @@ def main():
 
     # 3. Plotting
     print("\n--- 生成图表 ---")
+    plot_healthy_dose_response(all_conc_stats, os.path.join(FIGURES_DIR, 'healthy_dose_response.png'))
+    plot_healthy_combined(all_conc_stats, os.path.join(FIGURES_DIR, 'healthy_dose_response_combined.png'))
     plot_blue_dose_response(all_conc_stats, os.path.join(FIGURES_DIR, 'blue_dose_response.png'))
     plot_combined_blue_dose(all_conc_stats, os.path.join(FIGURES_DIR, 'blue_dose_response_combined.png'))
 
     # 4. Statistical summary
-    print("\n--- 统计汇总 ---")
+    print("\n" + "=" * 70)
+    print("=== Healthy (Red+Yellow) 剂量响应 — 主要药效终点 ===")
+    print("=" * 70)
     summary_rows = []
+    for name, conc_stats in all_conc_stats.items():
+        conc_stats = conc_stats[conc_stats['Conc'] >= 0].sort_values('Conc')
+        x = conc_stats['Conc'].values
+        y = conc_stats['Healthy_Mean'].values
+        if len(x) >= 3:
+            rho, pval = spearmanr(x, y)
+            lr = linregress(x, y)
+            direction = 'Down (expected)' if rho < 0 else 'Up (unexpected)'
+            summary_rows.append({
+                'Model': name,
+                'Control_Healthy_Pct': f"{y[0]*100:.1f}%",
+                '20uM_Healthy_Pct': f"{y[1]*100:.1f}%" if len(y) > 1 else 'N/A',
+                '40uM_Healthy_Pct': f"{y[2]*100:.1f}%" if len(y) > 2 else 'N/A',
+                '80uM_Healthy_Pct': f"{y[3]*100:.1f}%" if len(y) > 3 else 'N/A',
+                'Spearman_Rho': f"{rho:.3f}",
+                'P_Value': f"{pval:.3f}",
+                'Linear_R2': f"{lr.rvalue**2:.3f}",
+                'Direction': direction,
+            })
+    summary_df = pd.DataFrame(summary_rows)
+    print(summary_df.to_string(index=False))
+
+    print("\n" + "=" * 70)
+    print("=== Blue (Damaged) 剂量响应 — 辅助指标 ===")
+    print("=" * 70)
+    blue_rows = []
     for name, conc_stats in all_conc_stats.items():
         conc_stats = conc_stats[conc_stats['Conc'] >= 0].sort_values('Conc')
         x = conc_stats['Conc'].values
@@ -293,26 +421,24 @@ def main():
         if len(x) >= 3:
             rho, pval = spearmanr(x, y)
             lr = linregress(x, y)
-            summary_rows.append({
+            blue_rows.append({
                 'Model': name,
-                'Control_Blue_Pct': y[0] * 100,
-                '20uM_Blue_Pct': y[1] * 100 if len(y) > 1 else np.nan,
-                '40uM_Blue_Pct': y[2] * 100 if len(y) > 2 else np.nan,
-                '80uM_Blue_Pct': y[3] * 100 if len(y) > 3 else np.nan,
-                'Spearman_Rho': rho,
-                'Spearman_P': pval,
-                'Linear_Slope': lr.slope,
-                'Linear_R2': lr.rvalue ** 2,
-                'Trend': 'Up' if rho > 0 else 'Down' if rho < 0 else 'Flat',
+                'Control_Blue_Pct': f"{y[0]*100:.1f}%",
+                '20uM_Blue_Pct': f"{y[1]*100:.1f}%" if len(y) > 1 else 'N/A',
+                '40uM_Blue_Pct': f"{y[2]*100:.1f}%" if len(y) > 2 else 'N/A',
+                '80uM_Blue_Pct': f"{y[3]*100:.1f}%" if len(y) > 3 else 'N/A',
+                'Spearman_Rho': f"{rho:.3f}",
+                'P_Value': f"{pval:.3f}",
             })
-    summary_df = pd.DataFrame(summary_rows)
-    print(summary_df.to_string(index=False))
+    blue_df = pd.DataFrame(blue_rows)
+    print(blue_df.to_string(index=False))
 
     # 5. Save Excel
     print("\n--- 保存报告 ---")
-    excel_path = os.path.join(REPORTS_DIR, 'blue_dose_analysis.xlsx')
+    excel_path = os.path.join(REPORTS_DIR, 'dose_response_analysis.xlsx')
     with pd.ExcelWriter(excel_path, engine='openpyxl') as writer:
-        summary_df.to_excel(writer, sheet_name='Summary', index=False)
+        summary_df.to_excel(writer, sheet_name='Healthy_Summary', index=False)
+        blue_df.to_excel(writer, sheet_name='Blue_Summary', index=False)
         for name, conc_stats in all_conc_stats.items():
             sheet_name = name.replace('-', '_')
             conc_stats.to_excel(writer, sheet_name=f'{sheet_name}_Conc', index=False)
@@ -321,7 +447,7 @@ def main():
             well_stats.to_excel(writer, sheet_name=f'{sheet_name}_Well', index=False)
 
     print(f"  报告已保存 -> {excel_path}")
-    print("\n[Done] Blue 剂量响应分析完成。")
+    print("\n[Done] 方案 C 剂量响应分析完成。")
 
 
 if __name__ == "__main__":
