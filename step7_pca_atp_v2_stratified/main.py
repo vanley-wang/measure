@@ -1,10 +1,10 @@
 from datetime import datetime
 
 from .config import FIGURES_DIR
-from .data_io import load_atp_table, load_organoid_data, validate_data_structure
+from .data_io import load_organoid_data, validate_data_structure
 from .modeling import (
     apply_clustering,
-    atp_regression,
+    atp_correlation,
     pca_analysis,
     stratified_median_aggregation,
 )
@@ -26,8 +26,7 @@ def run_pipeline():
     fm, sel = stratified_median_aggregation(df, ws, feats, wells)
     sdf, pca, wts, scaler, cdf = pca_analysis(fm, sel)
 
-    atp_df = load_atp_table()
-    merged, res = atp_regression(sdf, atp_df)
+    merged, res = atp_correlation(sdf)
 
     generate_figures(df, ws, fm, merged, res, cdf)
 
@@ -36,7 +35,7 @@ def run_pipeline():
     print('OK ANALYSIS COMPLETE')
     print(f'  Time: {dt:.1f}s | Wells: {len(wells)} | Features: {len(sel)}D')
     if res:
-        print(f"  Result: {res['eq']} | R2={res['r2']:.4f}")
+        print(f"  Result: Pearson r={res['pearson_r']:.4f} (p={res['pearson_p']:.2e}) | Spearman rho={res['spearman_rho']:.4f}")
     print(f'  Output: {FIGURES_DIR}/')
     print('=' * 70 + '\n')
 

@@ -1,12 +1,11 @@
 import numpy as np
 import pandas as pd
-from scipy import stats
 from scipy.stats import pearsonr, spearmanr
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 
 from cluster_utils import load_model_package
-from .config import CLUSTER_COLORS, CLUSTER_NAMES, HEALTHY_CLUSTERS, MIN_HEALTHY_SAMPLES, MODEL_PATH
+from .config import ATP_DATABASE, CLUSTER_COLORS, CLUSTER_NAMES, HEALTHY_CLUSTERS, MIN_HEALTHY_SAMPLES, MODEL_PATH
 
 
 def apply_clustering(df, features):
@@ -193,56 +192,37 @@ def pca_analysis(fm, sel_feats):
     return score_df, pca, wts, scaler, cdf
 
 
-def atp_regression(score_df, atp_df):
+def atp_correlation(score_df):
     print('\n' + '=' * 70)
-    print('Step 5: ATP Matching & Regression')
+    print('Step 5: ATP Matching & Correlation')
     print('=' * 70)
 
-    if atp_df is None:
-        print('ERROR Cannot load ATP data!')
+    merged = score_df.copy()
+    merged['ATP'] = merged['Well_ID'].map(ATP_DATABASE)
+    valid = merged.dropna(subset=['Score', 'ATP'])
+
+    if len(valid) < 5:
+        print(f'ERROR Only {len(valid)} wells matched!')
         return None, None
 
-    our_ids = set(score_df['Well_ID'])
+    print(f'\nMatched: {len(valid)} wells')
 
-    m1 = atp_df[atp_df['_key'].isin(our_ids)].copy()
-    atp_df = atp_df.copy()
-    atp_df['_pre'] = atp_df['_key'].apply(lambda x: str(x).split('_')[0] if '_' in str(x) else str(x))
-    m2 = atp_df[atp_df['_pre'].isin(our_ids)].copy()
-
-    matched = m1 if len(m1) >= len(m2) else m2
-    matched['Well_ID'] = matched['_key'] if len(m1) >= len(m2) else matched['_pre']
-
-    merged = score_df.merge(matched[['Well_ID', 'ATP']], on='Well_ID', how='inner')
-
-    if len(merged) < 5:
-        print(f'ERROR Only {len(merged)} wells matched!')
-        return None, None
-
-    print(f'\nMatched: {len(merged)} wells')
-
-    X, Y = merged['Score'].values, merged['ATP'].values
-    sl, ic, r, p, se = stats.linregress(X, Y)
+    X, Y = valid['Score'].values, valid['ATP'].values
     pr, pp = pearsonr(X, Y)
     sp, sp_ = spearmanr(X, Y)
 
     print(f'\n{"=" * 50}')
-    print('REGRESSION: Score -> ATP')
+    print('PEARSON CORRELATION: Score vs ATP')
     print(f'{"=" * 50}')
-    print(f'N = {len(merged)}')
-    print(f'ATP = {ic:,.0f} + {sl:,.0f} * Score')
-    print(f'R2 = {r ** 2:.4f}')
+    print(f'N = {len(valid)}')
     print(f'Pearson r = {pr:.4f} (p={pp:.2e})')
     print(f'Spearman rho = {sp:.4f} (p={sp_:.2e})')
 
     res = {
-        'slope': sl,
-        'intercept': ic,
-        'r2': r ** 2,
         'pearson_r': pr,
         'pearson_p': pp,
         'spearman_rho': sp,
         'spearman_p': sp_,
-        'eq': f'ATP = {ic:,.0f} + {sl:,.0f} * Score',
     }
 
-    return merged, res
+    return valid, res

@@ -6,7 +6,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from matplotlib.patches import Patch
-from scipy import stats
 from scipy.stats import pearsonr
 from sklearn.manifold import TSNE
 from sklearn.preprocessing import StandardScaler
@@ -74,7 +73,7 @@ def fig1(df, ws, fm, merged, res, cdf, fp):
 
 def fig2(df, ws, fm, merged, res, cdf, fp):
     if res is None or merged is None:
-        return placeholder(fp, 'Score-ATP Bridge', 'No data')
+        return placeholder(fp, 'Score-ATP Correlation', 'No data')
 
     m = merged.merge(
         ws[ws['_day'] == '0703'][['_well_id', 'Healthy_Fraction']],
@@ -83,18 +82,15 @@ def fig2(df, ws, fm, merged, res, cdf, fp):
         how='inner',
     )
     if len(m) < 5:
-        return placeholder(fp, 'Score-ATP Bridge', 'Insufficient')
+        return placeholder(fp, 'Score-ATP Correlation', 'Insufficient')
 
     fig, axes = plt.subplots(1, 3, figsize=(18, 5.5))
     xs, at, h = m['Score'].values, m['ATP'].values, m['Healthy_Fraction'].values * 100
 
     axes[0].scatter(xs, at, c='#3498DB', alpha=0.6, s=60, edgecolors='white')
-    xl = np.linspace(xs.min(), xs.max(), 100)
-    axes[0].plot(xl, res['intercept'] + res['slope'] * xl, 'r-', lw=2.5, label=f"R2={res['r2']:.3f}")
     axes[0].set_xlabel('PCA Score')
     axes[0].set_ylabel('ATP')
-    axes[0].set_title('A Score->ATP', fontweight='bold', loc='left')
-    axes[0].legend()
+    axes[0].set_title(f"A Score vs ATP (r={res['pearson_r']:.3f}, p={res['pearson_p']:.2e})", fontweight='bold', loc='left')
 
     axes[1].scatter(h, xs, c='#2ECC71', alpha=0.6, s=60, edgecolors='white')
     z = np.polyfit(h, xs, 1)
@@ -229,46 +225,50 @@ def fig5(df, ws, fm, merged, res, cdf, fp):
 
 
 def fig6(df, ws, fm, merged, res, cdf, fp):
-    if res is None or merged is None or 'ATP' not in merged.columns:
-        return placeholder(fp, 'Residuals', 'No regression')
+    if merged is None or 'Score' not in merged.columns or 'ATP' not in merged.columns:
+        return placeholder(fp, 'Score Distribution', 'No data')
 
     m = merged.copy()
-    m['Pred'] = res['intercept'] + res['slope'] * m['Score']
-    m['Res'] = m['ATP'] - m['Pred']
+    m['Conc'] = m['Well_ID'].map(CONC_MAP)
+    concs = [0, 20, 40, 80]
 
     fig, axes = plt.subplots(2, 2, figsize=(14, 12))
 
-    axes[0, 0].scatter(m['Pred'], m['Res'], c='#3498DB', alpha=0.6, s=50, edgecolors='white')
-    axes[0, 0].axhline(0, color='red', ls='--', lw=1.5)
-    axes[0, 0].set_xlabel('Fitted')
-    axes[0, 0].set_ylabel('Residual')
-    axes[0, 0].set_title('A Residuals vs Fitted', fontweight='bold', loc='left')
-
-    stats.probplot(m['Res'], dist='norm', plot=axes[0, 1])
-    axes[0, 1].get_lines()[0].set_markerfacecolor('#3498DB')
-    axes[0, 1].get_lines()[0].set_markersize(8)
-    axes[0, 1].get_lines()[1].set_color('red')
-    axes[0, 1].set_title('B Q-Q Plot', fontweight='bold', loc='left')
-
-    axes[1, 0].hist(m['Res'], bins=10, color='#3498DB', alpha=0.7, edgecolor='white')
-    axes[1, 0].axvline(0, color='red', ls='--', lw=1.5)
-    axes[1, 0].set_xlabel('Residual')
-    axes[1, 0].set_ylabel('Freq')
-    axes[1, 0].set_title('C Residual Distribution', fontweight='bold', loc='left')
-
-    xv = np.linspace(m['Score'].min(), m['Score'].max(), 100)
-    yv = res['intercept'] + res['slope'] * xv
-    se = np.sqrt(np.sum(m['Res'] ** 2) / (len(m) - 2)) * np.sqrt(
-        1 / len(m) + (xv - m['Score'].mean()) ** 2 / np.sum((m['Score'] - m['Score'].mean()) ** 2)
+    data = [m.loc[m['Conc'] == c, 'Score'].values for c in concs]
+    bp = axes[0, 0].boxplot(
+        data,
+        positions=concs,
+        widths=8,
+        patch_artist=True,
+        showfliers=True,
+        flierprops=dict(marker='o', ms=4, alpha=0.5),
     )
+    colors = ['#3498DB', '#2ECC71', '#F39C12', '#E74C3C']
+    for patch, color in zip(bp['boxes'], colors):
+        patch.set_facecolor(color)
+        patch.set_alpha(0.6)
+    axes[0, 0].set_xlabel('Concentration (uM)')
+    axes[0, 0].set_ylabel('PCA Score')
+    axes[0, 0].set_title('A Score by Concentration', fontweight='bold', loc='left')
+    axes[0, 0].set_xticks(concs)
 
-    axes[1, 1].scatter(m['Score'], m['ATP'], c='#3498DB', alpha=0.6, s=50, edgecolors='white', label='Obs')
-    axes[1, 1].plot(xv, yv, 'r-', lw=2.5, label='Fit')
-    axes[1, 1].fill_between(xv, yv - 1.96 * se, yv + 1.96 * se, alpha=0.2, color='red', label='95% CI')
-    axes[1, 1].set_xlabel('Score')
-    axes[1, 1].set_ylabel('ATP')
-    axes[1, 1].set_title(f"D Regression (R2={res['r2']:.3f})", fontweight='bold', loc='left')
-    axes[1, 1].legend()
+    axes[0, 1].scatter(m['ATP'], m['Score'], c='#3498DB', alpha=0.6, s=50, edgecolors='white')
+    axes[0, 1].set_xlabel('ATP')
+    axes[0, 1].set_ylabel('PCA Score')
+    axes[0, 1].set_title(f"B Score vs ATP (r={res['pearson_r']:.3f})", fontweight='bold', loc='left')
+
+    scores = m['Score'].values
+    axes[1, 0].hist(scores, bins=12, color='#3498DB', alpha=0.7, edgecolor='white')
+    axes[1, 0].axvline(0, color='red', ls='--', lw=1.5)
+    axes[1, 0].set_xlabel('PCA Score')
+    axes[1, 0].set_ylabel('Frequency')
+    axes[1, 0].set_title('C Score Distribution', fontweight='bold', loc='left')
+
+    atp_vals = m['ATP'].values / 1e6
+    axes[1, 1].hist(atp_vals, bins=12, color='#E74C3C', alpha=0.7, edgecolor='white')
+    axes[1, 1].set_xlabel('ATP (x10^6)')
+    axes[1, 1].set_ylabel('Frequency')
+    axes[1, 1].set_title('D ATP Distribution', fontweight='bold', loc='left')
 
     plt.tight_layout()
     plt.savefig(fp, dpi=300, bbox_inches='tight')
