@@ -25,8 +25,8 @@ parser.add_argument('--reconstructed', action='store_true', help='Use 6-dim PCA-
 args = parser.parse_args()
 
 data_folders = [
-    os.path.join('Data', 'nnUNet_FXN_2023', 'FXN_0701', 'measure_excel'),
-    os.path.join('Data', 'nnUNet_FXN_2023', 'FXN_0703', 'measure_excel')
+    os.path.join('Data', 'FXN_2023_new（ICC）', 'FXN_20230701', 'measure_excel'),
+    os.path.join('Data', 'FXN_2023_new（ICC）', 'FXN_20230703', 'measure_excel')
 ]
 
 model_dir = 'model'
