@@ -28,7 +28,7 @@ def run_pipeline():
 
     merged, res = atp_correlation(sdf)
 
-    generate_figures(df, ws, fm, merged, res, cdf)
+    generate_figures(df, ws, fm, merged, res, cdf, pca, sel)
 
     dt = (datetime.now() - t0).total_seconds()
     print('\n' + '=' * 70)
