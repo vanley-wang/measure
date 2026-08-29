@@ -1,6 +1,5 @@
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/b4201752c48294413d1d4443dc8bfeac00e12750f1254e49450f57f2c1db46a2.jpg)
 
-
 # 硕 士 学 位 论 ᮷
 
 # 题 目:基于OCT 的肿瘤类器官形态定量分析研究
@@ -27,39 +26,15 @@
 
 2024 年 5 月
 
-Dissertation Submitted to Hangzhou Dianzi University for the Degree of Master 
+Dissertation Submitted to Hangzhou Dianzi University for the Degree of Master
 
 # Quantitative analysis of tumor organoid morphology based on OCT
 
-Candidate: Zhang Linyi 
+Candidate: Zhang Linyi
 
-Supervisor: Prof. Xu Mingen Prof. Wang Ling 
+Supervisor: Prof. Xu Mingen Prof. Wang Ling
 
-May, 2024 
-
-## 杭州电子科技大学学位论᮷原创性声᰾和使用授权说᰾
-
-原创性声᰾
-
-本人郑重声᰾： 所呈交的学位论᮷，ᱟ本人在导师的指导下，独立进行研究工作所取得的成果。除᮷中已经注᰾引用的内容外，本论᮷不含任何其他个人或集体已经发表或᫠写过的作品或成果。对本᮷的研究做出重要贡献的个人和集体，均已在᮷中以᰾确ᯩ式标᰾。
-
-申请学位论᮷与资ᯉ若有不实之处，本人承担一切相关责任。
-
-论᮷作者签名： STI
-
-ᰕ期： 年 月 ᰕ2024 524
-
-## 学位论᮷使用授权说᰾
-
-本人完全了解杭州电子科技大学关于保留和使用学位论᮷的规定，即：研究生在校᭫读学位期间论᮷工作的知识产权单位属杭州电子科技大学。本人保证毕业离校后，发表论᮷或使用论᮷工作成果ᰦ署名单位仍然为杭州电子科技大学。学校有权保留送交论᮷的复印件，允许查阅和借阅论᮷；学校可以公布论᮷的全部或部分内容，可以允许采用影印、缩印或其它复制手段保存论᮷。（保密论᮷在解密后遵守此规定）
-
-论᮷作者签名： 2
-
-ᰕ期： 年 月 ᰕ2024524
-
-指导ᮉ师签名： 
-
-ᰕ期： 年 月 ᰕ2024524
+May, 2024
 
 ## 摘 要
 
@@ -77,17 +52,17 @@ May, 2024
 
 ## ABSTRACT
 
-Patient-derived organoids (PDOs) provide an excellent tool for personalized drug screening to predict clinical outcomes of cancer treatment. Accurately detecting morphological changes in organoids under drug influence is crucial for fully harnessing the potential of organoid growth and drug response research. However, the traditional bright-field microscopy observation has the defects of planarity and lack of threedimensional (3D) information, and there is an urgent need for an efficient quantitative evaluation of the dynamic changes of organoid populations. Herein, this study developed a method for label-free, continuous tracking imaging and quantitative analysis of drug efficacy using PDOs. Optical Coherence Tomography (OCT) system was used to monitor the prolonged morphological changes of PDOs in normal culture and in the presence of drugs. OCT image acquisition was performed every 24 h. The main research focus and innovations are as follows: 
+Patient-derived organoids (PDOs) provide an excellent tool for personalized drug screening to predict clinical outcomes of cancer treatment. Accurately detecting morphological changes in organoids under drug influence is crucial for fully harnessing the potential of organoid growth and drug response research. However, the traditional bright-field microscopy observation has the defects of planarity and lack of threedimensional (3D) information, and there is an urgent need for an efficient quantitative evaluation of the dynamic changes of organoid populations. Herein, this study developed a method for label-free, continuous tracking imaging and quantitative analysis of drug efficacy using PDOs. Optical Coherence Tomography (OCT) system was used to monitor the prolonged morphological changes of PDOs in normal culture and in the presence of drugs. OCT image acquisition was performed every 24 h. The main research focus and innovations are as follows:
 
-(1) In this study, we developed a deep learning network (EGO-Net)-based method for organoid segmentation and quantitative morphological analysis, which is capable of comprehensively analyzing multiple morphological parameters of individual and populations of organoids. Adenosine triphosphate (ATP) assay was performed on organoid samples on the last day of culture. Finally, a corresponding aggregated morphological indicator (AMI) was established using principal component analysis (PCA) based on the correlation analysis between OCT morphological quantification and ATP testing. 
+(1) In this study, we developed a deep learning network (EGO-Net)-based method for organoid segmentation and quantitative morphological analysis, which is capable of comprehensively analyzing multiple morphological parameters of individual and populations of organoids. Adenosine triphosphate (ATP) assay was performed on organoid samples on the last day of culture. Finally, a corresponding aggregated morphological indicator (AMI) was established using principal component analysis (PCA) based on the correlation analysis between OCT morphological quantification and ATP testing.
 
-(2) To monitor the growth of intestinal cancer patient-derived organoids (CRC_PDOs) and intrahepatic cholangiocarcinoma patient-derived organoids (ICC_PDOs) in normal culture. PDOs) growth in normal culture. First, the total volume, total surface area, and average sphericity of the patient-derived organoids were calculated and their growth curves were plotted. Second, the growth rate of the organoid was calculated to investigate the growth trend of the organoids. Next, the scale differences and growth changes of different patient-derived organoids were qualitatively analyzed based on the probability distribution of the equivalent diameters of the organoids; finally, the key influencing factors of the growth trend of the organoids were preliminarily investigated based on the specific surface area of the organoids. 
+(2) To monitor the growth of intestinal cancer patient-derived organoids (CRC_PDOs) and intrahepatic cholangiocarcinoma patient-derived organoids (ICC_PDOs) in normal culture. PDOs) growth in normal culture. First, the total volume, total surface area, and average sphericity of the patient-derived organoids were calculated and their growth curves were plotted. Second, the growth rate of the organoid was calculated to investigate the growth trend of the organoids. Next, the scale differences and growth changes of different patient-derived organoids were qualitatively analyzed based on the probability distribution of the equivalent diameters of the organoids; finally, the key influencing factors of the growth trend of the organoids were preliminarily investigated based on the specific surface area of the organoids.
 
-(3) AMIs were utilized to quantitatively assess the organoid responses of intestinal cancer patients under the effect of drug gradient concentrations, combination drugs and cholangiocarcinoma patients under the effect of drug gradient concentrations. The established Colorectal cancer aggregated morphological indicators (CRC_AMIs) and Intrahepatic cholangiocarcinoma aggregated morphological indicators (ICC_AMIs) were compared with the AMIs. morphological indicators (ICC_AMIs) and ATP correlations were 0.925 and 0.764, respectively. The study showed that the introduction of time-dependent morphological parameters could more accurately reflect the effects of drug action than those of individual time points, and the analysis of organoid morphological indicators showed that increasing the drug concentration could improve the killing efficiency of tumor cells, and that different patients with different sources of cancerous organoid could be more effective in killing tumor cells. efficiency, and there are differences in the responses of cancer-like organs from different patient sources to the same drug effects. 
+(3) AMIs were utilized to quantitatively assess the organoid responses of intestinal cancer patients under the effect of drug gradient concentrations, combination drugs and cholangiocarcinoma patients under the effect of drug gradient concentrations. The established Colorectal cancer aggregated morphological indicators (CRC_AMIs) and Intrahepatic cholangiocarcinoma aggregated morphological indicators (ICC_AMIs) were compared with the AMIs. morphological indicators (ICC_AMIs) and ATP correlations were 0.925 and 0.764, respectively. The study showed that the introduction of time-dependent morphological parameters could more accurately reflect the effects of drug action than those of individual time points, and the analysis of organoid morphological indicators showed that increasing the drug concentration could improve the killing efficiency of tumor cells, and that different patients with different sources of cancerous organoid could be more effective in killing tumor cells. efficiency, and there are differences in the responses of cancer-like organs from different patient sources to the same drug effects.
 
-Collectively, the AMI established by OCT system combined with PCA could quantify the multidimensional morphological changes of organoids under the drug’s effect, providing a simple and efficient tool for drug screening in PDOs. 
+Collectively, the AMI established by OCT system combined with PCA could quantify the multidimensional morphological changes of organoids under the drug’s effect, providing a simple and efficient tool for drug screening in PDOs.
 
-Keywords: optical coherence tomography, organoid, morphology, ATP, drug efficacy 
+Keywords: optical coherence tomography, organoid, morphology, ATP, drug efficacy
 
 ## 图表清单
 
@@ -125,17 +100,17 @@ Keywords: optical coherence tomography, organoid, morphology, ATP, drug efficacy
 图3.11 ICC_P1 PDOs生长状态下等效直径分布情况。……40
 图3.12 ICC_P3 PDOs生长状态下等效直径分布情况。……40
 
-图3.13 ICC PDOs比表面积变化情况。 41  
-图3.14 ICC PDOs形态学参数日变化率。 41  
-图4.1药物治疗引起的肠癌类器官体积变化。 44  
-图4.2CRC_P1PDOs多尺度5FU药物作用监测。 46  
-图4.3肠癌类器官各形态参数、ATP相关性热图。 47  
-图4.4CRC_P1PDOs在不同浓度5FU作用下的量化结果。 49  
-图4.5CRC_P3PDOs在联合药物作用下的量化结果。 50  
-图4.6药物治疗引起的胆管癌类器官体积变化。 53  
-图4.7ICC_P1PDOs多尺度阿可拉定药物作用监测。 55  
-图4.8胆管癌类器官各形态参数、ATP相关性热图。 56  
-图4.9ICC_P1PDOs在不同浓度阿可拉定作用下的量化结果。 58  
+图3.13 ICC PDOs比表面积变化情况。 41
+图3.14 ICC PDOs形态学参数日变化率。 41
+图4.1药物治疗引起的肠癌类器官体积变化。 44
+图4.2CRC_P1PDOs多尺度5FU药物作用监测。 46
+图4.3肠癌类器官各形态参数、ATP相关性热图。 47
+图4.4CRC_P1PDOs在不同浓度5FU作用下的量化结果。 49
+图4.5CRC_P3PDOs在联合药物作用下的量化结果。 50
+图4.6药物治疗引起的胆管癌类器官体积变化。 53
+图4.7ICC_P1PDOs多尺度阿可拉定药物作用监测。 55
+图4.8胆管癌类器官各形态参数、ATP相关性热图。 56
+图4.9ICC_P1PDOs在不同浓度阿可拉定作用下的量化结果。 58
 图4.10ICC_P3PDOs在不同药物作用下的量化结果。 59
 
 ## 表格清单
@@ -149,7 +124,7 @@ Keywords: optical coherence tomography, organoid, morphology, ATP, drug efficacy
 
 ## 符号清单
 
-<table><tr><td>PDOs</td><td>patient-derived organoids,患者来源类器官</td></tr><tr><td>3D</td><td>three-dimensional,三维</td></tr><tr><td>OCT</td><td>optical coherence tomography,光学相干层析成像</td></tr><tr><td>ATP</td><td>adenosine triphosphate,三磷酸腺苷</td></tr><tr><td>PCA</td><td>principal component analysis,主成分分析</td></tr><tr><td>AMIs</td><td>aggregated morphological indicators,形态学综合指标</td></tr><tr><td>CRC_PDOs</td><td>colorectal cancer patient-derived organoids,肠癌类器官</td></tr><tr><td>ICC_PDOs</td><td>intrahepatic cholangiocarcinoma patient-derived organoids,肝内胆管癌类器官</td></tr><tr><td>CRC_AMIs</td><td>colorectal cancer aggregated morphological indicators,肠癌类器官形态学综合指标</td></tr><tr><td>ICC_AMIs</td><td>intrahepatic cholangiocarcinoma aggregated morphological indicators,胆管癌类器官形态学综合指标</td></tr><tr><td>2D</td><td>two-dimensional,二维</td></tr><tr><td>MTT</td><td>3-(4,5-dimethylthiazol-2-yl)-2,5-diphenyltetrazolium bromide</td></tr><tr><td>XTT</td><td>2,3-bis (2-methoxy-4-nitro-5-sulfophenyl)-5-[(phenylamino) carbonyl]-2H-tetrazolium hydroxide</td></tr><tr><td>CKK-8</td><td>cell counting kit-8</td></tr><tr><td>EBs</td><td>embryoid bodies,均匀的胚状体</td></tr><tr><td>ECM</td><td>extracellular matrix,细胞外基质</td></tr><tr><td>BME</td><td>basement membrane extract,基膜提取物</td></tr><tr><td>CNF</td><td>cellulose nanofibril,纤维素纳米纤维</td></tr><tr><td>H&amp;E</td><td>hematoxylin-eosin staining,苏木精-伊红染色法</td></tr><tr><td>DMSO</td><td>C2H6OS,二甲基亚砜</td></tr><tr><td>IC50</td><td>half maximal inhibitory concentration,半抑制浓度值</td></tr><tr><td>OD</td><td>optical density,光密度</td></tr><tr><td>PDTOs</td><td>patient-derived tumor organoids,患者来源肿瘤类器官</td></tr><tr><td>AUC</td><td>area under curve ROC,曲线下与坐标轴围成的面积</td></tr><tr><td>LIV</td><td>logarithmic intensity variance,对数强度方差</td></tr><tr><td><eq>OCDS_1</eq></td><td>late OCT correlation decay speed,迟OCT相关衰减速度</td></tr><tr><td>PCOs</td><td>patient-derived cancer organoids,患者来源癌症类器官</td></tr><tr><td>SD-OCT</td><td>spectral domain optical coherence tomography,谱域 OCT</td></tr><tr><td>EDF</td><td>expended depth of field,扩展景深</td></tr><tr><td>NAD(P)H</td><td>nicotinamide dinucleotide phosphate,腺嘌呤二核苷酸</td></tr><tr><td>FAD</td><td>flavin adenine dinucleotide,黄素腺嘌呤二核苷酸</td></tr><tr><td>NADH</td><td>nicotinamide dinucleotide,腺嘌呤二核苷酸</td></tr><tr><td>ORR</td><td>optical redox ratio,光学氧化还原比</td></tr><tr><td>5-FU</td><td>5-fluorouracil,5-氟尿嘧啶</td></tr><tr><td>CRC_AMIs</td><td>colorectal cancer aggregated morphological indicators,肠癌类器官形态学综合指标</td></tr><tr><td>ICC_AMIs</td><td>intrahepatic cholangiocarcinoma aggregated morphological indicators,胆管癌类器官形态学综合指标</td></tr><tr><td>SS-OCT</td><td>swept-source optical coherence tomography,扫频 OCT</td></tr><tr><td>SPSS</td><td>statistical product and service solutions,SPSS</td></tr><tr><td>KMO</td><td>kaiser-meyer-olkin,凯泽-梅耶尔-奥利金</td></tr><tr><td>SVD</td><td>singular value decomposition,奇异值分解</td></tr></table>
+<table><tr><td>PDOs</td><td>patient-derived organoids,患者来源类器官</td></tr><tr><td>3D</td><td>three-dimensional,三维</td></tr><tr><td>OCT</td><td>optical coherence tomography,光学相干层析成像</td></tr><tr><td>ATP</td><td>adenosine triphosphate,三磷酸腺苷</td></tr><tr><td>PCA</td><td>principal component analysis,主成分分析</td></tr><tr><td>AMIs</td><td>aggregated morphological indicators,形态学综合指标</td></tr><tr><td>CRC_PDOs</td><td>colorectal cancer patient-derived organoids,肠癌类器官</td></tr><tr><td>ICC_PDOs</td><td>intrahepatic cholangiocarcinoma patient-derived organoids,肝内胆管癌类器官</td></tr><tr><td>CRC_AMIs</td><td>colorectal cancer aggregated morphological indicators,肠癌类器官形态学综合指标</td></tr><tr><td>ICC_AMIs</td><td>intrahepatic cholangiocarcinoma aggregated morphological indicators,胆管癌类器官形态学综合指标</td></tr><tr><td>2D</td><td>two-dimensional,二维</td></tr><tr><td>MTT</td><td>3-(4,5-dimethylthiazol-2-yl)-2,5-diphenyltetrazolium bromide</td></tr><tr><td>XTT</td><td>2,3-bis (2-methoxy-4-nitro-5-sulfophenyl)-5-[(phenylamino) carbonyl]-2H-tetrazolium hydroxide</td></tr><tr><td>CKK-8</td><td>cell counting kit-8</td></tr><tr><td>EBs</td><td>embryoid bodies,均匀的胚状体</td></tr><tr><td>ECM</td><td>extracellular matrix,细胞外基质</td></tr><tr><td>BME</td><td>basement membrane extract,基膜提取物</td></tr><tr><td>CNF</td><td>cellulose nanofibril,纤维素纳米纤维</td></tr><tr><td>H&E</td><td>hematoxylin-eosin staining,苏木精-伊红染色法</td></tr><tr><td>DMSO</td><td>C2H6OS,二甲基亚砜</td></tr><tr><td>IC50</td><td>half maximal inhibitory concentration,半抑制浓度值</td></tr><tr><td>OD</td><td>optical density,光密度</td></tr><tr><td>PDTOs</td><td>patient-derived tumor organoids,患者来源肿瘤类器官</td></tr><tr><td>AUC</td><td>area under curve ROC,曲线下与坐标轴围成的面积</td></tr><tr><td>LIV</td><td>logarithmic intensity variance,对数强度方差</td></tr><tr><td><eq>OCDS_1</eq></td><td>late OCT correlation decay speed,迟OCT相关衰减速度</td></tr><tr><td>PCOs</td><td>patient-derived cancer organoids,患者来源癌症类器官</td></tr><tr><td>SD-OCT</td><td>spectral domain optical coherence tomography,谱域 OCT</td></tr><tr><td>EDF</td><td>expended depth of field,扩展景深</td></tr><tr><td>NAD(P)H</td><td>nicotinamide dinucleotide phosphate,腺嘌呤二核苷酸</td></tr><tr><td>FAD</td><td>flavin adenine dinucleotide,黄素腺嘌呤二核苷酸</td></tr><tr><td>NADH</td><td>nicotinamide dinucleotide,腺嘌呤二核苷酸</td></tr><tr><td>ORR</td><td>optical redox ratio,光学氧化还原比</td></tr><tr><td>5-FU</td><td>5-fluorouracil,5-氟尿嘧啶</td></tr><tr><td>CRC_AMIs</td><td>colorectal cancer aggregated morphological indicators,肠癌类器官形态学综合指标</td></tr><tr><td>ICC_AMIs</td><td>intrahepatic cholangiocarcinoma aggregated morphological indicators,胆管癌类器官形态学综合指标</td></tr><tr><td>SS-OCT</td><td>swept-source optical coherence tomography,扫频 OCT</td></tr><tr><td>SPSS</td><td>statistical product and service solutions,SPSS</td></tr><tr><td>KMO</td><td>kaiser-meyer-olkin,凯泽-梅耶尔-奥利金</td></tr><tr><td>SVD</td><td>singular value decomposition,奇异值分解</td></tr></table>
 
 ## 目 录
 
@@ -219,17 +194,11 @@ ABSTRACT....III
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/d81b1ef0a81010dea3a57eb1ea71cb04b14442e55f2ebce23ca4bfd71b01934a.jpg)
 
-
-
 图1.1 类器官模型与其他模型的比较<sup>[4]</sup>。
-
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/fa04ffdfd6f3e0affe0648ec616451e623f3f898ea0e6415ceac250aba192b52.jpg)
 
-
-
 图1.2 类器官研究发展ᰦ间线<sup>[6]</sup>。
-
 
 患者来源肿瘤类器官（Patient-derived organoids , PDOs）能够再现原始组织的形态学特征并重现部分生理功能，同ᰦ保留了肿瘤的遗传和异质性,为可预测临床治疗结果的个性化医疗ᨀ供了一个极佳的工具,可以对治疗ᯩ法进行中通量至高通量筛选和药物毒性评估<sup>[7,</sup> <sup>8]</sup>。肿瘤异质性的存在主要包括肿瘤间和肿瘤内两种，通常表现在患者个体肿瘤多ᯩ面的差异，包括肿瘤生长、侵袭能力以及药物的᭿感性<sup>[9]</sup>。现有PDOs包括胃肠道、胰腺、肝脏、乳腺、前列腺和肺等肿瘤类器官，能够长期传递、冷冻保存和遗传᫽作，而没有ᱮ著的基因突变或表观遗传变化的产生<sup>[10,</sup> <sup>11]</sup>。PDOs取自不同的患者，可能展现不同患者的发病状况，形成包含不同患者信息的活的生物库，能够ᨀ供个别患者的化疗᭿感性信息，将患者肿瘤与有᭸的化疗ᯩ案相匹配<sup>[7]</sup>。然而，临床实验中尚未对类器官的药物筛选预测能力进行精准评估，需要优化 PDOs药物筛选的评估工具。
 
@@ -247,10 +216,7 @@ ABSTRACT....III
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/c61cf5d4febaed489a1f537d29433dbfe9db31c2e3f7cdfc5393959a9986599a.jpg)
 
-
-
 图1.3 微流控技术制备类器官。（a）肾癌药物测试的类器官模型<sup>[23]</sup>；（b）不依赖于基质胶的胰腺癌 PDOs模型<sup>[24]</sup>；（c）功能性肝脏类器官模型<sup>[25]</sup>。
-
 
 ## 1.2.2水凝胶法制备肿瘤类器官
 
@@ -260,17 +226,11 @@ ABSTRACT....III
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/fb19da0e30de081cb3344b2a39214834549c72cd8070d00ae024eca503d01723.jpg)
 
-
-
 图1.4 类器官培养和相关生物医学应用中使用的不同类型的水凝胶<sup>[27]</sup>。
-
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/97f03918fd999a84b0a3e236d927b81ae189144f4b79b15572fa2bf7dfa0ab6a.jpg)
 
-
-
 图1.5 水凝胶法制备类器官。（a）悬浮BME水凝胶制备肠类器官<sup>[28]</sup>；（b）CNF水凝胶制备肝类器官<sup>[29]</sup>；（c）动态水凝胶硬度和应力对肾类器官影响<sup>[30]</sup>。
-
 
 ## 1.2.3 3D打印制备肿瘤类器官
 
@@ -282,10 +242,7 @@ ABSTRACT....III
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/003ef36c8675e053312a6955c41fe4d8de5f7f274491bd8a8e0dae3cde4a9ff4.jpg)
 
-
-
 图1.6 3D打印法制备类器官。（a）乳腺类器官可控阵列打印设备<sup>[33]</sup>；（b）流体连接但空间分离的脑类器官阵列设备<sup>[32]</sup>；（c）基于液滴的生物3D打印肺癌类器官<sup>[34]</sup>。
-
 
 ## 1.3肿瘤类器官药物反应检测分析方法
 
@@ -295,10 +252,7 @@ ABSTRACT....III
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/3798d55eca667c7723dea91da95800f6bec49b659eacf0f392c59d89884077eb.jpg)
 
-
-
 图1.7 原发肠癌组织及其衍生类器官 H&E染色。比例尺： $1 0 0 \mu \mathrm { M } ^ { \left[ 3 7 \right] }$ C
-
 
 ## 1.3.1生化检测分析法
 
@@ -320,77 +274,49 @@ ATP、MTT、CKK-8 ᯩ法均ᱟ通过检测线粒体代谢产物浓度间接反�
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/8bc843b709655f0bd7c814ea6d458b5d2fc7ce27cbb0c3a517715c9d8232de32.jpg)
 
-
-
 图1.8 常见的ᰐ标记生物成像技术<sup>[47]</sup>。
-
 
 2D 成像具有成像快速、᱃于跟踪和识别的特点，᰾场ᱮ微镜和荧光ᱮ微镜均属于2D成像ᯩ式。᰾场ᱮ微镜观察类器官ᱟ通过聚焦镜汇聚类器官，从而形成锥形᰾亮光束通过类器官进入物镜的ᱮ微镜。Matthews 等人开发了一种基于᰾场和相差ᱮ微镜实验中逐像素自动识别、标记和跟踪单个类器官的软件OrganolID，该软件包括卷积神经网络，用于检测ᱮ微镜图像中的类器官；识别模块，用于解析轮廓以标记单个类器官；跟踪模块，用于在延ᰦ成像实验中跟踪已经标识的类器官。如图 1.9，OrganolID 能够准确的分析和跟踪广泛的类器官类型，而ᰐ需细胞标记和参ᮠ调ᮤ<sup>[48]</sup>。荧光ᱮ微镜以紫外线为光源，照射类器官使其发出荧光，在ᱮ微镜下观察类器官的形态及位置。荧光ᱮ微镜通常用于固定免疫染色和活细胞成像，其通过荧光染ᯉ对特定靶标进行标记，观察类器官内的分布情况<sup>[49]</sup>。Döpper 等人开发了一种识别视网膜类器官的ᯩ案，该视网膜类器官包含七种视网膜细胞类型，研究人员对免疫荧光信号进行量化，从而比较不同阶段的视网膜类器官并确定某些细胞群的减少和增加<sup>[50]</sup>。免疫染色的类器官的冷冻切片能够对体外生成的视网膜类器官详细分析其细胞组成、细胞增殖以及空间细胞组织等<sup>[51]</sup>。但2D成像也存在᰾ᱮ的不足，它ᰐ法ᱮ示类器官的真实结构，没有体积成像能力。二维成像中，当类器官经过化疗或辐射处理后识别存活的类器官会受到周围死亡细胞的影响。而三维成像能够真实反应类器官ᴤ丰富的三维结构信息<sup>[45]</sup>。因此，3D 成像适合于类器官样本的ᰐ损、精
 
-OU SD 
+OU SD
 
-0.74 (0.08) 
+0.74 (0.08)
 
 准监测。
 
-Organoid mi ros o y 
-
+Organoid mi ros o y
 
 D C
 
-
-Organo D dete tion 
+Organo D dete tion
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/152baa29cd70d6aac93119edf0adb4e993f5b70b6e971221e2d8afb60bfb5a29.jpg)
 
-
-
 CC
-
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/d6f2a72d13215d7e9dc512d5662042e590ac99f47258ad97fffb7a0ea8fb4f3b.jpg)
 
-
-
 0.78 (0.09)
-
-
 
 Co on
 
-
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/325bb751c387fe9f581431b5d87fea4035cbe5054ee843e1119be2800234eede.jpg)
-
-
 
 0.72 (0.08)
 
-
-
 ung
-
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/462117e55102d73f34ec0708a4d4cd67af231877047edd9787261422d725e2e6.jpg)
 
-
-
 0.87 (0.04)
-
-
 
 ouse S
 
-
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/6b70ef2715f35a4e98cc502fecf7c51a4a8eaee45b747243cd7ce9d0adb468d4.jpg)
-
-
 
 0.70 (0.15)
 
-
-
 图 1.9 多种癌症类器官 2D成像与分割<sup>[48]</sup>。
-
 
 类器官ᱟ一种能够紧密模拟组织结构和细胞组成的三维结构模型，在药物筛选ᯩ面具有巨大潜力。因此，3D 成像有助于监测类器官或肿瘤球体的生长情况。类器官的生长ᱟ在三维环境进行的，难以在单层图像中捕捉分布在不同层的类器官，这使得᭦集所有类器官的信息成为困难。
 
@@ -400,54 +326,35 @@ ouse S
 
 3D 成像的分析ᯩ法主要通过软件对类器官ᮠ据进行分割与量化。类器官的形态参ᮠᱟ药物反应的重要指标，在大型药物筛选实验中必须分析ᮠ千张2D图像从而计算这些参ᮠ，因此亟需开发一些快速高᭸的分析平台<sup>[56]</sup>。Li 等人使用ImageJ 软件中的扩展Ჟ深（Expended depth of field, EDF）作为不同层图像合并到最终层的算法，然后用尼康公司ᨀ供的适合高通量ᮠ据测量的可定制软件GA3 分析系统进行分析<sup>[45]</sup>。Matthews 等人开发的 OrganoID 对类器官的圆形、固体和偏心进行了量化<sup>[48]</sup>。如图 1.11（a-c），Gil 等人利用 Matlab 中的regionpro3函ᮠ进行三维类器官实测形态参ᮠ的计算，例如体积、球度、个ᮠ等，还计算了基于等᭸直径估算 2D 体积与实测 3D 体积的误差，结果表᰾ 3D 实测体积ᴤ接近真实情况<sup>[52]</sup>。Chhetri等人利用OCT系统对乳腺上皮细胞核纤维细胞共培养纵向᨝示了癌前的形态学特征，利用采集的 OCT 图像分析腺泡的形状和大小，并分析腺泡和管腔大小随ᰦ间的变化，结果表᰾只有在于成纤维细胞存在的情况下，才能形成ᴤ大、中空和ᴤ非球形的腺泡<sup>[13]</sup>。氧化还原技术利用代谢辅酶烟酰胺腺嘌呤二核苷酸（Nicotinamide dinucleotide phosphate，NAD(P)H）和黄素腺嘌呤二核苷酸（Flavin adenine dinucleotide，FAD）的自身荧光来探测细胞代谢，从而为 OCT ᨀ供补充信息。腺嘌呤二核苷酸（Nicotinamidedinucleotide，NADH）和 FAD 能够组成光学氧化还原比（Optical redox ratio，ORR），Gil等人量化了包括 ORR在内的 24个变量（12个代谢变量，12个形态变量），其中代谢变量有 ORR 的平均值、最小值、最大值等；形态变量有类器
 
-
 (c)
-
 
 官面积、周长、坚固度、球度等<sup>[55]</sup>。
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/70d2d17867341594007bc611c4a42103c45e57074e8c49b3f876349d1ae308c2.jpg)
 
-
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/f1dfd6630629a603bb29efb3865b360fd17e2a3079417ba13ae8c8084e1f8ab8.jpg)
-
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/0564f9b6542bd91c8766d6c7644fb7776017a55f4fb3e78a2f88acb15778354a.jpg)
 
-
-
 Comparison of the single-layer image and Z-stacked image
-
 
 <table><tr><td colspan="2">Single layer</td><td colspan="2">Z-stacked</td></tr><tr><td>Count</td><td>Total Area (pixel)</td><td>Count</td><td>Total Area (pixel)</td></tr><tr><td>8</td><td>8787</td><td>40</td><td>22521</td></tr></table>
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/8ed981ddd4552d30edff4f834560a1738e757ba34a3763e06dd06bfdb84963d2.jpg)
 
-
-
 图1.103D成像评估类器官。（a）Z-stack成像与单层的差异<sup>[45]</sup>；（b）动态成像评估类器官活死情况<sup>[18]</sup> ；（c）OCT成像对类器官三维渲染结果<sup>[52]</sup>。比例尺： $5 0 0 \mu \mathrm { m }$ 。
-
-
 
 (a)
 
-
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/f7fe2b25845618d5d2942cf1146af889715ea6b1a9663bc79a9f37c73e695ccb.jpg)
-
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/99d984a856d48455b7ba9e36cd41be02bedd2cd0e4c651ebcd9181c73228a591.jpg)
 
-
-
 (c)
-
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/15e52d5d0ff4fd2da91f29160480c0e4a73128d25c98a1650e07b0a9517eb01a.jpg)
 
-
-
 图1.11 类器官不同形态学参ᮠ<sup>[52]</sup>。（a）不同球度下体积的估计误差；（b）不同药物作用下类器官的个ᮠ; （c）药物治疗下空实心类器官体积分布。
-
 
 ## 1.4研究内容与意义
 
@@ -483,13 +390,9 @@ Comparison of the single-layer image and Z-stacked image
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/4aa03fdc0c7577dd5af3a067cd4b76210bae5cb040656f61abb3293988842220.jpg)
 
-
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/4756f399a2815f911a8df58f2b4bc636b54986a43bb61e6e3607b008a12ee620.jpg)
 
-
-
 图 2.1 傅里叶域 OCT 原理图。（a）SD-OCT 原理图<sup>[57]</sup>；（b）SS-OCT 原理图<sup>[58]</sup>。
-
 
 ## 2.1.2 光学相干层析成像采集方案
 
@@ -503,19 +406,13 @@ Comparison of the single-layer image and Z-stacked image
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/cdafc820161e225e625e7f6b345b946a5af31db316531c335ef04ef18d3db52a.jpg)
 
-
-
 图 2.2 类器官成像及ᮠ据处理流程图。
-
 
 图 2.3展示了在 XY俯视图中重叠的类器官在不同观测视角的真实位置。可以观察到，在 XY平面的截面图像中心观测到一个较大的类器官，在 3D渲染图中᯻转角度（尤其ᱟ在角度 3到角度 5之间），会发现这个较大的类器官实际上ᱟ2个较小的类器官，在深度ᯩ向这种分离会ᴤ加᰾ᱮ。因此，如果在XY俯视图中观测到连接的类器官，可以在 XZ、YZ 截面上计算两个类器官轮廓之间的距离。当距离超过特定像素ᰦ，它们将被视为两个类器官。这种在深度ᯩ向重叠的类器官很难用᰾场ᱮ微镜、荧光ᱮ微镜区分开来。
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/55455dff01cd95099348968d74ffc403b939ac77b2afa9e1dfc4cbdd1451d801.jpg)
 
-
-
 图2.3 肠癌类器官相对位置的示意图。图中展示了类器官的᰾场ᱮ微镜图、原始OCT重建图像。底部两行展示了不同角度下中间区域类器官（红色矩形框）的相对位置。
-
 
 ## 2.2类器官分割与量化
 
@@ -531,10 +428,7 @@ EGO-Net 在肠癌类器官等᭸直径为[32 μm，50 μm]ᰦ的分割精度可�
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/0020bf0680395604f7070a9df1b7fa2abd20d63c1ac895856dacc41248a16995.jpg)
 
-
-
 图2.4 类器官分割网络结构图。（a） EGO-Net网络结构图；（b）正交输入示意图<sup>[65]</sup>。
-
 
 ## 2.2.2类器官的量化
 
@@ -544,9 +438,7 @@ EGO-Net 在肠癌类器官等᭸直径为[32 μm，50 μm]ᰦ的分割精度可�
 
 类器官形态学参ᮠ的量化算法如表2.1所示：
 
-
 表 2.1 类器官的形态学量化算法步骤
-
 
 <table><tr><td>具体步骤</td></tr></table>
 
@@ -570,10 +462,7 @@ EGO-Net 在肠癌类器官等᭸直径为[32 μm，50 μm]ᰦ的分割精度可�
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/47b15aeeff67c8d2d0ecb9b5ff41e85156b9a7e1d8ffdf3152e60fa1790c3899.jpg)
 
-
-
 图2.5 类器官图像处理流程及形态学指标量化流程。（a）孔板内光学ᱮ微镜下的类器官图像；（b-d）OCT三个截面的图像，即XY、XZ、YZ三个截面；（e）OCT三维重建图像；（f）OCT的类器官三维分割图；（g）类器官形态学指标的量化流程。
-
 
 由于 OCT 在实现三维监测ᯩ面的优势，我们能够分析类器官的ᴤ多的形态衍生参ᮠ。即，本᮷能够分析每个培养孔在单个ᰦ间点的类器官基础参ᮠ，主要包括类器官总体积、总表面积、总个ᮠ、平均体积、平均表面积、平均球度、等᭸直径以及比表面积；考虑到 OCT 非破坏性监测的特点，我们能够分析这些参ᮠ在监测ᰦ间内的每ᰕ均值和ᰦ间变化标准差，主要包括ᰕ均值（式（2.9））、ᰕ标准差（式（2.10））；ᰕ间变化率，主要包括ᰕ间变化率均值（式（2.11））、ᰕ间变化率标准差（式（2.12））；始末变化参ᮠ（式（2.13）），主要包括始末变化率。共计四大类形态学参ᮠ，具体的各形态参ᮠ的计算公式见（2.1-2.13）。为了获得ᴤ好的计算结果，光学ᱮ微成像用于确定类器官适用于药物筛选的ᰦ间点，并确保在分割后的 OCT图像中类器官的位置与光学ᱮ微成像一致。
 
@@ -581,10 +470,7 @@ EGO-Net 在肠癌类器官等᭸直径为[32 μm，50 μm]ᰦ的分割精度可�
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/9ebc9a8f0f70a8c7995e3ff09b47398fd989e05d044fb7ad87a19d18e253ea9e.jpg)
 
-
-
 图2.6CRC_P1的中空类器官图像。亮场中的红色框表示CRC_P1 PDOs中观察到的中空类器官。3D分割-XY中的黄色框对应于同一类器官，即单个类器官1。图中展示了单个类器官 1 的 3D、X-Z、X-Y 截面。
-
 
 类器官各形态学参ᮠ计算公式为：
 
@@ -698,57 +584,37 @@ $$
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/31bf7c1984e44a3c28ed06d2b3603e06a590cbdeec23a743877d22b7f94e4f8b.jpg)
 
-
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/c12eb66f2e3831d2710dc5fc9cf17b9b92a566916cd50b17d13ff82f1c664023.jpg)
-
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/b545fe5f10a03e2e26e438bb80a6fe7699f6b798aee9e26f6ea501c7d6b2e840.jpg)
 
-
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/eb61781d22d8760afce8c949fac489a81db4f3455475a3650751fbea587f808f.jpg)
-
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/5ed018419b697938d345f10b980b554a537b759925503957b4bc250c37e72220.jpg)
 
-
-
 图2.7CRC_P1肠癌类器官群及单个类器官成像。
 
-
-
 表 2.2CRC_P1肠癌典型类器官形态实际参ᮠ
-
 
 <table><tr><td>序号</td><td>体积(<eq>\mu m^3</eq>)</td><td>表面积(<eq>\mu m^2</eq>)</td><td>球度</td><td>空实心</td></tr><tr><td>c1</td><td>6247600</td><td>550950</td><td>0.29775</td><td>实心</td></tr><tr><td>c2</td><td>7602100</td><td>1244800</td><td>0.15020</td><td>实心</td></tr><tr><td>c3</td><td>2919100</td><td>319600</td><td>0.30906</td><td>实心</td></tr><tr><td>c4</td><td>6703500</td><td>697700</td><td>0.24642</td><td>实心</td></tr><tr><td>c5</td><td>478300</td><td>765750</td><td>0.17982</td><td>实心</td></tr><tr><td>c6</td><td>8497900</td><td>1702700</td><td>0.13020</td><td>空心</td></tr><tr><td>c7</td><td>298130</td><td>54400</td><td>0.39672</td><td>实心</td></tr><tr><td>c8</td><td>411500</td><td>61450</td><td>0.43539</td><td>实心</td></tr><tr><td>c9</td><td>220500</td><td>34400</td><td>0.51310</td><td>实心</td></tr></table>
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/fdc98c4189e0debe3fe2cc2f56513496449449745bd7822f99515ff57d1ee37a.jpg)
 
-
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/af9c48861b361fa60029cee1c1e4334317ecbf2a02fdff3457afb67c5583165c.jpg)
-
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/f4868c2d49726e9971dac6d5115636988fc4f7dceaf4b8adf25847cdaa1c90d0.jpg)
 
-
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/dcf482b677cf20adcedce7209c4b5eaa1498bce1498119abcdd6b06020c684b1.jpg)
-
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/78c49a75913d73d6cf435cbefb1fa1fed4e82754cd4f973cf3b2f34d5cba9ab1.jpg)
 
-
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/3eca9058e6fc96182b2a07c17da27e9517ec1cecfaa34d2dbdf1ca3c184438ea.jpg)
-
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/409fea8995f3085bf89ca236fb414d739ee21d6cd13bfd9b1945c02d102a8ff1.jpg)
 
-
-
 图 2.8 ICC_P1胆管癌类器官群及单个类器官成像。
 
-
-
 表2.3ICC_P1胆管癌典型类器官形态实际参ᮠ
-
 
 <table><tr><td>序号</td><td>体积(<eq>\mu m^3</eq>)</td><td>表面积(<eq>\mu m^2</eq>)</td><td>球度</td><td>空实心</td></tr><tr><td>c1</td><td>486810</td><td>662050</td><td>0.33980</td><td>空心</td></tr><tr><td>c2</td><td>5634100</td><td>7057500</td><td>0.21696</td><td>实心</td></tr><tr><td>c3</td><td>19104000</td><td>1429800</td><td>0.41710</td><td>空心</td></tr><tr><td>c4</td><td>7169800</td><td>1121300</td><td>0.16310</td><td>空心</td></tr><tr><td>c5</td><td>6863400</td><td>1080200</td><td>0.29260</td><td>空心</td></tr><tr><td>c6</td><td>3210100</td><td>360200</td><td>0.29216</td><td>实心</td></tr><tr><td>c7</td><td>13802000</td><td>2302800</td><td>0.18630</td><td>空心</td></tr><tr><td>c8</td><td>1901500</td><td>229250</td><td>0.32377</td><td>实心</td></tr><tr><td>c9</td><td>4943000</td><td>563500</td><td>0.24903</td><td>实心</td></tr></table>
 
@@ -794,7 +660,7 @@ $$
 B = \left[ \begin{array}{c c c c} c o v (x _ {1}, x _ {1}), c o v (x _ {1}, x _ {2}) & \dots & c o v \bigl (x _ {1}, x _ {j} \bigr) \dots & c o v (x _ {1}, x _ {l}) \\ \vdots & & \ddots & \vdots \\ c o v (x _ {l}, x _ {1}), c o v (x _ {l}, x _ {2}) & \dots & c o v \bigl (x _ {l}, x _ {j} \bigr) \dots & c o v (x _ {l}, x _ {l}) \end{array} \right] _ {l \times l}\tag{2.15}
 $$
 
-其中���()表示协ᯩ差, $x _ { j }$ 表示第�个形态学参ᮠ, $x _ { j } = [ x _ { 1 j } , x _ { 2 j } , \ldots , x _ { m j } ] ^ { T }$ 
+其中���()表示协ᯩ差, $x _ { j }$ 表示第�个形态学参ᮠ, $x _ { j } = [ x _ { 1 j } , x _ { 2 j } , \ldots , x _ { m j } ] ^ { T }$
 
 进一步，使用奇异值分解（SVD）计算协ᯩ差矩阵 $B ^ { T } B$ 的特征值与特征向量，对特征值从大到小排序，排序后特征值对应的特征向量即为类器官形态学参ᮠ的权重系ᮠ。
 
@@ -816,7 +682,7 @@ $$
 F _ {i k} = a _ {k 1} x _ {i 1} + a _ {k 2} x _ {i 2} + \dots + a _ {k j} x _ {i j} + \dots + a _ {k l} x _ {i l}\tag{2.18}
 $$
 
-按照奇异值占比和 $\sum { b _ { k } }$ 大于阈值�（本᮷ $\alpha = 8 5 \% )$ ）选取前三个归一化的类器官形态学参ᮠ多项式构建类器官形态学综合指标，其权重为奇异值占比，奇异值 $\sigma _ { k }$ 与特征值 $\lambda _ { k }$ 的关系为 $\sigma _ { k } = \sqrt { \lambda _ { \mathrm { k } } }$ 
+按照奇异值占比和 $\sum { b _ { k } }$ 大于阈值�（本᮷ $\alpha = 8 5 \% )$ ）选取前三个归一化的类器官形态学参ᮠ多项式构建类器官形态学综合指标，其权重为奇异值占比，奇异值 $\sigma _ { k }$ 与特征值 $\lambda _ { k }$ 的关系为 $\sigma _ { k } = \sqrt { \lambda _ { \mathrm { k } } }$
 
 $$
 b _ {k} = \frac {\sigma_ {k}}{\sum_ {k = 1} ^ {l} \sigma_ {k}}\tag{2.19}
@@ -856,105 +722,65 @@ $$
 
 在᰾场ᱮ微镜中初步观测典型类器官（图 3.1（a）黄色箭头所示）的直径没有发生᰾ᱮ的变化，基于直径来预估类器官的体积也没有᰾ᱮ的变化；但ᱟ基于 3D OCT 分割图像的体素累积的ᯩ法我们发现类器官实际体积在第二天下降了，第三天的体积与第一天相当，第 2天~第 6天，类器官的体积逐渐上升，第6天的体积ᱟ第一天体积的1.8倍。图3.1（b）展示的类器官内部结构的变化证实了体素法计算体积相比᰾场ᱮ微测量直径预估体积的ᯩ法ᴤ准确。图 3.1
 
-
 b D seg D seg D seg D seg entation entation  entation  entation
-
 
 （c）展示了基于 3D OCT 分割图获得的典型类器官的体积、表面积、球度在ᮤ个培养周期的变化趋势，为了将三个不同量纲的形态参ᮠ绘制在同一张图中，我们对三个形态参ᮠ做了归一化处理，将各自第i天的ᮠ值除以第一天的ᮠ值作为该形态参ᮠ的归一化参量。图 3.1（d）展示了 CRC_P1 类器官样本 3 个培养孔内类器官群的总体积、总表面积、平均球度在ᮤ个培养周期的变化趋势，可以看出总体积增长了 0.8倍、总表面积增加了 0.5倍、平均球度变化趋势较小。
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/f854d77462d08e51c9f1e5d6bc09d874f85c5b48c28c5facc8a725e2b2c366e2.jpg)
 
-
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/2464cd620c131c6b5b1569e4fea1958d589f8fec9ed6702de3890986d41f378d.jpg)
-
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/c113ac0643a0700dcbcd8291345dbdf1cf12e911e78070d98e1b8013ba6890d3.jpg)
 
-
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/c9a2154255efda4166aacce7a69dec67328835364b2ed22840528407d41af160.jpg)
-
-
 
 (c)
 
-
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/22f0f0bdf2622c712aacb9e632f37058a1b0740891276ca830440f426ccd7630.jpg)
-
-
 
 d
 
-
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/4dd8eeaaadecf7498725fb895bdeb85efa0299895dc06b6d509184144425aa0c.jpg)
 
-
-
 图3.1CRC_P1PDOs自然生长情况下多尺度生长监测。（a）未经处理的᰾场ᱮ微镜、3D重建图，其中包含᰾场ᱮ微镜图、分割重建后XY面俯视图、分割重建后立体展示图；（b）未经处理的典型类器官追踪图；（c）未经处理的典型类器官体积、表面积和球度的变化ᴢ线图；（d）未经处理的类器官群总体积、总表面积和平均球度的变化ᴢ线图（重建图中颜色说᰾：红色表示等᭸直径在90 μm以上的类器官，绿色表示等᭸直径位于 50 μm至 90 μm之间的类器官，灰色表示等᭸直径在 32 μm至50 μm之间的类器官）。
-
 
 如图 3.2（a），展示了 CRC_P2 患者来源类器官的光镜、分割重建图。如图3.2（b），展示了单个类器官三维重建图及三个ᯩ向的截面图。按照和 CRC_P1相似的分析ᯩ式对 CRC_P2 进行自然生长情况下的量化分析。如图 3.2（a），类器官的三维分割重建图中 CRC_P2 类器官密度较大，中等尺寸的类器官占比较大，类器官群呈现出密集的圆盖状。如图 3.2（b），典型类器官形状不规则且顶部有空腔出现。如图 3.2（c），在量化ᴢ线图中典型类器官的体积和表面积呈现上升趋势，第 2 天上升速率较快，后期趋于平缓。典型类器官的平均球度有较小的上升趋势。如图 3.2（d），类器官群在第 1天展现出迅速生长的状态，到第4 天又进入了生长迅速的阶段。CRC_P2 患者来源的类器官两种尺度下体积参ᮠ的最后一天较第一天的生长幅度类似，均增长了约0.3倍。
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/68b8841013cd9c19ed913578b1aad7a813b0515579a3c98545dc5308ba3ee75f.jpg)
 
-
-
 b D seg D seg D seg D seg entation entation  entation  entation
-
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/91d19d1153dc90e4f039c9786aa3ecff561aa8d57b083f2f5d0e08654e1a866b.jpg)
 
-
-
 (c)
-
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/3968fed872708b18c1b8cc38ff4d182291650301c30ee500b6d75a20c8c43a51.jpg)
 
-
-
 d
-
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/1aacf41ec29121529e7bf5ccb23a96aa6eca652448ae0387dabb516642091526.jpg)
 
-
-
 图3.2CRC_P2 PDOs自然生长情况下多尺度生长监测。（a）᰾场ᱮ微镜、分割重建图；（b）未经处理的典型类器官追踪图；（c）典型类器官体积、表面积和球度的变化ᴢ线；（d）类器官群总体积、总表面积和平均球度的变化ᴢ线。
-
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/6e3192c68f365d98883c5311d0f88b51b0d4ebb2243f84c07d4fc193c2164a67.jpg)
 
-
-
 b D seg D seg D seg D seg entation entation  entation  entation
-
 
 图3.3展示了自然生长情况下的CRC_P3类器官群及典型类器官体积、表面积以及球度参ᮠ的变化情况。如图 3.3（a），展示了第 1、3、6 天光镜检测以及3D重建的结果图， CRC_P3类器官群密度增加，中、小尺寸类器官变多变密实（中、小尺寸ᱟ指等᭸直径位于 32 μm 至 90 μm 之间）。如图 3.3（b），典型类器官呈现不规则形态。如图 3.3（c）展示了典型类器官形态学变化的ᴢ线图，该类器官在第1天至第3天具有缓慢增长的趋势，第4天至第6天略微下降，但最后一天的体积仍然高于第一天。典型类器官的平均球度具有缓慢波动的趋势。如图 3.3（d），CRC_P3 类器官群的总体积和总表面积呈现增长趋势，两者的增长趋势具有较强的相似性，总体积第 3天相较于第 1天增长了约 0.8倍，第 6天相较于第 3 天增长了约 0.85 倍。总表面积与其类似，平均球度变化微弱，围绕第1天的平均球度上下波动。
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/f31c335b68eda77299c2224fe41c72d09bc6bec02b2a89ec0f24cdd05ff2d2a9.jpg)
 
-
-
 (c)
-
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/bd481e33ddb785afbc06f4fb5250d284dba6a648fd400e221541a294da572fbd.jpg)
 
-
-
 d
-
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/ec5f13383a7dbdc7c3d32786f03f95f4fee8b152042c16a5bce1d5aab7251061.jpg)
 
-
-
 图 3.3CRC_P3 PDOs自然生长情况下多尺度生长监测。（a）ᱮ微镜图、分割重建图；
 
-
-
 （b）单个类器官追踪图；（c）典型类器官体积、表面积和球度的变化ᴢ线；（d）类器官群总体积、总表面积和平均球度的变化ᴢ线。
-
 
 通过对肠癌三位患者来源类器官群进行生长监测可以发现，总体积与总表面积均呈现上升趋势，平均球度均ᰐ᰾ᱮ变化，呈现波动趋势。此外，由于患者存在个体差异，形态参ᮠ的生长速率表现出不一致。根据对三位患者来源肠癌类器官多尺度量化分析，典型类器官的分析能观察类器官内部空心、实心的变化情况，能够微观展示出典型类器官的生长趋势，帮助发现ᴤ多的特殊类器官结构。类器官群的分析能够减小因孔板差异产生的误差，获得类器官ᮤ体的生长参ᮠ。类器官群的分析包含了ᴤ多的生长信息，对加药实验ᰦ间点具有指导作用。
 
@@ -966,17 +792,11 @@ d
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/cf34906df73f3174bf3242a3d6584bd31efed0c8299d6af5a5754810deb78faa.jpg)
 
-
-
 图 3.4CRC_P1 PDOs生长状态下等᭸直径分布情况。
-
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/fb21ec8f2b9c1d805997da2f133ecbf5c9b29708d8497b820c9d741bfa704db2.jpg)
 
-
-
 图 3.5 CRC_P3 PDOs 生长状态下等᭸直径分布情况。
-
 
 ## （2）肠癌类器官的比表面积变化情况
 
@@ -984,13 +804,9 @@ d
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/c5baf4207755e427df83b61c0f44f369f537d2715485acb5670c00525a616657.jpg)
 
-
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/6f49865b56d17b920ceadfba94f6fa4d7c24b1baa2f74d971c47c0836d73777d.jpg)
 
-
-
 图 3.6 CRC PDOs 比表面积变化情况。（a）CRC_P1 PDOs 比表面积 6 ᰕ内变化情况；（b） CRC_P3 PDOs比表面积 6ᰕ内变化情况。
-
 
 ## （3）患者来源肠癌类器官的日变化情况
 
@@ -998,13 +814,9 @@ d
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/d67ae56f78dcf84157ec658fb234da25f56c86b55d452758440d2c0db94067f4.jpg)
 
-
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/8ea033405f19f137b47115273cd5c6d41b47d1f4be6f703c592e9c5e69fc08d0.jpg)
 
-
-
 图3.7CRCPDOs形态学参ᮠᰕ变化率。（a）CRC_P1 PDOs总体积ᰕ变化率均值、总表面积ᰕ变化率均值；（b）CRC_P3 PDOs总体积ᰕ变化率均值、总表面积ᰕ变化率均值。
-
 
 ## 3.2胆管癌类器官生长过程分析
 
@@ -1028,76 +840,45 @@ d
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/ae6a081f70659e399a620a2955708e3c10f84f85c1d8ba56ae9814226c83a058.jpg)
 
-
-
 (c)
-
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/7f7cf739f32eb4e3ede2eb9e961d29fc29221e6aec82d22c6a244811323af53d.jpg)
 
-
-
 d
-
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/d9de00f5e5424ed21560d1f0e7c926ba7847d22dc7752349afdb003e40b3a634.jpg)
 
-
-
 图3.8 ICC_P1 PDOs自然生长情况下多尺度生长监测。（a）自然生长情况下的᰾场ᱮ微镜、3D重建图；（b）自然生长情况下的单个典型类器官三维重建图及三个截面图；（c）典型类器官体积、表面积及球度量化ᴢ线；（d）类器官群总体积、表面积以及平均球度的量化ᴢ线。
-
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/ab8c8a2b5c4060ff806e8927cfc9bbdd706d330b1b27b894413d96ae8fe120b7.jpg)
 
-
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/f77c2dd6cdae05f21caa989348b0d76f78f925466b9595600849940fb2fc3ca5.jpg)
 
-
-
 (c)
-
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/162636ee1af6b1c8038e730a7b3d3126ac45a608528e26b75e815aa1876c1e18.jpg)
 
-
-
 d
-
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/16c12e99b698d3bb97fbb913a038d427a2886704dcde02e96163a4445557c0c3.jpg)
 
-
-
 图3.9 ICC_P2PDOs自然生长情况下多尺度生长监测。（a）自然生长情况下的᰾场ᱮ微镜、3D重建图；（b）典型类器官重建图及三个截面图；（c）典型类器官体积、表面积及球度量化ᴢ线；（d）类器官群总体积、表面积以及平均球度的量化ᴢ线。
-
-
 
 a
 
-
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/9f612824f4ca67b52694288c58d39ce846c6b29e655780444730a1605c760cdc.jpg)
-
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/86af4f8ce531c599f0fdc0100881ed73b55cc155c4f4abdc5c7609040124dff9.jpg)
 
-
-
 (c)
-
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/5ab6799f3b30f79dd0c6828f1c11e22897a02b5894ecaeba255ff8d3e85c772d.jpg)
 
-
-
 d
-
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/91c5dba7cf23616a53fd019726da567937a38f888d27f8410b237ddafe7931d6.jpg)
 
-
-
 图3.10 ICC_P3 PDOs自然生长情况下多尺度生长监测。（a）培养4ᰕ自然生长的᰾场ᱮ微镜、3D重建图及典型类器官追踪图；（b）培养4ᰕ自然生长的典型类器官追踪图；（c）培养4ᰕ内自然生长的典型类器官体积、表面积和球度的ᴢ线图；（d）培养4ᰕ内自然生长的类器官群总体积、总表面积和平均球度的ᴢ线图。
-
 
 ## 3.2.3 胆管癌类器官生长量化分析
 
@@ -1107,17 +888,11 @@ d
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/a0106918842d5e85a2db62fef2ad99305fae1cdd986c71418865a51f187cc14b.jpg)
 
-
-
 图 3.11 ICC_P1 PDOs 生长状态下等᭸直径分布情况。
-
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/63a4c220b67b2a434a25cf3d74b75fd1f2f62b58207ebf4419e6c8bec7c288c8.jpg)
 
-
-
 图 3.12 ICC_P3 PDOs 生长状态下等᭸直径分布情况。
-
 
 ## （2）胆管癌类器官的比表面积变化情况
 
@@ -1125,13 +900,9 @@ d
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/733925344359859e6628b5ebf1fcf006f3b57cc9dab031b1a85b46e22e4e18b0.jpg)
 
-
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/55deb661c5c72193bff8df01532017cf801a2c25d6019ea6c719b86d3888806b.jpg)
 
-
-
 图 3.13 ICC PDOs 比表面积变化情况。（a）ICC_P1 PDOs 比表面积 4 ᰕ内变化情况；（b） ICC_P3 PDOs比表面积 4ᰕ内变化情况。
-
 
 ## （3）患者来源胆管癌类器官的日变化情况
 
@@ -1139,13 +910,9 @@ d
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/ae49e9ea684ac47a245d6d4e5dd1140ebf08d9d494365aece42583929cde35c4.jpg)
 
-
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/283e547a458649c82993184be2ff1ce8fe31f55e990e9da833badd19910ef40c.jpg)
 
-
-
 图3.14ICC PDOs形态学参ᮠᰕ变化率。（a）ICC_P1 PDOs总体积、总表面积ᰕ变化率均值；（b）ICC_P3 PDOs总体积、总表面积ᰕ变化率均值。
-
 
 ## 3.3本章小结
 
@@ -1163,15 +930,11 @@ d
 
 5FUᱟ结直肠癌患者常用的药物，它ᱟ一种抗代谢的药物，在细胞周期的s期活跃，但ᲊ期患者药物反应较弱<sup>[75]</sup>。ᴢ妥珠单抗ᱟ Her2的单克隆抗体，用自身的 Her2阻止人体表皮生长因子附着，防止癌细胞进行生长<sup>[76]</sup>。威罗菲尼ᱟ一种小分子的抑制剂，可作为单药治疗具有侵袭性的癌症<sup>[77]</sup>。FOLFIRI 主要由伊立替康、左亚叶酸钙以及 5FU 构成，用于治疗肠癌患者<sup>[78]</sup>。西妥᱄单抗ᱟ一种靶向表皮生长因子受体的嵌合单克隆抗体<sup>[79]</sup>。
 
-
 表4.1 肠癌类器官样本梯度浓度加药情况
-
 
 <table><tr><td>序号</td><td>药物名称</td><td>药物类型</td><td>药物浓度</td></tr><tr><td>1</td><td>空白对照</td><td>/</td><td>/</td></tr><tr><td>2</td><td></td><td></td><td>5 μg/mL</td></tr><tr><td>3</td><td></td><td></td><td>15 μg/mL</td></tr><tr><td>4</td><td>5FU[10]</td><td>抗代谢类药物</td><td>45 μg/mL</td></tr><tr><td>5</td><td></td><td></td><td>135 μg/mL</td></tr><tr><td>6</td><td></td><td></td><td>405 μg/mL</td></tr></table>
 
-
 表4.2 肠癌类器官样本联合用药加药情况
-
 
 <table><tr><td>序号</td><td>药物名称</td><td>药物类型</td><td>药物浓度</td></tr><tr><td>1</td><td>空白对照</td><td>/</td><td>/</td></tr><tr><td>2</td><td><eq>5FU^{[10]}</eq></td><td>抗代谢类药物</td><td>5 μg/mL</td></tr><tr><td>3</td><td>曲妥珠单抗[80]</td><td>靶向药物</td><td>175 μg/mL</td></tr><tr><td>4</td><td>威罗菲尼[81]</td><td>蛋白抑制剂</td><td>21.014 μg/mL</td></tr><tr><td>5</td><td>FOLFIRI 联合[82]</td><td>联合用药</td><td>5FU 22.5 μg/mL</td></tr><tr><td></td><td></td><td></td><td>SN38 0.014 μg/mL</td></tr><tr><td>6</td><td>西妥昔与威罗菲尼[83]</td><td>联合用药</td><td>Cet. 0.087 μg/mL</td></tr><tr><td></td><td></td><td></td><td>Vem. 21.014 μg/mL</td></tr></table>
 
@@ -1181,45 +944,27 @@ d
 
 必须指出，药物作用到第六天类器官的总体积与 ATP 的ᯟ皮尔ᴬ相关系ᮠ小于 0.8，说᰾采用单次的类器官体积表征药物反应不够准确。考虑药物作用下的ᰦ间相关类器官体积变化，本᮷采用单个类器官平均体积ᰕ均值和单个类器官平均体积ᰦ间浮动标准差表征类器官体积ᰕ均变化及随ᰦ间波动的幅度。计算 ATP 与单个类器官平均体积ᰕ均值、单个类器官平均体积ᰦ间浮动标准差的ᯟ皮尔ᴬ相关系ᮠ分别为 0.8403、0.8609，均通过ᱮ著性检验（p<0.01）。这表᰾类器官的ᰦ间相关体积变化与其生物活性具有强相关性，量化体积随ᰦ间的变化ᴤ能反应药物作用᭸果。
 
-
 a
-
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/3771dd2ff3c7785a5281343640653d0d8f7bc634c4bf5137791cafcb871cf920.jpg)
 
-
+Day
 
 Day
 
-
-
 Day
 
-
-
 Day
-
-
-
-Day
-
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/8355114e1660a55b9d4cf4f3559b9f34511710ab7d12558579feca85db32e743.jpg)
 
-
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/464fdc1c043321170c1a43dda6ed2915e508d6683b2b2be839a1df6aac46cec1.jpg)
-
-
 
 (c)
 
-
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/bb0b225d019b588363631cf471a82eeb61093e26964262f61f171685e56b1491.jpg)
 
-
-
 图4.1 药物治疗引起的肠癌类器官体积变化。（a）单个培养孔内患者肠癌类器官在药物作用下的OCT三维分割图像，包括 CRC_P1空白组、5FU组，CRC_P2空白组、5FU组；（b）各加药组相对于空白组引起的CRC_P1 PDOs的ᮤ体体积变化热图；（c）各加药组相对于空白组引起的 CRC_P2 PDOs的ᮤ体体积变化热图。比例尺：1 mm。
-
 
 ## 4.1.3单个培养孔板内肠癌类器官群的时间相关形态学参数量化
 
@@ -1239,38 +984,23 @@ Day
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/41a7f0885a41ae4f36c88d8e8682053248e51ff7158976c62270a62fa070167b.jpg)
 
-
-
 (c)
-
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/3ba571da2dc1606a76f6c6efa1bedbee78a908deb7a5ff2fbba73ca2b451114d.jpg)
 
-
-
 d
-
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/14e6f01f1a82be5613d665e6b42af3293d9ee2285df8bca62a9ead66655dc439.jpg)
 
-
-
 e
-
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/416c1a3a91ea5f9609d2ecc7e71636e9f708cbdb85d29cab67b1551abba6085b.jpg)
 
-
-
 (f)
-
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/adaac507b9f9c086ed3fabf9e0c413c3070532ef4daf348067be6a1f29e58a30.jpg)
 
-
-
 图4.2CRC_P1PDOs多尺度 5FU药物作用监测。（a）5FU作用下的᰾场ᱮ微镜、3D重建图；（b）典型类器官Organoid1追踪图；（c）5FU作用下的三个典型类器官体积变化ᴢ线；（d）5FU作用下的三个典型类器官表面积变化ᴢ线；（e）5FU作用下的三个典型类器官球度变化ᴢ线；（f）5FU作用下的类器官群总体积、总表面积、平均球度变化ᴢ线。
-
 
 本᮷以 CRC_P1和CRC_P2 PDOs在不同药物作用下的形态学参ᮠ为基准，进行形态学参ᮠ与类器官活性 ATP 的ᯟ皮尔ᴬ相关分析对类器官各参ᮠ进行筛选，剔除ᰐ᭸参ᮠ（相关热图见图 4.3），通过主成分分析建立类器官形态学综合指标的定量表达式。基于ᯟ皮尔ᴬ相关分析确定用于肠癌类器官形态学综合指标计算的形态学参ᮠ为：最后一天平均表面积 $A S A _ { l a s t }$ 、最后一天等᭸直径$D _ { l a s t }$ 、单个类器官平均体积ᰕ均值 $A V _ { m e a n }$ 、单个类器官平均表面积ᰕ均值$A S A _ { m e a n }$ 、单个类器官平均球度ᰕ均值 $A S P _ { m e a n }$ 、单个类器官等᭸直径ᰕ均值$D _ { m e a n }$ 、单个类器官比表面积ᰕ变化率ᰦ间浮动标准差 $D S A _ { s t d }$ 、单个类器官平均体积ᰦ间浮动标准差 $A V _ { s t d }$ 、单个类器官平均表面积ᰦ间浮动标准差 $A S _ { s t d }$ 、单个类器官等᭸直径ᰦ间浮动标准差 $D _ { s t d }$ 。通过协ᯩ差矩阵的奇异值分解获得ᯩ差占比大于 85%的三个归一化类器官形态参ᮠ公式。其中，公式中各系ᮠ为该参ᮠ对于主成分的重要程度，绝对值越大，在该主成分中越重要。
 
@@ -1286,10 +1016,7 @@ $$
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/6f4c3c1dc5d74d88bad60722abd1debe4bc05affda2c809694572dbd89927db2.jpg)
 
-
-
 图4.3 肠癌类器官各形态参ᮠ、ATP相关性热图。
-
 
 ## 4.1.4基于肠癌类器官形态学综合指标测试不同药物作用效果
 
@@ -1297,135 +1024,63 @@ $$
 
 为测试在梯度浓度药物作用下类器官综合得分与 ATP 的关系，对 CRC_P1患者来源肠癌类器官进行 5FU药物梯度浓度实验，具体浓度见表 4.1。图 4.4展示了CRC_P1患者来源肠癌类器官在不同浓度5FU作用下的OCT成像图及形态学量化结果。从图 4.4（a）的OCT图像可以看出，在不同浓度的 5FU作用下，CRC_P1 患者来源类器官的个ᮠ、单孔类器官的总体积呈现下降趋势；而在控制组，类器官的个ᮠ在前 3 天大量增加，类器官总体积在ᮤ个观测期间都呈现一定程度的增加。图 4.4（b）也展示了类器官区域的微观图（微观区域为橙色虚线框），在 $5 ~ { \mu \mathrm { g / m L } }$ 的 5FU 药物作用下微观区域类器官ᮤ体体积缩小。图 4.4（c-d）展示了 5FU 浓度梯度药物作用下六ᰕ内归一化后平均体积的变化趋势。其中，空白组呈现较大的增长幅度，增长约 5 倍。浓度为 $5 ~ \mu \mathrm { g / m L }$ 的 5FU 药物作用下类器官平均体积变化幅度最大，从加药开始至第 2 天类器官平均体积下降，之后开始上升至第4天达到平均体积最高点，最后下降至第6天观测结束。图 4.4（e-g）展示了类器官最后一天的平均体积、平均球度、形态学综合指标和 ATP检测结果在 5FU药物浓度梯度下的对应关系。为ᴤ好比较相对关系，图中各指标相对控制组的结果进行了归一化处理。归一化采用空白组置一的归一化法， $( N o r . V a l u e = v a l u e _ { D r u g } / v a l u e _ { C o n t r o l } )$ 。从图 $4 . 4 \ : \ : ( \mathrm { e - g } )$ 中可以看出，相对控制组，在不同浓度药物连续作用 6 天后类器官的平均体积都有所下降，但并不ᱟ随着药物浓度的增加而一直下降，而ᱟ在 5 μg/mL ᰦ下降到最小值，增加5FU的药物浓度，类器官的归一化平均体积有所回升； $1 5 ~ { \mu \mathrm { g / m I } }$ 的 5FU 作用 6 天后，类器官的平均球度下降到最低，继续增加药物浓度，类器官的平均球度反而出现大幅回升；增加 5FU 的药物浓度， $\mathrm { C R C } \underline { { \mathrm { ~ P 1 } } }$ 患者的形态学综合指标一直下降，与 ATP 活性检测结果有非常高的相似性。类器官形态学综合指标检测出的药物浓度作用结果与其他᮷献报导的增加 5FU 浓度可以ᨀ高肿瘤细胞杀死᭸率的结论一致<sup>[84]</sup>。表᰾类器官形态学综合指标相比单一的形态学指标包含ᰦ间、结构的多维信息，ᴤ能反᱐药物作用。
 
-
 a
 
-
+Day
 
 Day
 
-
+Day
 
 Day
 
-
-
 Day
 
-
-
 Day
-
-
-
-Day
-
-
-
-Day
-
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/7fe76bac3ecc360e54f359e1b0a8d401f24df55f680c5a65032ce313463235dd.jpg)
 
-
-
 (c)
-
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/c056fa983d957a2df2b8cf9ff39b9a967bbf5182190cd563b0defabcb442eca2.jpg)
 
-
-
 d
-
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/389ce7bbef6a70fa89bf00f06adcee923ed2c512628517a7141b8910adc1488b.jpg)
 
-
-
 e
-
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/8b436fe3837bfd843598251e4b1c5f51875a4dfbf71b653ffd1a421ee1e82074.jpg)
 
-
-
 (f)
-
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/a8f0616ef3d2c6d5140ba5d115f213be1c0112a31f898373b0fdf2d7df7256c7.jpg)
 
-
-
 g
-
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/1bad618446e3dcffc283ff2ff1ddfce5690371c5edc4b257495eaff8eca7d05c.jpg)
 
-
-
 图 4.4 CRC_P1 PDOs在不同浓度 5FU作用下的量化结果。（a）CRC_P1患者肠癌类器官加入梯度浓度5FU药物在六天内连续监测的OCT分割图像，其中色度条的不同颜色代表类器官不同的等᭸直径；（b）微观区域（橙色虚线框）分割重建图像；（c）六ᰕ内5FU梯度浓度平均体积变化ᴢ线；（d）除空白组外 5FU梯度浓度平均体积变化ᴢ线；（e）$\mathbf { A T P }$ 与最后一天的平均体积在 5FU浓度梯度下的折线图；（f）ATP与平均球度在 5FU浓度梯度下的折线图；（g）ATP与综合得分在 5FU浓度梯度下的折线图（误差棒表示标准
 
-
-
 (c)
-
 
 ## （2）肠癌类器官不同药物作用效果
 
 为探究类器官形态学综合指标检测不同药物作用᭸果，对不参与主成分分析的 CRC_P3 肠癌患者来源类器官进行不同组合的联合药物实验，具体加药ᯩ案见表 4.2。将 CRC_P3 患者归一化的形态学参ᮠ带入公式（4.1）可得CRC_P3患者来源肠癌类器官在不同药物作用下的形态学综合指标。图4.5（a）展示了 CRC_P3患者肠癌类器官在不同药物作用下六天内连续 OCT监测结果，从 OCT 的类器官分割图像可以看出，在 FOLFIRI 联合（FOLFIRI）、ᴢ妥珠单抗（Tra）、西妥᱄与威罗菲尼（Cet.+Vem.）、5-氟尿嘧啶（5FU）药物作用，单孔内类器官的ᮠ目、尺寸、总体积下降，而在威罗菲尼药物作用下，单孔类器官的ᮠ目、尺寸、总体积没有᰾ᱮ变化；图 4.5（a）中对单个类器官的追踪结果（白色箭头标记）与单孔类器官的ᮤ体药物反应一致。
 
-
-a
-
-
-
-Day
-
-
-
-Day
-
-
-
-Day
-
-
-
-Day
-
-
-
-Day
-
-
-
-Day
-
-
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/4f11f6871d53aba400d9abd749bb00e880b26002796c8eb0df227a11c1e30f30.jpg)
-
-
 
 b
 
-
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/813c2753499eb2cab20bed54ac17e376bd7b50ab440ab6c2c7caaf06915fc91b.jpg)
-
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/cd06e15905f0c7c732e32963430fbda5782806e61fb367b5818041bfc89da810.jpg)
 
-
-
 d
-
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/4a31e7a78867e94083a9187851cf203d521025886d9229cd6e8f86195cca7146.jpg)
 
-
-
 图4.5CRC_P3PDOs在联合药物作用下的量化结果。（a）CRC_P3患者肠癌类器官在不同药物作用下六天内连续OCT监测的分割图像，其中色度条的不同颜色代表类器官不同的等᭸直径；（b）不同药物作用下类器官最后一天的平均体积与ATP检测的对比图；（c）最后一天的平均球度与 ATP检测的对比图；（d）类器官的形态学综合指标与ATP检测的对比图。比例尺：1 mm。
-
 
 为消除量纲的影响 CRC_P3 肠癌患者来源类器官的形态学ᮠ据与 ATP 也进行归一化。归一化采用空白组置一的归一化法，（ $N o r . V a l u e =$ $v a l u e _ { D r u g } / v a l u e _ { C o n t r o l } )$ 。图4.5（b-d）展示了类器官形态学参ᮠ与ATP检测的ᮠ值对照，CRC_P3患者来源类器官在药物作用到第6天的平均体积、平均球度与 ATP 检测结果存在不一致，而包含ᰦ间、多维结构信息的形态学综合指标与 ATP 检测结果高度一致，计算平均体积与 ATP 的皮尔逊相关系ᮠ为0.851(P<0.05),平均球度与 ATP 的皮尔逊相关系ᮠ为 0.018，综合得分与 ATP的相关系ᮠ为0.925（p<0.01）。ATP作为量化生物活性的金标准，类器官形态学综合指标展现了与 ATP 较强的相关关系，对于ᰐ损量化表征药物作用᭸果具有重要意义。
 
@@ -1435,9 +1090,7 @@ d
 
 ICC_P1、ICC_P2 和 ICC_P3 患者来源的类器官培养在 96 孔 U 型底药᭿板中，均设置了四种药物的浓度梯度ᯩ案。药物浓度梯度ᯩ案为阿可拉定、白芍总苷、顺铂、仑伐替尼（如表 4.3 所示），每个浓度下重复六次实验，空白组重复七次实验。在对胆管癌类器官进行生长监测ᰦ，观察到培养两天后小的类器官等᭸直径能够达到 100μm、大的类器官等᭸直径能够达到 200μm，᭵本实验ᯩ案设计为第1天至第2天自然生长及第3天至第4天加药监测。阿可拉定ᱟ一种国产的肝癌创ᯠ靶向药，其中的单一成分ᱟ由淫羊藿属植物淫羊藿ᨀ取的淫羊藿素得到的。淫羊藿苷ᱟ一种淫羊藿苷水解产物，其具有多种药理和生物学活性。淫羊藿苷在多种疾病中展现了抗肿瘤活性，能够抑制细胞增殖并促进部分癌症细胞的凋亡<sup>[85,</sup> <sup>86]</sup>。白芍总苷ᱟ常用传统中药白芍的主要有᭸成分，具有抗炎、镇痛、免疫调节等作用。其抗癌的作用机制ᱟ通过引起细胞凋亡、阻止癌细胞增殖和侵袭<sup>[87,</sup> <sup>88]</sup>。顺铂ᱟ一种含铂的抗癌化疗药物，它通过与多种生物分子共价结合引发细胞死亡。在真核细胞中能够引起细胞周期阻滞并诱导细胞的凋亡<sup>[89,</sup> <sup>90]</sup>。仑伐替尼ᱟ一种口服多激酶抑制剂，适合用于不可切除的ᲊ期肝癌患者。它具有很高的᭸率。它能够抑制肿瘤血管生成，导致营养物质缺乏、缺氧，从而减缓肿瘤的生长或导致其死亡<sup>[91,</sup> <sup>92]</sup>。
 
-
 表 4.3 胆管癌类器官梯度浓度加药情况
-
 
 <table><tr><td>序号</td><td>药物名称</td><td>药物类型</td><td>药物浓度</td></tr><tr><td>1</td><td>空白对照</td><td>/</td><td>/</td></tr><tr><td>2</td><td></td><td></td><td>20 μg/mL</td></tr><tr><td>3</td><td>阿可拉定[85, 86]</td><td>中药(淫羊藿)</td><td>40 μg/mL</td></tr><tr><td>4</td><td></td><td></td><td>80 μg/mL</td></tr><tr><td>5</td><td></td><td></td><td>150 μg/mL</td></tr><tr><td>6</td><td>白芍总苷[87, 88]</td><td>抗炎免疫调节药物</td><td>225 μg/mL</td></tr><tr><td>7</td><td></td><td></td><td>300 μg/mL</td></tr><tr><td>8</td><td></td><td></td><td>20 μg/mL</td></tr><tr><td>9</td><td>顺铂[89, 90]</td><td>铂类肿瘤化学药物</td><td>50 μg/mL</td></tr><tr><td>10</td><td></td><td></td><td>100 μg/mL</td></tr><tr><td>11</td><td></td><td></td><td>10 μg/mL</td></tr><tr><td>12</td><td>仑伐替尼[91, 92]</td><td>多激酶靶点抑制剂</td><td>20 μg/mL</td></tr><tr><td>13</td><td></td><td></td><td>40 μg/mL</td></tr></table>
 
@@ -1445,40 +1098,15 @@ ICC_P1、ICC_P2 和 ICC_P3 患者来源的类器官培养在 96 孔 U 型底药�
 
 如图 4.6（a-b），展示了类器官重建图。ICC_P1、ICC_P3 PDOs 空白组均呈现增长趋势，其中 ICC_P1 PDOs 类器官的ᮤ体尺度ᴤ大。与研究药物作用下肠癌类器官体积速率变化类似，首先将各孔板总体积进行归一化计算，如图 4.6（c-d）得到在 4 种药物的中等浓度作用下相较于空白组的变化速率。ICC_P1PDOs 在中等浓度 20 μg/mL 仑伐替尼作用下体积增长速率比空白组高一些，其他3种药物作用下均呈现比空白组ᴤ低的体积增长速率；ICC_P3 PDOs 4种药物作用下均呈现低体积速率，但体积速率ᮠ值与ICC_P1ᮠ值不同。两患者在相同药物作用下体积速率不同，ᮤ体趋势在阿可拉定（Ica.）、白芍总苷（TGP.）以及顺铂（Cis.）都呈现了体积速率下降的趋势，仑伐替尼（Len.）ᮤ体呈现相反趋势。研究结果表᰾，体积速率的不同将有助于研究胆管癌类器官的个性化药物反应。
 
-
-(d)
-
-
-Day 
-
-
-Day
-
-
-
-Day
-
-
-
-Day
-
-
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/a779c4248c1c947077be2a2b5e366554769fe0b56a8c7f90ccb67476c065c83d.jpg)
-
-
 
 (c)
 
-
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/b2ddf41cdf9db0604f0295dd0c9503b74dec1f825514fc1824a239c08bf99b47.jpg)
-
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/1b5a23fcb3a35e4cb8d5795fa02111374a0e30b31ce09b315f08054aeff9bbb3.jpg)
 
-
-
 图4.6 药物治疗引起的胆管癌类器官体积变化。（a-b）单个培养孔内 ICC PDOs在药物作用下的 OCT 三维分割图像，包括 ICC_P1 PDOs 空白组、阿可拉定组，ICC_P3 PDOs空白组、阿可拉定组，分割重建图中红色表示类器官等᭸直径在 90 μm以上，黄色表示类器官等᭸直径位于 $5 0 \mu \mathrm { m }$ 至 $9 0 \mu \mathrm { m }$ 之间，绿色表示类器官等᭸直径在32 μm至50 μm之间；（c-d）各加药组相对于空白组引起的单孔类器官的ᮤ体体积变化热图。其中包括ICC_P1患者胆管癌类器官以及 $\mathrm { I C C } \_ \mathrm { P 3 }$ 患者胆管癌类器官。比例尺：1mm。
-
 
 ## 4.2.3单个培养孔板内胆管癌类器官群的时间相关形态学参数量化
 
@@ -1486,42 +1114,27 @@ Day
 
 由于加药ᰦ间点ᱟ第 3 天，在阿可拉定药物作用下三个典型类器官的体积和表面积参ᮠ均增长缓慢甚至下降。三个典型类器官表面积的变化与体积类似。如图 4.7（f）中ᴢ线表᰾类器官群总体积呈现上升趋势，上升了约 0.8倍，总表面积上升了约0.4倍，平均球度呈现波动趋势。ICC_P1 PDOs的生长监测中第 3天ᴢ线仍然保持上升势头，但在加入阿可拉定后总体积生长速率᰾ᱮ下降，总表面积在加药的第 2 天（即第 4 天）呈现下降趋势。胆管癌类器官各参ᮠ生长参ᮠ变化不同，需要考虑多参ᮠ协同分析。
 
-本᮷分析了胆管癌类器官的 ATP 与各种形态参ᮠ的相关系ᮠ（热图见 4.8），与肠癌类器官分析类似，利用ᯟ皮尔ᴬ相关分析确定用于胆管癌类器官形态学综合指标计算的形态学参ᮠ为：最后一天总体积 $V _ { l a s t }$ 、最后一天总表面积 $S A _ { l a s t }$ 单个类器官总体积ᰕ均浮动标准差 $A V _ { s t d }$ 、单个类器官总表面积ᰕ均浮动标准差$A S A _ { s t d }$ 、单个类器官总体积ᰕ均变化率 $D V _ { m e a n }$ 、单个类器官总表面积ᰕ均变化率 $D S A _ { m e a n }$ 、单个类器官平均表面积ᰕ均变化率 $D A S A _ { m e a n }$ 、单个类器官总体积始末变化率 $V _ { b e g i n \_ e n d }$ 、单个类器官总表面积始末变化率 $S A _ { b e g i n \_ e n d }$ 、单个类器官平均表面积始末变化率 $. A S A _ { b e g i n \_ e n d ^ { \circ } }$ 
+本᮷分析了胆管癌类器官的 ATP 与各种形态参ᮠ的相关系ᮠ（热图见 4.8），与肠癌类器官分析类似，利用ᯟ皮尔ᴬ相关分析确定用于胆管癌类器官形态学综合指标计算的形态学参ᮠ为：最后一天总体积 $V _ { l a s t }$ 、最后一天总表面积 $S A _ { l a s t }$ 单个类器官总体积ᰕ均浮动标准差 $A V _ { s t d }$ 、单个类器官总表面积ᰕ均浮动标准差$A S A _ { s t d }$ 、单个类器官总体积ᰕ均变化率 $D V _ { m e a n }$ 、单个类器官总表面积ᰕ均变化率 $D S A _ { m e a n }$ 、单个类器官平均表面积ᰕ均变化率 $D A S A _ { m e a n }$ 、单个类器官总体积始末变化率 $V _ { b e g i n \_ e n d }$ 、单个类器官总表面积始末变化率 $S A _ { b e g i n \_ e n d }$ 、单个类器官平均表面积始末变化率 $. A S A _ { b e g i n \_ e n d ^ { \circ } }$
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/42d8f0e4ecedb9cfb1e7568ab67d13af07027388eecf2448615030b8e38cd8e0.jpg)
 
-
-
 (c)
-
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/3ba2fe8288bd4d76bd5154176213f838ad83acba97fa9b1a89c570a7cf42ee33.jpg)
 
-
-
 d
-
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/ec1402eac7b9573b94dda00352a79f2934777813033de610dc71dd8a1d2fbe1f.jpg)
 
-
-
 e
-
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/8aff7b4540e445b9fc152a4b7297b03fd74bee3b464357038e7149ed3701a42d.jpg)
 
-
-
 (f)
-
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/7278306bd7382855a421e5ee568bab4dba0ef78365e0b57492730c87d2b6d895.jpg)
 
-
-
 图4.7 ICC_P1 PDOs多尺度阿可拉定药物作用监测。（a）阿可拉定作用下类器官的᰾场ᱮ微镜、3D重建图；（b）阿可拉定典型类器官 Organoid1三维重建图、三个截面分割图；（c）阿可拉定作用下三个典型类器官体积变化ᴢ线；（d）阿可拉定作用下三个典型类器官表面积变化ᴢ线；（e）阿可拉定作用下三个典型类器官球度变化ᴢ线；（f）阿可拉定作用下类器官群总体积、总表面积、平均球度变化ᴢ线。
-
 
 参照公式（2.15-2.21）获得累积ᯩ差贡献率占比大于 85%的三个归一化类器官形态参ᮠ的公式为：
 
@@ -1537,10 +1150,7 @@ $$
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/eab2cefa5fc1df1a4d0f55d4c8381d5002fec54f877a1d529467e8f70c332e81.jpg)
 
-
-
 图 4.8 胆管癌类器官各形态参ᮠ、ATP相关性热图。
-
 
 ## 4.2.4基于胆管癌类器官形态学综合指标测试不同药物作用效果
 
@@ -1552,60 +1162,25 @@ $$
 
 图4.9（d-f）分别展示了胆管癌类器官平均体积与ATP、平均球度与ATP、ICC_AMIs 与 ATP 的折线图，平均体积展现了与 ATP 相似的趋势，平均球度与ATP 趋势差异较大、AMIs 与 ATP 趋势相似且ᴢ线ᴤ加贴近，这表᰾了构建AMIs 相较于单一参ᮠ会包含ᴤ多胆管癌类器官的形态信息。ICC_P1 AMIs 与ATP 有差异可能ᱟ运用少量胆管癌类器官样本作为训练集的网络进行分割导致的。之后加入大量胆管癌类器官标注图像进入训练集，将有望ᨀ升分割精度后并ᨀ升与ATP的相关性。
 
-
-a
-
-
-
-Day
-
-
-
-Day
-
-
-
-Day
-
-
-
-Day
-
-
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/4f364d4d8fcf8ea81d35faf5a2788473bdb030f06f2086a39afd229b0e3e69cd.jpg)
-
-
 
 (c)
 
-
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/1b646d6ebc793499856fe64b8d2ca86dc0f4407a5e526d329af13bfae401056b.jpg)
-
-
 
 (d)
 
-
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/604e7bb9731036f597a2f2994128082bb8d70534c2894ae318533e24f0c0c351.jpg)
-
-
 
 (e)
 
-
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/4021572b59bdc1578942f8d0d7e0e9efa718cf5771a31c12e53cc0716bbd48f8.jpg)
-
-
 
 (f)
 
-
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/eb8c4da3f2e83a9e7e4b4cb27bcf5011d9e444e4ce4194d941865b833d32a860.jpg)
 
-
-
 图 4.9 ICC_P1 PDOs 在不同浓度阿可拉定作用下的量化结果。（a）ICC_P1 PDOs 加入药物在四天内连续监测的 OCT分割图像；（b）ICC_P1 PDOs区域内类器官三维重建图像；（c）阿可拉定浓度梯度下4ᰕ内平均体积变化ᴢ线；（d）ATP与最后一天的平均体积在阿可拉定浓度梯度下的折线图；（e）ATP与平均球度在阿可拉定浓度梯度下的折线图；（f）ATP与AMIs在阿可拉定浓度梯度下的折线图（误差棒表示标准差，n=6）。
-
 
 ## （2）胆管癌类器官不同药物作用效果
 
@@ -1613,23 +1188,15 @@ Day
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/6ba7ea2072385e8969f158bb81e3e8b59afeb22105a1bdef5db717247a155da5.jpg)
 
-
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/b751b0db05ee7d4f3a838cb262346b6e528dbdd14003b188a1ff7eab20d6b2f3.jpg)
-
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/5d901acf18244aa355e701b0d1777423746a7df77f4cb90f8d2a02c55671470b.jpg)
 
-
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/2c4fe38211616e07dcfce6bc30d2f8f65a941a22950c60ab4ab09a9932b3c5a1.jpg)
-
-
 
 图4.10ICC_P3 PDOs在不同药物作用下的量化结果。（a）ICC_P3患者胆管癌类器官在不同药物作用下4天内连续OCT监测的分割图像；（b）在不同药物作用下类器官最后一天的平均体积与ATP检测的对比图；（c）最后一天的平均球度与 ATP检测的对比图；
 
-
-
 （d）类器官的形态学综合指标 ICC_AMIs与ATP检测的对比图。比例尺：1 mm（误差棒表示标准差，n=6）。
-
 
 ## 4.3 本章小结
 
@@ -1656,623 +1223,3 @@ Day
 必须指出，不同癌种类器官需要重ᯠ计算类器官综合指标的系ᮠ权重。此外，类器官形态学综合指标与 ATP仍存在差异可能ᱟ大直径类器官的 ATP检测试剂扩ᮓ限制有关。如果类器官的半径大于试剂或药物的扩ᮓ半径，导致药物或 ATP检测试剂不能通过扩ᮓ进入到类器官中心，则 ATP检测类器官的活性就可能存在误差；此外，等᭸直径小于 32 μm 的类器官不具备成熟类器官的功能，因而本研究的形态学综合指标分析ᰦ排除了这些类器官，但 ATP ᱟ检测所用类器官的能量代谢载体，这些偏差也导致了类器官形态学综合指标与 ATP 的差异。
 
 目前类器官的研究转化到临床仍有很多问题需要克服。下一步的研究可以引入代谢变量或者免疫组化分析指标，ᨀ出ᯠ的类器官综合指标，利用ᯠ的综合指标与 ATP、MTT 等毒理指标进行相关性分析，ᨀ高综合指标与毒理指标的相关性，同ᰦ在加入ᯠ指标后需要考虑ᮠ据量大导致处理速度降低的问题。
-
-## 致谢
-
-2021年的3月ᱟ梦开始的地ᯩ，三年前的那场考研，似乎用了我所有的力量。虽然没有上岸一志愿的学校，但ᱟ很感谢能有调剂的机会，使得我能够成为一名杭电自动化学院的研究生。ᰦ间飞逝到2024年的3月，随着玉兰花花开花落，我即将迎来研究生的毕业，非常感谢学校和实验室给我ᨀ供的科研、竞赛的资源和平台，能够让我学习到专业的知识，发表国际上认可的论᮷，站上国家级比赛的舞台。
-
-曾经的我ᱟ一个非常Პ通的学生，努力学习却一直得不到回答。直到上了研究生之后，我第一次᭦获所有课程平均分80以上的成绩，第一次看到自己的想法在自己的科研ᯩ向上变成现实，第一次发表学术论᮷，第一次参加学术会议，第一次站在ᮠ模之ᱏ的舞台上答辩，第一次获得很多人的认可。研究生的三年ᱟ努力耕耘并产生光芒的三年，希望我能继续努力，站在ᴤ大的舞台上。
-
-研究生生活首先要感谢徐铭恩老师能选择我成为研究生的机会，并进入了一个学术资源和平台都很好的团队。其次，要感谢王玲老师能够不耐其烦的为我的论᮷做修᭩，每一版论᮷的᭩变都使我的论᮷ᴤ加贴近学术。此外，要感谢杨老师能手把手ᮉ我如何采集OCT，如何重建类器官，如何找到自己的科研ᯩ向，我始终都记得老师说课题就ᱟ要找到自己᫵长的部分，最终我也将熟悉的ᮠ学建模应用在自己的科研中，完成了课题。此外，还要感谢给我帮助的834室友们（葛远远、马楠、陈简单）以及我的同门（武以雯、张露戈、陈ᯩ、范博᮷、叶Ჟ龙、周金浩、李钱森、钱越成），还有师兄师姐们（鲍迪、汪津、付荣郑、卢᰾等）。最后，我要感谢爱我的爸爸妈妈，᭟᫁着我走过᳇淡的ᰦ光。
-
-## 参考文献
-
-
-
-[1] Kratochvil M J, Seymour A J, Li T L, et al. Engineered materials for organoid systems[J]. Nature Reviews Materials, 2019, 4(9): 606-622. 
-
-
-
-
-
-[2] Acharya P, Joshi P, Shrestha S, et al. Uniform cerebral organoid culture on a pillar plate by simple and reproducible spheroid transfer from an ultralow attachment well plate[J]. Biofabrication, 2024, 16(2): 025005. 
-
-
-
-
-
-[3] Matsui T, Shinozawa T. Human organoids for predictive toxicology research and drug development[J]. Frontiers in Genetics, 2021, 12: 767621. 
-
-
-
-
-
-[4] Kim J, Koo B K, Knoblich J A. Human organoids: model systems for human biology and medicine[J]. Nature Reviews Molecular Cell Biology, 2020, 21(10): 571-584. 
-
-
-
-
-
-[5] Hofer M, Lutolf M P. Engineering organoids[J]. Nature Reviews Materials, 2021, 6(5): 402-420. 
-
-
-
-
-
-[6] Xing Y, Liu J, Guo X, et al. Engineering organoid microfluidic system for biomedical and health engineering: A review[J]. Chinese Journal of Chemical Engineering, 2021, 30: 244-254. 
-
-
-
-
-
-[7] Wu W, Li X, Yu S. Patient-derived tumour organoids: a bridge between cancer biology and personalised therapy[J]. Acta Biomaterialia, 2022, 146: 23-36. 
-
-
-
-
-
-[8] Cao Y, Wang X. Effects of molecular markers on the treatment decision and prognosis of colorectal cancer: a narrative review[J]. Journal of Gastrointestinal Oncology, 2021, 12(3): 1191. 
-
-
-
-
-
-[9] Qi K, Liu R. Subpopulation cooperation renders drug resistance of hepatobiliary tumor organoids[J]. Chinese Journal of Cancer Research, 2022, 34(4): 422. 
-
-
-
-
-
-[10] Cho Y W, Min D W, Kim H P, et al. Patient‐derived organoids as a preclinical platform for precision medicine in colorectal cancer[J]. Molecular oncology, 2022, 16(12): 2396-2412. 
-
-
-
-
-
-[11] Drost J, Clevers H. Organoids in cancer research[J]. Nature Reviews Cancer, 2018, 18(7): 407- 418. 
-
-
-
-
-
-[12] Keshara R, Kim Y H, Grapin-Botton A. Organoid imaging: seeing development and function[J]. Annual review of cell and developmental biology, 2022, 38: 447-466. 
-
-
-
-
-
-[13] Chhetri R K, Phillips Z F, Troester M A, et al. Longitudinal study of mammary epithelial and fibroblast co-cultures using optical coherence tomography reveals morphological hallmarks of pre-malignancy[J]. PLoS One, 2012, 7(11): e49148. 
-
-
-
-
-
-[14] Brancato V, Oliveira J M, Correlo V M, et al. Could 3D models of cancer enhance drug screening? [J]. Biomaterials, 2020, 232: 119744. 
-
-
-
-
-
-[15] Mäkinen L, Vähä-Koskela M, Juusola M, et al. Pancreatic cancer organoids in the field of precision medicine: a review of literature and experience on drug sensitivity testing with multiple readouts and synergy scoring[J]. Cancers, 2022, 14(3): 525. 
-
-
-
-
-
-[16] Francies H E, Barthorpe A, McLaren-Douglas A, et al. Drug sensitivity assays of human cancer organoid cultures[J]. Organoids: Stem Cells, Structure, and Function, 2019: 339-351. 
-
-
-
-
-
-[17] Jung Y H, Choi D H, Park K, et al. Drug screening by uniform patient derived colorectal cancer hydro-organoids[J]. Biomaterials, 2021, 276: 121004. 
-
-
-
-
-
-[18] Abd El-Sadek I, Miyazawa A, Shen L T W, et al. Three-dimensional dynamics optical coherence tomography for tumor spheroid evaluation[J]. Biomedical optics express, 2021, 12(11): 6844-6863. 
-
-
-
-
-
-[19] Zhou C, Wu Y, Wang Z, et al. Standardization of organoid culture in cancer research[J]. Cancer Medicine, 2023, 12(13): 14375-14386. 
-
-
-
-
-
-[20] Louey A, Hernández D, Pébay A, et al. Automation of organoid cultures: Current protocols and applications[J]. SLAS DISCOVERY: Advancing the Science of Drug Discovery, 2021, 26(9): 1138-1147. 
-
-
-
-
-
-[21] Zhu Y, Sun L, Wu X, et al. Engineered Human Organoids for Biomedical Applications[J]. Advanced Functional Materials, 2024, 34(11): 2310961. 
-
-
-
-
-
-[22] Jiang S, Zhao H, Zhang W, et al. An automated organoid platform with inter-organoid homogeneity and inter-patient heterogeneity[J]. Cell Reports Medicine, 2020, 1(9): 100161. 
-
-
-
-
-
-[23] Ozcelik A, Abas B I, Erdogan O, et al. On-Chip organoid formation to study CXCR4/CXCL-12 chemokine microenvironment responses for renal cancer drug testing[J]. Biosensors, 2022, 12(12): 1177. 
-
-
-
-
-
-[24] Choi D, Gonzalez‐Suarez A M, Dumbrava M G, et al. Microfluidic Organoid Cultures Derived from Pancreatic Cancer Biopsies for Personalized Testing of Chemotherapy and Immunotherapy[J]. Advanced Science, 2024: 2303088. 
-
-
-
-
-
-[25] Wang Y, Wang H, Deng P, et al. In situ differentiation and generation of functional liver organoids from human iPSCs in a 3D perfusable chip system[J]. Lab on a Chip, 2018, 18(23): 3606-3616. 
-
-
-
-
-
-[26] Luo L, Liu L, Ding Y, et al. Advances in biomimetic hydrogels for organoid culture[J]. Chemical Communications, 2023, 59(64): 9675-86. 
-
-
-
-
-
-[27] Ma P, Chen Y, Lai X, et al. The translational application of hydrogel for organoid technology: challenges and future perspectives[J]. Macromolecular Bioscience, 2021, 21(10): 2100191. 
-
-
-
-
-
-[28] Co J Y, Klein J A, Kang S, et al. Suspended hydrogel culture as a method to scale up intestinal organoids[J]. Scientific Reports, 2023, 13(1): 10412. 
-
-
-
-
-
-[29] Krüger M, Oosterhoff L A, van Wolferen M E, et al. Cellulose nanofibril hydrogel promotes hepatic differentiation of human liver organoids[J]. Advanced healthcare materials, 2020, 9(6): 1901658. 
-
-
-
-
-
-[30] Ruiter F A A, Morgan F L C, Roumans N, et al. Soft, dynamic hydrogel confinement improves kidney organoid lumen morphology and reduces epithelial–mesenchymal transition in culture[J]. Advanced Science, 2022, 9(20): 2200543. 
-
-
-
-
-
-[31] Sun L, Wang Y, Zhang S, et al. 3D bioprinted liver tissue and disease models: Current advances and future perspectives[J]. Biomaterials Advances, 2023: 213499. 
-
-
-
-
-
-[32] Rezaei B, Giacomoni J, Nilsson F, et al. Modular 3D printed platform for fluidically connected human brain organoid culture[J]. Biofabrication, 2023, 16(1): 015014. 
-
-
-
-
-
-[33] Reid J A, Mollica P A, Bruno R D, et al. Consistent and reproducible cultures of large-scale 3D mammary epithelial structures using an accessible bioprinting platform[J]. Breast Cancer Research, 2018, 20: 1-13. 
-
-
-
-
-
-[34] Dong Q, Su X, Li X, et al. In vitro construction of lung cancer organoids by 3D bioprinting for drug evaluation[J]. Colloids and Surfaces A: Physicochemical and Engineering Aspects, 2023, 666: 131288. 
-
-
-
-
-
-[35] Zhou Z, Cong L, Cong X. Patient-derived organoids in precision medicine: drug screening, organoid-on-a-chip and living organoid biobank[J]. Frontiers in oncology, 2021, 11: 762184. 
-
-
-
-
-
-[36] Harada K, Sakamoto N. Cancer organoid applications to investigate chemotherapy resistance[J]. Frontiers in Molecular Biosciences, 2022, 9: 1067207. 
-
-
-
-
-
-[37] Van de Wetering M, Francies H E, Francis J M, et al. Prospective derivation of a living organoid biobank of colorectal cancer patients[J]. Cell, 2015, 161(4): 933-945. 
-
-
-
-
-
-[38] Broutier L, Mastrogiovanni G, Verstegen M M A, et al. Human primary liver cancer–derived organoid cultures for disease modeling and drug screening[J]. Nature medicine, 2017, 23(12): 1424-1435. 
-
-
-
-
-
-[39] Van Hemelryk A, Mout L, Erkens-Schulze S, et al. Modeling prostate cancer treatment responses in the organoid era: 3D environment impacts drug testing[J]. Biomolecules, 2021, 11(11): 1572. 
-
-
-
-
-
-[40] Yu X, Fuller A M, Blackmon R, et al. Quantification of the effect of toxicants on the intracellular kinetic energy and cross-sectional area of mammary epithelial organoids by OCT fluctuation spectroscopy[J]. Toxicological Sciences, 2018, 162(1): 234-240. 
-
-
-
-
-
-[41] 韩鹏. 胆管癌药物的筛选及作用机理的研究[D].厦门大学,2009.
-
-
-
-
-
-[42] Ye L, Zhong F, Sun S, et al. Tamoxifen induces ferroptosis in MCF-7 organoid[J]. Journal of Cancer Research and Therapeutics, 2023, 19(6): 1627-1635. 
-
-
-
-
-
-[43] Wang T, Tang Y, Pan W, et al. Patient-derived tumor organoids can predict the progression-free survival of patients with stage IV colorectal cancer after surgery[J]. Diseases of the Colon & Rectum, 2023, 66(5): 733-743. 
-
-
-
-
-
-[44] Grossman J E, Muthuswamy L, Huang L, et al. Organoid sensitivity correlates with therapeutic response in patients with pancreatic cancer[J]. Clinical Cancer Research, 2022, 28(4): 708-718. 
-
-
-
-
-
-[45] Li X, Fu G, Zhang L, et al. Assay establishment and validation of a high-throughput organoidbased drug screening platform[J]. Stem Cell Research & Therapy, 2022, 13(1): 219. 
-
-
-
-
-
-[46] Fei K, Zhang J, Yuan J, et al. Present application and perspectives of organoid imaging technology[J]. Bioengineering, 2022, 9(3): 121. 
-
-
-
-
-
-[47] Mao W, Bui H T D, Cho W, et al. Spectroscopic Techniques for Monitoring Stem Cell and Organoid Proliferation in 3D environments for Therapeutic Development[J]. Advanced Drug Delivery Reviews, 2023: 115074. 
-
-
-
-
-
-[48] Matthews J M, Schuster B, Kashaf S S, et al. OrganoID: A versatile deep learning platform for tracking and analysis of single-organoid dynamics[J]. PLoS computational biology, 2022, 18(11): e1010584. 
-
-
-
-
-
-[49] Maramraju S, Kowalczewski A, Kaza A, et al. AI‐organoid integrated systems for biomedica studies and applications[J]. Bioengineering & Translational Medicine, 2024: e10641. 
-
-
-
-
-
-[50] Döpper H, Menges J, Bozet M, et al. Differentiation protocol for 3D retinal organoids, immunostaining and signal quantitation[J]. Current Protocols in Stem Cell Biology, 2020, 55(1): e120. 
-
-
-
-
-
-[51] Fischer A H , Jacobson K A , Rose J ,et al.Cryosectioning Tissues[J].Cold Spring Harbor Protocols, 2008, 2008(8): pdb.prot4991. 
-
-
-
-
-
-[52] Gil D A, Deming D A, Skala M C. Volumetric growth tracking of patient-derived cancer organoids using optical coherence tomography[J]. Biomedical Optics Express, 2021, 12(7): 3789-3805. 
-
-
-
-
-
-[53] Holmes C, Tabrizian M, Bagnaninchi P O. Motility imaging via optical coherence phase microscopy enables label‐free monitoring of tissue growth and viability in 3D tissue‐ engineering scaffolds[J]. Journal of tissue engineering and regenerative medicine, 2015, 9(5): 641-645. 
-
-
-
-
-
-[54] Ming Y, Hao S, Wang F, et al. Longitudinal morphological and functional characterization of human heart organoids using optical coherence tomography[J]. Biosensors and Bioelectronics, 2022, 207: 114136. 
-
-
-
-
-
-[55] Gil D A, Deming D, Skala M C. Patient-derived cancer organoid tracking with wide-field onephoton redox imaging to assess treatment response[J]. Journal of biomedical optics, 2021, 
-
-
-
-
-
-26(3): 036005-036005. 
-
-
-
-
-
-[56] Singaraju J P, Kadiresan A, Bhoi R K, et al. Organalysis: multifunctional image preprocessing and analysis software for cardiac organoid studies[J]. Tissue Engineering Part C: Methods, 2023, 29(12): 572-582. 
-
-
-
-
-
-[57] Ding J, Li Q, Lin J, et al. Optical coherence tomography for the early detection of colorectal dysplasia and cancer: validation in a murine model[J]. Quantitative Imaging in Medicine and Surgery, 2021, 11(1): 371. 
-
-
-
-
-
-[58] Kang J, Wei X, Li B, et al. Sensitivity enhancement in swept-source optical coherence tomography by parametric balanced detector and amplifier[J]. Biomedical Optics Express, 2016, 7(4): 1294-1304. 
-
-
-
-
-
-[59] 吴彤. 扫频光学相干层析成像ᯩ法与系统研究[D].浙江大学,2012.
-
-
-
-
-
-[60] 梁雨. 全光纤高速ᰦ域 OCT 系统研制[D].天津大学,2012.
-
-
-
-
-
-[61] Deloria A J, Haider S, Dietrich B, et al. Ultra-high-resolution 3D optical coherence tomography reveals inner structures of human placenta-derived trophoblast organoids[J]. IEEE Transactions on Biomedical Engineering, 2020, 68(8): 2368-2376. 
-
-
-
-
-
-[62] Yan F, Gunay G, Valerio T I, et al. Characterization and quantification of necrotic tissues and morphology in multicellular ovarian cancer tumor spheroids using optical coherence tomography[J]. Biomedical optics express, 2021, 12(6): 3352-3371. 
-
-
-
-
-
-[63] Hof L, Moreth T, Koch M, et al. Long-term live imaging and multiscale analysis identify heterogeneity and core principles of epithelial organoid morphogenesis[J]. BMC biology, 2021, 19: 1-22. 
-
-
-
-
-
-[64] Leng B, Jiang H, Wang B, et al. Deep-Orga: An improved deep learning-based lightweight model for intestinal organoid detection[J]. Computers in Biology and Medicine, 2024, 169: 107847. 
-
-
-
-
-
-[65] Bao D, Wang L, Zhou X, et al. Automated detection and growth tracking of 3D bio-printed organoid clusters using optical coherence tomography with deep convolutional neural networks[J]. Frontiers in Bioengineering and Biotechnology, 2023, 11: 1133090. 
-
-
-
-
-
-[66] Borten M A, Bajikar S S, Sasaki N, et al. Automated brightfield morphometry of 3D organoid populations by OrganoSeg[J]. Scientific reports, 2018, 8(1): 5319. 
-
-
-
-
-
-[67] Luo H, Li S, Zeng Y, et al. Human colorectal cancer tissue assessment using optical coherence tomography catheter and deep learning[J]. Journal of biophotonics, 2022, 15(6): e202100349. 
-
-
-
-
-
-[68] Chen Z, Ma N, Sun X, et al. Automated evaluation of tumor spheroid behavior in 3D culture using deep learning-based recognition[J]. Biomaterials, 2021, 272: 120770. 
-
-
-
-
-
-[69] Foo M A, You M, Chan S L, et al. Clinical translation of patient-derived tumour organoidsbottlenecks and strategies[J]. Biomarker Research, 2022, 10(1): 10. 
-
-
-
-
-
-[70] Bakker B, Vaes R D W, Aberle M R, et al. Preparing ductal epithelial organoids for high-spatialresolution molecular profiling using mass spectrometry imaging[J]. Nature Protocols, 2022, 17(4): 962-979. 
-
-
-
-
-
-[71] Bigaeva E, Bomers J J M, Biel C, et al. Growth factors of stem cell niche extend the life-span of precision-cut intestinal slices in culture: A proof-of-concept study[J]. Toxicology in Vitro, 2019, 59: 312-321. 
-
-
-
-
-
-[72] Motoyoshiya J, Wada J, Itoh K, et al. Fluorescence and chemiluminescence behavior of distyrylbenzene bearing two arms of dipicolylaminomethyl groups: Interactions with zinc ion and ATP[J]. Spectrochimica Acta Part A: Molecular and Biomolecular Spectroscopy, 2018, 195: 223-229. 
-
-
-
-
-
-[73] Doubeni C A. Early‐onset colorectal cancer: What reported statistics can and cannot tell us and 
-
-
-
-
-
-their implications[J]. Cancer, 2019, 125(21): 3706-3708. 
-
-
-
-
-
-[74] Razumilava N, Gores G J. Cholangiocarcinoma[J]. The Lancet, 2014, 383(9935): 2168-2179. 
-
-
-
-
-
-[75] Jodrell D I, Stewart M, Aird R, et al. 5-fluorouracil steady state pharmacokinetics and outcome in patients receiving protracted venous infusion for advanced colorectal cancer[J]. British journal of cancer, 2001, 84(5): 600-603. 
-
-
-
-
-
-[76] Han S Y, Yu J E, You B H, et al. No Interference of H9 Extract on Trastuzumab Pharmacokinetics in Their Combinations[J]. International Journal of Molecular Sciences, 2023, 24(23): 16677. 
-
-
-
-
-
-[77] Knapen L M, Koornstra R H T, Driessen J H M, et al. The impact of dose and simultaneous use of acid-reducing agents on the effectiveness of vemurafenib in metastatic BRAF V600 mutated melanoma: a retrospective cohort study[J]. Targeted Oncology, 2018, 13: 363-370. 
-
-
-
-
-
-[78] Liu Y, Luan L, Wang X. A randomized Phase II clinical study of combining panitumumab and bevacizumab, plus irinotecan, 5-fluorouracil, and leucovorin (FOLFIRI) compared with FOLFIRI alone as second-line treatment for patients with metastatic colorectal cancer and KRAS mutation[J]. OncoTargets and therapy, 2015: 1061-1068. 
-
-
-
-
-
-[79] Iida M, McDaniel N K, Kostecki K L, et al. AXL regulates neuregulin1 expression leading to cetuximab resistance in head and neck cancer[J]. BMC cancer, 2022, 22(1): 447. 
-
-
-
-
-
-[80] Fakih M G. Trastuzumab plus pertuzumab resistance does not preclude response to lapatinib plus trastuzumab in HER2‐amplified colorectal cancer[J]. The Oncologist, 2018, 23(4): 474- 477. 
-
-
-
-
-
-[81] Hong D S, Morris V K, El Osta B, et al. Phase IB study of vemurafenib in combination with irinotecan and cetuximab in patients with metastatic colorectal cancer with BRAF V600E mutation[J]. Cancer discovery, 2016, 6(12): 1352-1365. 
-
-
-
-
-
-[82] Cao R, Zhang S, Ma D, et al. A multi-center randomized phase II clinical study of bevacizumab plus irinotecan, 5-fluorouracil, and leucovorin (FOLFIRI) compared with FOLFIRI alone as second-line treatment for Chinese patients with metastatic colorectal cancer[J]. Medical oncology, 2015, 32: 1-5. 
-
-
-
-
-
-[83] Kopetz S, Guthrie K A, Morris V K, et al. Randomized trial of irinotecan and cetuximab with or without vemurafenib in BRAF-mutant metastatic colorectal cancer (SWOG S1406)[J]. Journal of Clinical Oncology, 2021, 39(4): 285. 
-
-
-
-
-
-[84] Chun N Y, Kim S N, Choi Y S, et al. PCN-223 as a drug carrier for potential treatment of colorectal cancer[J]. Journal of Industrial and Engineering Chemistry, 2020, 84: 290-296. 
-
-
-
-
-
-[85] Zhang C, Wang X, Zhang C. Icaritin inhibits CDK2 expression and activity to interfere with tumor progression[J]. Iscience, 2022, 25(9). 
-
-
-
-
-
-[86] Li H, Liu Y, Jiang W, et al. Icaritin promotes apoptosis and inhibits proliferation by downregulating AFP gene expression in hepatocellular carcinoma[J]. BMC cancer, 2021, 21: 1-12. 
-
-
-
-
-
-[87] Qin Y, Tian Y. Protective effects of total glucosides of paeony and the underlying mechanisms in carbon tetrachloride-induced experimental liver injury[J]. Archives of Medical Science, 2011, 7(4): 604-612. 
-
-
-
-
-
-[88] Zhang Z H, Xie D D, Xu S, et al. Total glucosides of paeony inhibits lipopolysaccharideinduced proliferation, migration and invasion in androgen insensitive prostate cancer cells[J]. PLoS One, 2017, 12(8): e0182584. 
-
-
-
-
-
-[89] Hu Y, Cai Z Q, Su X Y. Concurrent weekly cisplatin versus triweekly cisplatin with radiotherapy in the treatment of cervical cancer: a meta-analysis result[J]. Asian Pacific Journal of Cancer Prevention, 2012, 13(9): 4301-4304. 
-
-
-
-
-
-[90] Melnikov S V, Söll D, Steitz T A, et al. Insights into RNA binding by the anticancer drug 
-
-
-
-
-
-cisplatin from the crystal structure of cisplatin-modified ribosome[J]. Nucleic acids research, 2016, 44(10): 4978-4987. 
-
-
-
-
-
-[91] Yoshida T, Kaibori M, Fujisawa N, et al. Efficacy of nanofiber sheets incorporating Lenvatinib in a hepatocellular carcinoma xenograft model[J]. Nanomaterials, 2022, 12(8): 1364. 
-
-
-
-
-
-[92] Tao M, Han J, Shi J, et al. Application and resistance mechanisms of lenvatinib in patients with advanced hepatocellular carcinoma[J]. Journal of Hepatocellular Carcinoma, 2023: 1069-1083. 
-
-
-
-
-
-[93] Koch M, Nickel S, Lieshout R, et al. Label-free imaging analysis of patient-derived cholangiocarcinoma organoids after sorafenib treatment[J]. Cells, 2022, 11(22): 3613. 
-
-
-
-## 附录
-
-# 作者在读期间发表的学术论文及参加的科研项目
-
-## 一、学术论文
-
-
-
-[1] Linyi Zhang, Ling Wang, Shanshan Yang, Kangxin He, Di Bao, and Mingen Xu, "Quantifying the drug response of patient-derived organoid clusters by aggregated morphological indicators with multi-parameters based on optical coherence tomography," Biomed. Opt. Express, 2023, 14: 1703-1717. 
-
-
-
-
-
-[2]王玲,张琳翊,杨珊珊等. 一种人工组织和类器官的检测ᯩ法及其装置[P]. 浙江省：CN114494217A,2022-05-13.
-
-
-
-## 二、科研项目
-
-[1] 联合 OCT/ODT 层析成像监控的细胞 3D 打印装置研究. 国家重大仪器专项（31927801）.
-
-## 三、获奖情况
-
-[1] 2021.11 研究生学业奖学金三等奖
-
-[2] 2022.11 研究生学业奖学金二等奖
-
-[3] 2023.1 中国研究生ᮠ学建模国家一等奖
-
-[4] 2023.11 研究生学业奖学金一等奖
-
-[5] 2023.11 国家奖学金

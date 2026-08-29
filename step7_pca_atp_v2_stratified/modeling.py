@@ -78,7 +78,7 @@ def apply_clustering(df, features):
 
 def stratified_median_aggregation(df, ws, feats, wells):
     print('\n' + '=' * 70)
-    print('Step 3: Stratified Median Aggregation (12D)')
+    print('Step 3: Stratified Median Aggregation (Extended to ~24D)')
     print('=' * 70)
 
     rows = []
@@ -110,6 +110,11 @@ def stratified_median_aggregation(df, ws, feats, wells):
 
             v5, v3 = row.get(f'Healthy_{f}_D5'), row.get(f'Healthy_{f}_D3')
             row[f'Delta_Healthy_{f}'] = (v5 - v3) if (pd.notna(v5) and pd.notna(v3)) else np.nan
+            
+            if pd.notna(v3) and v3 != 0:
+                row[f'RelChange_Healthy_{f}'] = ((v5 - v3) / abs(v3)) if pd.notna(v5) else np.nan
+            else:
+                row[f'RelChange_Healthy_{f}'] = np.nan
 
         w5 = ws[(ws['_well_id'] == wid) & (ws['_day'] == '0703')]
         w3 = ws[(ws['_well_id'] == wid) & (ws['_day'] == '0701')]
@@ -120,21 +125,65 @@ def stratified_median_aggregation(df, ws, feats, wells):
             row['Healthy_Frac_D5'] = w5.iloc[0]['Healthy_Fraction']
 
         if len(w3) > 0:
+            row['Red_Frac_D3'] = w3.iloc[0]['Red_Fraction']
+            row['Yel_Frac_D3'] = w3.iloc[0]['Yellow_Fraction']
             row['Healthy_Frac_D3'] = w3.iloc[0]['Healthy_Fraction']
 
         hf5, hf3 = row.get('Healthy_Frac_D5'), row.get('Healthy_Frac_D3')
         row['Delta_Healthy_Frac'] = (hf5 - hf3) if (pd.notna(hf5) and pd.notna(hf3)) else np.nan
+        
+        rf5, rf3 = row.get('Red_Frac_D5', 0), row.get('Red_Frac_D3', 0)
+        yf5, yf3 = row.get('Yel_Frac_D5', 0), row.get('Yel_Frac_D3', 0)
+        
+        row['Delta_Red_Frac'] = rf5 - rf3
+        row['Delta_Yel_Frac'] = yf5 - yf3
+        
+        if rf3 != 0:
+            row['RelChange_Red_Frac'] = (rf5 - rf3) / abs(rf3)
+        else:
+            row['RelChange_Red_Frac'] = np.nan
+            
+        if yf3 != 0:
+            row['RelChange_Yel_Frac'] = (yf5 - yf3) / abs(yf3)
+        else:
+            row['RelChange_Yel_Frac'] = np.nan
+            
+        if pd.notna(hf3) and hf3 != 0:
+            row['RelChange_Healthy_Frac'] = (hf5 - hf3) / abs(hf3)
+        else:
+            row['RelChange_Healthy_Frac'] = np.nan
 
         rows.append(row)
 
     fm = pd.DataFrame(rows)
-    sel_feats = [f'Delta_Healthy_{f}' for f in feats] + ['Red_Frac_D5', 'Yel_Frac_D5', 'Delta_Healthy_Frac']
+    
+    delta_feats = [f'Delta_Healthy_{f}' for f in feats] + ['Red_Frac_D5', 'Yel_Frac_D5', 'Delta_Healthy_Frac', 'Delta_Red_Frac', 'Delta_Yel_Frac']
+    
+    d5_abs_feats = [f'Healthy_{f}_D5' for f in feats] + ['Red_Frac_D5', 'Yel_Frac_D5', 'Healthy_Frac_D5']
+    
+    rel_change_feats = [f'RelChange_Healthy_{f}' for f in feats] + ['RelChange_Red_Frac', 'RelChange_Yel_Frac', 'RelChange_Healthy_Frac']
+    
+    extended_feats = d5_abs_feats + delta_feats + rel_change_feats
+    
+    d3_feats = [f'Healthy_{f}_D3' for f in feats] + ['Red_Frac_D3', 'Yel_Frac_D3', 'Healthy_Frac_D3']
+    d5_feats = [f'Healthy_{f}_D5' for f in feats] + ['Red_Frac_D5', 'Yel_Frac_D5', 'Healthy_Frac_D5']
 
     print(f'\nFeature matrix: {fm.shape}')
-    print('\n12D Features:')
-    for i, f in enumerate(sel_feats, 1):
+    print(f'\nExtended Features ({len(extended_feats)}D):')
+    print(f'  Group 1 - D5 Absolute Values ({len(d5_abs_feats)} features):')
+    for i, f in enumerate(d5_abs_feats, 1):
         valid = fm[f].notna().sum()
-        print(f'  {i:2d}. {f:30s} (valid: {valid}/{len(fm)})')
+        print(f'    {i:2d}. {f:35s} (valid: {valid}/{len(fm)})')
+    
+    print(f'  Group 2 - Delta (D5-D3) ({len(delta_feats)} features):')
+    for i, f in enumerate(delta_feats, 1):
+        valid = fm[f].notna().sum()
+        print(f'    {i:2d}. {f:35s} (valid: {valid}/{len(fm)})')
+        
+    print(f'  Group 3 - Relative Change ((D5-D3)/|D3|) ({len(rel_change_feats)} features):')
+    for i, f in enumerate(rel_change_feats, 1):
+        valid = fm[f].notna().sum()
+        print(f'    {i:2d}. {f:35s} (valid: {valid}/{len(fm)})')
 
     if warnings_list:
         print(f'\nWARN Wells with <{MIN_HEALTHY_SAMPLES} Healthy organoids:')
@@ -146,12 +195,114 @@ def stratified_median_aggregation(df, ws, feats, wells):
             seen.add(k)
             print(f'     {w}({d}): n={n}')
 
-    return fm, sel_feats
+    return fm, extended_feats, d3_feats, d5_feats
 
 
-def pca_analysis(fm, sel_feats):
+def feature_selection(fm, sel_feats, threshold=0.7):
     print('\n' + '=' * 70)
-    print('Step 4: PCA -> Composite Score')
+    print(f'Step 3b: Feature Selection (Pearson r > {threshold})')
+    print('=' * 70)
+
+    corr_list = []
+    for f in sel_feats:
+        if f in fm.columns and fm[f].notna().any():
+            valid = fm[[f, 'ATP']].dropna()
+            if len(valid) >= 5:
+                r, p = pearsonr(valid[f], valid['ATP'])
+                corr_list.append((f, r, p))
+
+    corr_df = pd.DataFrame(corr_list, columns=['Feature', 'Pearson_r', 'p_value'])
+    corr_df = corr_df.sort_values('Pearson_r', key=abs, ascending=False)
+    
+    selected = corr_df[corr_df['Pearson_r'].abs() > threshold]['Feature'].tolist()
+    
+    print(f'\nFeature Selection Results:')
+    print(f'  Input features: {len(sel_feats)}')
+    print(f'  Selected: {len(selected)} (|r| > {threshold})')
+    print(f'  Dropped: {len(sel_feats) - len(selected)}')
+    
+    print(f'\nTop 15 Features by |Pearson r|:')
+    for i, (_, row) in enumerate(corr_df.head(15).iterrows(), 1):
+        mark = ' ✓' if abs(row['Pearson_r']) > threshold else ''
+        print(f'  {i:2d}. {row["Pearson_r"]:+.4f}  {row["Feature"]:35s} p={row["p_value"]:.2e}{mark}')
+    
+    return selected, corr_df
+
+
+def compute_relative_score(fm, d3_feats, d5_feats):
+    print('\n' + '=' * 70)
+    print('Step 4b: Relative Growth Score (ΔF = F_D5 - F_D3)')
+    print('=' * 70)
+
+    valid_d3 = ~fm[d3_feats].isnull().any(axis=1)
+    valid_d5 = ~fm[d5_feats].isnull().any(axis=1)
+    valid = valid_d3 & valid_d5
+    
+    ids = fm.loc[valid, 'Well_ID'].values
+    X_d3 = fm.loc[valid, d3_feats].values
+    X_d5 = fm.loc[valid, d5_feats].values
+
+    print(f'Day3 features: {X_d3.shape}, Day5 features: {X_d5.shape}')
+    print(f'Complete cases (both timepoints): {len(ids)}')
+
+    X_combined = np.vstack([X_d3, X_d5])
+    
+    scaler_shared = StandardScaler()
+    X_combined_s = scaler_shared.fit_transform(X_combined)
+
+    max_comp = min(X_combined_s.shape[1], X_combined_s.shape[0] - 1)
+    
+    pca_full = PCA(n_components=max_comp, random_state=42)
+    pca_full.fit(X_combined_s)
+    
+    eigenvalues = pca_full.explained_variance_
+    n_comp_kaiser = max(2, int(np.sum(eigenvalues > 1.0)))
+    
+    print(f'\nShared PCA (Kaiser): {n_comp_kaiser} PCs with eigenvalue > 1.0')
+    for i in range(min(len(eigenvalues), n_comp_kaiser)):
+        mark = ' ✓ (Kaiser)' if eigenvalues[i] > 1.0 else ''
+        print(f'  PC{i+1}: var={eigenvalues[i]:.4f}{mark}')
+
+    pca_final = PCA(n_components=n_comp_kaiser, random_state=42)
+    X_all_p = pca_final.fit_transform(X_combined_s)
+    
+    vr = pca_final.explained_variance_ratio_
+    wts = vr / vr.sum()
+    
+    n_samples = len(ids)
+    X_d3_p = X_all_p[:n_samples]
+    X_d5_p = X_all_p[n_samples:]
+    
+    F_d3 = np.dot(X_d3_p, wts)
+    F_d5 = np.dot(X_d5_p, wts)
+
+    delta_score = F_d5 - F_d3
+
+    print(f'\nRelative Score Statistics:')
+    print(f'  F_D3: mean={F_d3.mean():.4f}, std={F_d3.std():.4f}')
+    print(f'  F_D5: mean={F_d5.mean():.4f}, std={F_d5.std():.4f}')
+    print(f'  ΔF (D5-D3): mean={delta_score.mean():.4f}, std={delta_score.std():.4f}')
+
+    coef = np.dot(pca_final.components_.T, wts)
+    cdf_rel = pd.DataFrame({
+        'Feature': d3_feats,
+        'Coef': coef[:len(d3_feats)],
+        'AbsCoef': np.abs(coef[:len(d3_feats)])
+    }).sort_values('AbsCoef', ascending=False)
+
+    score_df = pd.DataFrame({
+        'Well_ID': ids,
+        'Score': delta_score,
+        'F_D3': F_d3,
+        'F_D5': F_d5,
+    })
+    
+    return score_df, pca_final, wts, scaler_shared, cdf_rel
+
+
+def pca_analysis(fm, sel_feats, cumvar_threshold=0.85):
+    print('\n' + '=' * 70)
+    print(f'Step 4: PCA -> Composite Score (CumVar > {cumvar_threshold:.0%})')
     print('=' * 70)
 
     X = fm[sel_feats].values
@@ -166,7 +317,25 @@ def pca_analysis(fm, sel_feats):
     scaler = StandardScaler()
     X_s = scaler.fit_transform(X_clean)
 
-    n_comp = min(4, X_clean.shape[1], X_clean.shape[0] - 1)
+    max_comp = min(X_clean.shape[1], X_clean.shape[0] - 1)
+    pca_full = PCA(n_components=max_comp, random_state=42)
+    pca_full.fit(X_s)
+
+    eigenvalues = pca_full.explained_variance_
+    explained_var_ratio = pca_full.explained_variance_ratio_
+    cumulative_var = np.cumsum(explained_var_ratio)
+    
+    n_comp_cumvar = int(np.searchsorted(cumulative_var, cumvar_threshold)) + 1
+    n_comp_kaiser = max(2, int(np.sum(eigenvalues > 1.0)))
+    
+    n_comp = max(n_comp_cumvar, n_comp_kaiser)
+    n_comp = min(n_comp, max_comp)
+
+    print(f'\nPC Selection Criteria:')
+    print(f'  Kaiser (>1.0):      {n_comp_kaiser} PCs')
+    print(f'  CumVar (>{cumvar_threshold:.0%}): {n_comp_cumvar} PCs')
+    print(f'  Selected:           {n_comp} PCs (max of both criteria)')
+
     pca = PCA(n_components=n_comp, random_state=42)
     X_p = pca.fit_transform(X_s)
 
@@ -177,7 +346,9 @@ def pca_analysis(fm, sel_feats):
 
     print(f'\nPCA Results ({n_comp} components):')
     for i in range(n_comp):
-        print(f'  PC{i + 1}: var={pca.explained_variance_[i]:.4f}, ratio={vr[i]:.1%}, cum={cv[i]:.1%}')
+        kaiser_mark = ' ✓ (Kaiser)' if eigenvalues[i] > 1.0 else ''
+        cumvar_mark = f' ← CumVar>{cumvar_threshold:.0%}' if i == n_comp - 1 and cv[i] >= cumvar_threshold else ''
+        print(f'  PC{i + 1}: var={eigenvalues[i]:.4f}, ratio={vr[i]:.1%}, cum={cv[i]:.1%}{kaiser_mark}{cumvar_mark}')
 
     coef = np.dot(pca.components_.T, wts)
     cdf = pd.DataFrame({'Feature': sel_feats, 'Coef': coef, 'AbsCoef': np.abs(coef)}).sort_values(

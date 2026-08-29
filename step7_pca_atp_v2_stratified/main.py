@@ -1,10 +1,12 @@
 from datetime import datetime
 
-from .config import FIGURES_DIR
+from .config import ATP_DATABASE, FIGURES_DIR
 from .data_io import load_organoid_data, validate_data_structure
 from .modeling import (
     apply_clustering,
     atp_correlation,
+    compute_relative_score,
+    feature_selection,
     pca_analysis,
     stratified_median_aggregation,
 )
@@ -23,10 +25,30 @@ def run_pipeline():
     validate_data_structure()
     df, feats, wells = load_organoid_data()
     df, ws = apply_clustering(df, feats)
-    fm, sel = stratified_median_aggregation(df, ws, feats, wells)
-    sdf, pca, wts, scaler, cdf = pca_analysis(fm, sel)
-
-    merged, res = atp_correlation(sdf)
+    fm, extended_sel, d3_feats, d5_feats = stratified_median_aggregation(df, ws, feats, wells)
+    
+    fm['ATP'] = fm['Well_ID'].map(ATP_DATABASE)
+    
+    selected_feats, corr_df = feature_selection(fm, extended_sel, threshold=0.7)
+    
+    print('\n' + '=' * 70)
+    print('  METHOD COMPARISON: Extended-PCA (with Feature Selection)')
+    print('=' * 70)
+    
+    sdf_ext, pca_ext, wts_ext, scaler_ext, cdf_ext = pca_analysis(fm, selected_feats)
+    merged_ext, res_ext = atp_correlation(sdf_ext)
+    
+    print(f'\n{"=" * 50}')
+    print('RESULT: Extended PCA (with Feature Selection)')
+    print(f'{"=" * 50}')
+    if res_ext:
+        print(f'Extended-PCA (new):   Pearson r = {res_ext["pearson_r"]:.4f} (p={res_ext["pearson_p"]:.2e})')
+    
+    sdf, pca, wts, scaler = sdf_ext, pca_ext, wts_ext, scaler_ext
+    merged, res = merged_ext, res_ext
+    sel = selected_feats
+    cdf = cdf_ext
+    print('\nUsing EXTENDED-PCA Score for figures and output')
 
     generate_figures(df, ws, fm, merged, res, cdf, pca, sel)
 
