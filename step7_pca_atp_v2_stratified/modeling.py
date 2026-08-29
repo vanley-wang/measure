@@ -157,13 +157,19 @@ def stratified_median_aggregation(df, ws, feats, wells):
 
     fm = pd.DataFrame(rows)
     
-    delta_feats = [f'Delta_Healthy_{f}' for f in feats] + ['Red_Frac_D5', 'Yel_Frac_D5', 'Delta_Healthy_Frac', 'Delta_Red_Frac', 'Delta_Yel_Frac']
+    delta_feats = [f'Delta_Healthy_{f}' for f in feats] + ['Delta_Healthy_Frac', 'Delta_Red_Frac', 'Delta_Yel_Frac']
     
     d5_abs_feats = [f'Healthy_{f}_D5' for f in feats] + ['Red_Frac_D5', 'Yel_Frac_D5', 'Healthy_Frac_D5']
     
     rel_change_feats = [f'RelChange_Healthy_{f}' for f in feats] + ['RelChange_Red_Frac', 'RelChange_Yel_Frac', 'RelChange_Healthy_Frac']
     
-    extended_feats = d5_abs_feats + delta_feats + rel_change_feats
+    all_feats = d5_abs_feats + delta_feats + rel_change_feats
+    seen = set()
+    extended_feats = []
+    for f in all_feats:
+        if f not in seen:
+            extended_feats.append(f)
+            seen.add(f)
     
     d3_feats = [f'Healthy_{f}_D3' for f in feats] + ['Red_Frac_D3', 'Yel_Frac_D3', 'Healthy_Frac_D3']
     d5_feats = [f'Healthy_{f}_D5' for f in feats] + ['Red_Frac_D5', 'Yel_Frac_D5', 'Healthy_Frac_D5']
@@ -344,13 +350,25 @@ def pca_analysis(fm, sel_feats, cumvar_threshold=0.85):
     wts = vr / vr.sum()
     score = np.dot(X_p, wts)
 
+    atp_values = fm.loc[fm['Well_ID'].isin(ids), 'ATP'].values
+    valid_atp = ~np.isnan(atp_values)
+    
+    coef = np.dot(pca.components_.T, wts)
+    
+    if valid_atp.sum() > 5:
+        temp_r, _ = pearsonr(score[valid_atp], atp_values[valid_atp])
+        if temp_r < 0:
+            score = -score
+            wts = -wts
+            coef = -coef
+            print(f'\n⚠ Score direction flipped (original r={temp_r:.4f}<0) → now positive')
+
     print(f'\nPCA Results ({n_comp} components):')
     for i in range(n_comp):
         kaiser_mark = ' ✓ (Kaiser)' if eigenvalues[i] > 1.0 else ''
         cumvar_mark = f' ← CumVar>{cumvar_threshold:.0%}' if i == n_comp - 1 and cv[i] >= cumvar_threshold else ''
         print(f'  PC{i + 1}: var={eigenvalues[i]:.4f}, ratio={vr[i]:.1%}, cum={cv[i]:.1%}{kaiser_mark}{cumvar_mark}')
 
-    coef = np.dot(pca.components_.T, wts)
     cdf = pd.DataFrame({'Feature': sel_feats, 'Coef': coef, 'AbsCoef': np.abs(coef)}).sort_values(
         'AbsCoef', ascending=False
     )
@@ -397,3 +415,109 @@ def atp_correlation(score_df):
     }
 
     return valid, res
+
+
+def leave_one_patient_out_cv(fm, sel_feats, cumvar_threshold=0.85):
+    print('\n' + '=' * 70)
+    print('Step 5b: Leave-One-Patient-Out Cross-Validation')
+    print('=' * 70)
+
+    valid_data = fm.dropna(subset=sel_feats + ['ATP']).copy()
+    
+    def extract_patient_id(well_id):
+        return well_id[0] if isinstance(well_id, str) and len(well_id) > 0 else well_id
+    
+    valid_data['Patient'] = valid_data['Well_ID'].apply(extract_patient_id)
+    patients = sorted(valid_data['Patient'].unique())
+    
+    print(f'\nTotal wells: {len(valid_data)}')
+    print(f'Patients (by Well_ID prefix): {patients}')
+    print(f'Number of patients: {len(patients)}')
+
+    cv_results = []
+    
+    for test_patient in patients:
+        train_data = valid_data[valid_data['Patient'] != test_patient]
+        test_data = valid_data[valid_data['Patient'] == test_patient]
+        
+        if len(train_data) < 5 or len(test_data) < 2:
+            print(f'\n  Skip patient "{test_patient}": train={len(train_data)}, test={len(test_data)} (insufficient data)')
+            continue
+        
+        X_train = train_data[sel_feats].values
+        y_train = train_data['ATP'].values
+        X_test = test_data[sel_feats].values
+        y_test = test_data['ATP'].values
+        
+        scaler = StandardScaler()
+        X_train_s = scaler.fit_transform(X_train)
+        X_test_s = scaler.transform(X_test)
+        
+        max_comp = min(X_train_s.shape[1], X_train_s.shape[0] - 1)
+        pca_full = PCA(n_components=max_comp, random_state=42)
+        pca_full.fit(X_train_s)
+        
+        eigenvalues = pca_full.explained_variance_
+        explained_var_ratio = pca_full.explained_variance_ratio_
+        cumulative_var = np.cumsum(explained_var_ratio)
+        
+        n_comp_cumvar = int(np.searchsorted(cumulative_var, cumvar_threshold)) + 1
+        n_comp_kaiser = max(2, int(np.sum(eigenvalues > 1.0)))
+        n_comp = min(max(n_comp_cumvar, n_comp_kaiser), max_comp)
+        
+        pca = PCA(n_components=n_comp, random_state=42)
+        X_train_p = pca.fit_transform(X_train_s)
+        X_test_p = pca.transform(X_test_s)
+        
+        vr = pca.explained_variance_ratio_
+        wts = vr / vr.sum()
+        
+        train_score = np.dot(X_train_p, wts)
+        test_score = np.dot(X_test_p, wts)
+        
+        train_r, _ = pearsonr(train_score, y_train)
+        if train_r < 0:
+            test_score = -test_score
+            train_r = -train_r
+        
+        test_r, test_p = pearsonr(test_score, y_test)
+        test_sp, test_sp_p = spearmanr(test_score, y_test)
+        
+        cv_results.append({
+            'Test_Patient': test_patient,
+            'Train_Size': len(train_data),
+            'Test_Size': len(test_data),
+            'N_Components': n_comp,
+            'Train_R': train_r,
+            'Test_R': test_r,
+            'Test_P': test_p,
+            'Test_Spearman': test_sp,
+            'Test_Spearman_P': test_sp_p,
+        })
+        
+        print(f'\n  Fold: Leave-Out Patient "{test_patient}"')
+        print(f'    Train: {len(train_data)} wells | Test: {len(test_data)} wells | PCs: {n_comp}')
+        print(f'    Test Pearson r = {test_r:.4f} (p={test_p:.2e})')
+        print(f'    Test Spearman ρ = {test_sp:.4f} (p={test_sp_p:.2e})')
+
+    if not cv_results:
+        print('\nERROR: No valid CV folds completed!')
+        return None
+    
+    cv_df = pd.DataFrame(cv_results)
+    
+    mean_r = cv_df['Test_R'].mean()
+    std_r = cv_df['Test_R'].std()
+    mean_sp = cv_df['Test_Spearman'].mean()
+    
+    print(f'\n{"=" * 50}')
+    print('LOPOCV SUMMARY')
+    print(f'{"=" * 50}')
+    print(f'Folds completed: {len(cv_df)} / {len(patients)}')
+    print(f'Mean Pearson r  = {mean_r:.4f} ± {std_r:.4f}')
+    print(f'Mean Spearman ρ = {mean_sp:.4f}')
+    print(f'\nPer-fold results:')
+    for _, row in cv_df.iterrows():
+        print(f'  Patient "{row["Test_Patient"]}": r={row["Test_R"]:+.4f} (n={row["Test_Size"]})')
+    
+    return cv_df

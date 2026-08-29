@@ -7,6 +7,7 @@ from .modeling import (
     atp_correlation,
     compute_relative_score,
     feature_selection,
+    leave_one_patient_out_cv,
     pca_analysis,
     stratified_median_aggregation,
 )
@@ -43,6 +44,8 @@ def run_pipeline():
     print(f'{"=" * 50}')
     if res_ext:
         print(f'Extended-PCA (new):   Pearson r = {res_ext["pearson_r"]:.4f} (p={res_ext["pearson_p"]:.2e})')
+    
+    cv_df = leave_one_patient_out_cv(fm, selected_feats)
     
     sdf, pca, wts, scaler = sdf_ext, pca_ext, wts_ext, scaler_ext
     merged, res = merged_ext, res_ext
