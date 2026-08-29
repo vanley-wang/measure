@@ -1,3 +1,5 @@
+import os
+
 import numpy as np
 import pandas as pd
 from scipy.stats import pearsonr, spearmanr
@@ -129,11 +131,19 @@ def stratified_median_aggregation(df, ws, feats, wells):
             row['Yel_Frac_D3'] = w3.iloc[0]['Yellow_Fraction']
             row['Healthy_Frac_D3'] = w3.iloc[0]['Healthy_Fraction']
 
-        hf5, hf3 = row.get('Healthy_Frac_D5'), row.get('Healthy_Frac_D3')
-        row['Delta_Healthy_Frac'] = (hf5 - hf3) if (pd.notna(hf5) and pd.notna(hf3)) else np.nan
+        hf5 = row.get('Healthy_Frac_D5')
+        hf3 = row.get('Healthy_Frac_D3')
         
-        rf5, rf3 = row.get('Red_Frac_D5', 0), row.get('Red_Frac_D3', 0)
-        yf5, yf3 = row.get('Yel_Frac_D5', 0), row.get('Yel_Frac_D3', 0)
+        if hf5 is not None and hf3 is not None and pd.notna(hf5) and pd.notna(hf3):
+            row['Delta_Healthy_Frac'] = hf5 - hf3
+        else:
+            row['Delta_Healthy_Frac'] = np.nan
+            hf5, hf3 = np.nan, np.nan
+        
+        rf5 = row.get('Red_Frac_D5', 0) or 0
+        rf3 = row.get('Red_Frac_D3', 0) or 0
+        yf5 = row.get('Yel_Frac_D5', 0) or 0
+        yf3 = row.get('Yel_Frac_D3', 0) or 0
         
         row['Delta_Red_Frac'] = rf5 - rf3
         row['Delta_Yel_Frac'] = yf5 - yf3
@@ -148,8 +158,8 @@ def stratified_median_aggregation(df, ws, feats, wells):
         else:
             row['RelChange_Yel_Frac'] = np.nan
             
-        if pd.notna(hf3) and hf3 != 0:
-            row['RelChange_Healthy_Frac'] = (hf5 - hf3) / abs(hf3)
+        if pd.notna(hf3) and hf3 is not None and hf3 != 0:
+            row['RelChange_Healthy_Frac'] = (hf5 - hf3) / abs(hf3) if pd.notna(hf5) else np.nan
         else:
             row['RelChange_Healthy_Frac'] = np.nan
 
@@ -521,3 +531,182 @@ def leave_one_patient_out_cv(fm, sel_feats, cumvar_threshold=0.85):
         print(f'  Patient "{row["Test_Patient"]}": r={row["Test_R"]:+.4f} (n={row["Test_Size"]})')
     
     return cv_df
+
+
+def external_validation(test_data_path, test_atp_dict, trained_scaler, trained_pca, trained_wts, trained_sel_feats):
+    print('\n' + '=' * 70)
+    print('Step 6: External Validation (True Out-of-Sample Test)')
+    print('=' * 70)
+    
+    print(f'\nTest dataset: {test_data_path}')
+    print(f'Trained model features: {len(trained_sel_feats)}')
+    
+    try:
+        df_test, feats_test, wells_test = load_organoid_data_custom(test_data_path)
+        
+        if len(wells_test) == 0:
+            print('\nERROR: No valid wells found in test dataset!')
+            return None
+        
+        df_test, ws_test = apply_clustering(df_test, feats_test)
+        fm_test, extended_sel_test, d3_feats_test, d5_feats_test = stratified_median_aggregation(
+            df_test, ws_test, feats_test, wells_test
+        )
+        
+        fm_test['ATP'] = fm_test['Well_ID'].map(test_atp_dict)
+        
+        common_feats = [f for f in trained_sel_feats if f in fm_test.columns]
+        if len(common_feats) < len(trained_sel_feats):
+            missing = set(trained_sel_feats) - set(common_feats)
+            print(f'\nWARNING: {len(missing)} training features missing in test data:')
+            for m in missing:
+                print(f'  - {m}')
+            print(f'Using {len(common_feats)} common features')
+        
+        if len(common_feats) < 3:
+            print(f'\nERROR: Too few common features ({len(common_feats)}) for validation!')
+            return None
+        
+        X_test = fm_test[common_feats].values
+        valid_test = ~np.isnan(X_test).any(axis=1) & fm_test['ATP'].notna()
+        
+        if valid_test.sum() < 3:
+            print(f'\nERROR: Too few complete cases in test set ({valid_test.sum()})!')
+            return None
+        
+        X_test_clean = X_test[valid_test]
+        ids_test = fm_test.loc[valid_test, 'Well_ID'].values
+        atp_test = fm_test.loc[valid_test, 'ATP'].values
+        
+        X_test_scaled = trained_scaler.transform(X_test_clean)
+        X_test_pcs = trained_pca.transform(X_test_scaled)
+        score_test = np.dot(X_test_pcs, trained_wts)
+        
+        r_test, p_test = pearsonr(score_test, atp_test)
+        sp_test, sp_test_p = spearmanr(score_test, atp_test)
+        
+        print(f'\n{"=" * 50}')
+        print('EXTERNAL VALIDATION RESULTS')
+        print(f'{"=" * 50}')
+        print(f'Test samples: {valid_test.sum()} wells')
+        print(f'Features used: {len(common_feats)} / {len(trained_sel_feats)} (training)')
+        print(f'\nPearson r  = {r_test:.4f} (p={p_test:.2e})')
+        print(f'Spearman ρ = {sp_test:.4f} (p={sp_test_p:.2e})')
+        
+        result_df = pd.DataFrame({
+            'Well_ID': ids_test,
+            'Score': score_test,
+            'ATP': atp_test,
+            'Dataset': 'External_Test'
+        })
+        
+        res_external = {
+            'pearson_r': r_test,
+            'pearson_p': p_test,
+            'spearman_rho': sp_test,
+            'spearman_p': sp_test_p,
+            'n_samples': valid_test.sum(),
+            'n_features': len(common_feats),
+        }
+        
+        return result_df, res_external
+        
+    except Exception as e:
+        print(f'\nERROR during external validation: {str(e)}')
+        import traceback
+        traceback.print_exc()
+        return None
+
+
+def load_organoid_data_custom(data_base_dir):
+    from cluster_utils import PROCESSED_FEATURES
+    import glob as glob_module
+    
+    morph_feats = list(PROCESSED_FEATURES)
+    
+    data_folders_custom = {}
+    
+    dir_0701 = os.path.join(data_base_dir, 'FXN_0701', 'measure_excel')
+    if not os.path.exists(dir_0701):
+        dir_0701 = os.path.join(data_base_dir, 'FXN_20230701', 'measure_excel')
+    
+    if os.path.exists(dir_0701):
+        data_folders_custom['0701'] = dir_0701
+    
+    possible_0703_names = ['FXN_0703', 'FXN_20230703']
+    dir_0703 = None
+    for name in possible_0703_names:
+        candidate = os.path.join(data_base_dir, name, 'measure_excel')
+        if os.path.exists(candidate):
+            dir_0703 = candidate
+            break
+    
+    if dir_0703 is not None:
+        data_folders_custom['0703'] = dir_0703
+    
+    all_dfs = []
+    wells_seen = set()
+    
+    for day, folder in data_folders_custom.items():
+        if not os.path.exists(folder):
+            continue
+        
+        xlsx_files = glob_module.glob(os.path.join(folder, '*.xlsx'))
+        
+        for fpath in sorted(xlsx_files):
+            fname = os.path.basename(fpath)
+            
+            well_id = fname.replace('_0701.xlsx', '').replace('_0703.xlsx', '').replace('.xlsx', '')
+            
+            if not well_id:
+                continue
+            
+            well_day_key = (well_id, day)
+            if well_day_key in wells_seen:
+                continue
+            
+            try:
+                tmp = pd.read_excel(fpath)
+                
+                col_mapping = {}
+                if 'Object_Id' not in tmp.columns and 'Index' in tmp.columns:
+                    col_mapping['Index'] = 'Object_Id'
+                
+                if col_mapping:
+                    tmp = tmp.rename(columns=col_mapping)
+                
+                if 'Cavity_Ratio' not in tmp.columns and 'Cavity_Volume' in tmp.columns and 'Organoids_Volume_Fill' in tmp.columns:
+                    tmp['Cavity_Ratio'] = tmp['Cavity_Volume'] / (tmp['Organoids_Volume_Fill'] + 1e-10)
+                
+                expected_cols = {'Object_Id'} | set(morph_feats)
+                actual_cols = set(tmp.columns)
+                
+                if not expected_cols.issubset(actual_cols):
+                    missing = expected_cols - actual_cols
+                    print(f'  SKIP {fname}: missing columns {missing}')
+                    continue
+                
+                tmp = tmp.dropna(subset=morph_feats)
+                if len(tmp) == 0:
+                    continue
+                
+                tmp['_well'] = fname.replace('.xlsx', '')
+                tmp['_well_id'] = well_id
+                tmp['_day'] = day
+                all_dfs.append(tmp)
+                wells_seen.add(well_day_key)
+                
+            except Exception as e:
+                print(f'  ERROR reading {fname}: {e}')
+    
+    if not all_dfs:
+        raise RuntimeError(f'No valid data files found in {data_base_dir}')
+    
+    df = pd.concat(all_dfs, ignore_index=True)
+    wells_sorted = sorted(set(w for w, _ in wells_seen))
+    
+    print(f'Loaded custom dataset: {data_base_dir}')
+    print(f'  Wells: {len(wells_sorted)}, Objects: {len(df)}')
+    print(f'  Days available: {list(data_folders_custom.keys())}')
+    
+    return df, morph_feats, wells_sorted
