@@ -6,8 +6,12 @@ from scipy.stats import pearsonr, spearmanr
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 
-from cluster_utils import load_model_package
-from .config import ATP_DATABASE, CLUSTER_COLORS, CLUSTER_NAMES, HEALTHY_CLUSTERS, MIN_HEALTHY_SAMPLES, MODEL_PATH
+from cluster_utils import CV_FEATURES, FEATURE_SHORT_NAMES, GR_FEATURES, IQR_FEATURES, load_model_package
+from .config import (
+    ATP_DATABASE, CLUSTER_COLORS, CLUSTER_NAMES,
+    DAMAGED_CLUSTERS, HEALTHY_CLUSTERS,
+    MIN_HEALTHY_SAMPLES, MIN_SAMPLES_FOR_CV, MIN_SAMPLES_FOR_SKEW, MODEL_PATH,
+)
 
 
 def apply_clustering(df, features):
@@ -80,11 +84,13 @@ def apply_clustering(df, features):
 
 def stratified_median_aggregation(df, ws, feats, wells):
     print('\n' + '=' * 70)
-    print('Step 3: Stratified Median Aggregation (Extended to ~24D)')
+    print('Step 3: Stratified Feature Extraction (Median + CV + IQR + Ratio + GR + Roughness)')
     print('=' * 70)
 
+    short_names = {f: FEATURE_SHORT_NAMES.get(f, f) for f in feats}
+    has_roughness = 'Roughness' in df.columns
+
     rows = []
-    warnings_list = []
 
     for wid in wells:
         row = {'Well_ID': wid}
@@ -92,162 +98,268 @@ def stratified_median_aggregation(df, ws, feats, wells):
         d5 = df[(df['_well_id'] == wid) & (df['_day'] == '0703')]
         d3 = df[(df['_well_id'] == wid) & (df['_day'] == '0701')]
 
-        h5 = d5[d5['Cluster'].isin(HEALTHY_CLUSTERS)]
-        h3 = d3[d3['Cluster'].isin(HEALTHY_CLUSTERS)]
+        c01_5 = d5[d5['Cluster'].isin(HEALTHY_CLUSTERS)]
+        c01_3 = d3[d3['Cluster'].isin(HEALTHY_CLUSTERS)]
+        c23_5 = d5[d5['Cluster'].isin(DAMAGED_CLUSTERS)]
+        c23_3 = d3[d3['Cluster'].isin(DAMAGED_CLUSTERS)]
 
-        n_h5, n_h3 = len(h5), len(h3)
+        n_c01_5, n_c01_3 = len(c01_5), len(c01_3)
+        n_c23_5, n_c23_3 = len(c23_5), len(c23_3)
+        n_d5, n_d3 = len(d5), len(d3)
 
         for f in feats:
-            if n_h5 >= MIN_HEALTHY_SAMPLES:
-                row[f'Healthy_{f}_D5'] = h5[f].median()
-            else:
-                row[f'Healthy_{f}_D5'] = np.nan
-                warnings_list.append((wid, 'D5', n_h5))
+            sn = short_names[f]
 
-            if n_h3 >= MIN_HEALTHY_SAMPLES:
-                row[f'Healthy_{f}_D3'] = h3[f].median()
+            # === Group A: Median (per-cluster + global) ===
+            if n_c01_5 >= MIN_HEALTHY_SAMPLES:
+                row[f'C01_Med_{sn}_D5'] = c01_5[f].median()
             else:
-                row[f'Healthy_{f}_D3'] = np.nan
-                warnings_list.append((wid, 'D3', n_h3))
+                row[f'C01_Med_{sn}_D5'] = np.nan
 
-            v5, v3 = row.get(f'Healthy_{f}_D5'), row.get(f'Healthy_{f}_D3')
-            row[f'Delta_Healthy_{f}'] = (v5 - v3) if (pd.notna(v5) and pd.notna(v3)) else np.nan
-            
-            if pd.notna(v3) and v3 != 0:
-                row[f'RelChange_Healthy_{f}'] = ((v5 - v3) / abs(v3)) if pd.notna(v5) else np.nan
+            if n_c01_3 >= MIN_HEALTHY_SAMPLES:
+                row[f'C01_Med_{sn}_D3'] = c01_3[f].median()
             else:
-                row[f'RelChange_Healthy_{f}'] = np.nan
+                row[f'C01_Med_{sn}_D3'] = np.nan
 
+            if n_d5 > 0:
+                row[f'All_Med_{sn}_D5'] = d5[f].median()
+            else:
+                row[f'All_Med_{sn}_D5'] = np.nan
+
+            if n_d3 > 0:
+                row[f'All_Med_{sn}_D3'] = d3[f].median()
+            else:
+                row[f'All_Med_{sn}_D3'] = np.nan
+
+            # === Group B: CV (heterogeneity, subset only) ===
+            if sn in CV_FEATURES:
+                if n_c01_5 >= MIN_SAMPLES_FOR_CV:
+                    med = c01_5[f].median()
+                    row[f'C01_CV_{sn}_D5'] = (c01_5[f].std() / med) if (med and med != 0) else np.nan
+                else:
+                    row[f'C01_CV_{sn}_D5'] = np.nan
+
+            # === Group C: Growth Rate (relative D5/D3, subset only) ===
+            if sn in GR_FEATURES:
+                v5 = row.get(f'C01_Med_{sn}_D5')
+                v3 = row.get(f'C01_Med_{sn}_D3')
+                if pd.notna(v5) and pd.notna(v3) and v3 != 0:
+                    row[f'C01_GR_{sn}'] = v5 / v3
+                else:
+                    row[f'C01_GR_{sn}'] = np.nan
+
+            # === Group D: IQR (robust dispersion, subset only) ===
+            if sn in IQR_FEATURES:
+                if n_c01_5 >= MIN_SAMPLES_FOR_CV:
+                    row[f'C01_IQR_{sn}_D5'] = c01_5[f].quantile(0.75) - c01_5[f].quantile(0.25)
+                else:
+                    row[f'C01_IQR_{sn}_D5'] = np.nan
+
+        # === Group F: Cross-cluster ratios (C01 vs C23) ===
+        if n_c01_5 >= MIN_HEALTHY_SAMPLES and n_c23_5 >= MIN_HEALTHY_SAMPLES:
+            c01_fill = c01_5['Organoids_Volume_Fill'].median()
+            c23_fill = c23_5['Organoids_Volume_Fill'].median()
+            row['C01_C23_VolRatio_D5'] = c01_fill / c23_fill if c23_fill != 0 else np.nan
+        else:
+            row['C01_C23_VolRatio_D5'] = np.nan
+
+        if n_c01_5 >= MIN_HEALTHY_SAMPLES and n_c23_5 >= MIN_HEALTHY_SAMPLES:
+            row['C01_C23_CountRatio_D5'] = n_c01_5 / n_c23_5
+        else:
+            row['C01_C23_CountRatio_D5'] = np.nan
+
+        if n_c01_5 >= MIN_HEALTHY_SAMPLES and n_c23_5 >= MIN_HEALTHY_SAMPLES:
+            c01_oac = c01_5['Scatt_Mean'].median()
+            c23_oac = c23_5['Scatt_Mean'].median()
+            row['C01_C23_OACmRatio_D5'] = c01_oac / c23_oac if c23_oac != 0 else np.nan
+        else:
+            row['C01_C23_OACmRatio_D5'] = np.nan
+
+        # === Group G: Fraction features (cluster proportions) ===
         w5 = ws[(ws['_well_id'] == wid) & (ws['_day'] == '0703')]
         w3 = ws[(ws['_well_id'] == wid) & (ws['_day'] == '0701')]
 
         if len(w5) > 0:
-            row['Red_Frac_D5'] = w5.iloc[0]['Red_Fraction']
-            row['Yel_Frac_D5'] = w5.iloc[0]['Yellow_Fraction']
-            row['Healthy_Frac_D5'] = w5.iloc[0]['Healthy_Fraction']
+            row['C0_Frac_D5'] = w5.iloc[0]['Red_Fraction']
+            row['C1_Frac_D5'] = w5.iloc[0]['Yellow_Fraction']
+            row['C01_Frac_D5'] = w5.iloc[0]['Healthy_Fraction']
+            row['C23_Frac_D5'] = 1.0 - w5.iloc[0]['Healthy_Fraction']
 
         if len(w3) > 0:
-            row['Red_Frac_D3'] = w3.iloc[0]['Red_Fraction']
-            row['Yel_Frac_D3'] = w3.iloc[0]['Yellow_Fraction']
-            row['Healthy_Frac_D3'] = w3.iloc[0]['Healthy_Fraction']
+            row['C0_Frac_D3'] = w3.iloc[0]['Red_Fraction']
+            row['C1_Frac_D3'] = w3.iloc[0]['Yellow_Fraction']
+            row['C01_Frac_D3'] = w3.iloc[0]['Healthy_Fraction']
+            row['C23_Frac_D3'] = 1.0 - w3.iloc[0]['Healthy_Fraction']
 
-        hf5 = row.get('Healthy_Frac_D5')
-        hf3 = row.get('Healthy_Frac_D3')
-        
-        if hf5 is not None and hf3 is not None and pd.notna(hf5) and pd.notna(hf3):
-            row['Delta_Healthy_Frac'] = hf5 - hf3
-        else:
-            row['Delta_Healthy_Frac'] = np.nan
-            hf5, hf3 = np.nan, np.nan
-        
-        rf5 = row.get('Red_Frac_D5', 0) or 0
-        rf3 = row.get('Red_Frac_D3', 0) or 0
-        yf5 = row.get('Yel_Frac_D5', 0) or 0
-        yf3 = row.get('Yel_Frac_D3', 0) or 0
-        
-        row['Delta_Red_Frac'] = rf5 - rf3
-        row['Delta_Yel_Frac'] = yf5 - yf3
-        
-        if rf3 != 0:
-            row['RelChange_Red_Frac'] = (rf5 - rf3) / abs(rf3)
-        else:
-            row['RelChange_Red_Frac'] = np.nan
-            
-        if yf3 != 0:
-            row['RelChange_Yel_Frac'] = (yf5 - yf3) / abs(yf3)
-        else:
-            row['RelChange_Yel_Frac'] = np.nan
-            
-        if pd.notna(hf3) and hf3 is not None and hf3 != 0:
-            row['RelChange_Healthy_Frac'] = (hf5 - hf3) / abs(hf3) if pd.notna(hf5) else np.nan
-        else:
-            row['RelChange_Healthy_Frac'] = np.nan
+        # === Group H: Roughness features ===
+        if has_roughness:
+            if n_c01_5 >= MIN_HEALTHY_SAMPLES:
+                rough_c01 = c01_5['Roughness'].dropna()
+                row['C01_Med_Rough_D5'] = rough_c01.median() if len(rough_c01) >= MIN_HEALTHY_SAMPLES else np.nan
+            else:
+                row['C01_Med_Rough_D5'] = np.nan
+
+            if n_d5 > 0:
+                rough_all = d5['Roughness'].dropna()
+                row['All_Med_Rough_D5'] = rough_all.median() if len(rough_all) >= MIN_HEALTHY_SAMPLES else np.nan
+            else:
+                row['All_Med_Rough_D5'] = np.nan
 
         rows.append(row)
 
     fm = pd.DataFrame(rows)
-    
-    delta_feats = [f'Delta_Healthy_{f}' for f in feats] + ['Delta_Healthy_Frac', 'Delta_Red_Frac', 'Delta_Yel_Frac']
-    
-    d5_abs_feats = [f'Healthy_{f}_D5' for f in feats] + ['Red_Frac_D5', 'Yel_Frac_D5', 'Healthy_Frac_D5']
-    
-    rel_change_feats = [f'RelChange_Healthy_{f}' for f in feats] + ['RelChange_Red_Frac', 'RelChange_Yel_Frac', 'RelChange_Healthy_Frac']
-    
-    all_feats = d5_abs_feats + delta_feats + rel_change_feats
+
+    # Collect feature groups for reporting
+    c01_med_d5 = [f'C01_Med_{short_names[f]}_D5' for f in feats]
+    c01_med_d3 = [f'C01_Med_{short_names[f]}_D3' for f in feats]
+    all_med_d5 = [f'All_Med_{short_names[f]}_D5' for f in feats]
+    all_med_d3 = [f'All_Med_{short_names[f]}_D3' for f in feats]
+
+    c01_cv_d5 = [f'C01_CV_{sn}_D5' for sn in CV_FEATURES]
+
+    c01_gr = [f'C01_GR_{sn}' for sn in GR_FEATURES]
+
+    c01_iqr = [f'C01_IQR_{sn}_D5' for sn in IQR_FEATURES]
+
+    ratio_feats = ['C01_C23_VolRatio_D5', 'C01_C23_CountRatio_D5', 'C01_C23_OACmRatio_D5']
+
+    frac_d5 = ['C0_Frac_D5', 'C1_Frac_D5', 'C01_Frac_D5', 'C23_Frac_D5']
+    frac_d3 = ['C0_Frac_D3', 'C1_Frac_D3', 'C01_Frac_D3', 'C23_Frac_D3']
+
+    rough_feats = ['C01_Med_Rough_D5', 'All_Med_Rough_D5'] if has_roughness else []
+
+    all_feat_groups = (
+        c01_med_d5 + c01_med_d3 + all_med_d5 + all_med_d3
+        + c01_cv_d5 + c01_gr + c01_iqr
+        + ratio_feats + frac_d5 + frac_d3 + rough_feats
+    )
+
     seen = set()
     extended_feats = []
-    for f in all_feats:
-        if f not in seen:
+    for f in all_feat_groups:
+        if f not in seen and f in fm.columns:
             extended_feats.append(f)
             seen.add(f)
-    
-    d3_feats = [f'Healthy_{f}_D3' for f in feats] + ['Red_Frac_D3', 'Yel_Frac_D3', 'Healthy_Frac_D3']
-    d5_feats = [f'Healthy_{f}_D5' for f in feats] + ['Red_Frac_D5', 'Yel_Frac_D5', 'Healthy_Frac_D5']
 
-    print(f'\nFeature matrix: {fm.shape}')
-    print(f'\nExtended Features ({len(extended_feats)}D):')
-    print(f'  Group 1 - D5 Absolute Values ({len(d5_abs_feats)} features):')
-    for i, f in enumerate(d5_abs_feats, 1):
-        valid = fm[f].notna().sum()
-        print(f'    {i:2d}. {f:35s} (valid: {valid}/{len(fm)})')
-    
-    print(f'  Group 2 - Delta (D5-D3) ({len(delta_feats)} features):')
-    for i, f in enumerate(delta_feats, 1):
-        valid = fm[f].notna().sum()
-        print(f'    {i:2d}. {f:35s} (valid: {valid}/{len(fm)})')
-        
-    print(f'  Group 3 - Relative Change ((D5-D3)/|D3|) ({len(rel_change_feats)} features):')
-    for i, f in enumerate(rel_change_feats, 1):
-        valid = fm[f].notna().sum()
-        print(f'    {i:2d}. {f:35s} (valid: {valid}/{len(fm)})')
+    d3_feats = [c for c in extended_feats if c.endswith('_D3')]
+    d5_feats = [c for c in extended_feats if c.endswith('_D5') or c.startswith('C01_GR_')]
 
-    if warnings_list:
-        print(f'\nWARN Wells with <{MIN_HEALTHY_SAMPLES} Healthy organoids:')
-        seen = set()
-        for w, d, n in warnings_list:
-            k = (w, d, n)
-            if k in seen:
-                continue
-            seen.add(k)
-            print(f'     {w}({d}): n={n}')
+    print(f'\nFeature matrix: {fm.shape[0]} wells x {len(extended_feats)} features')
+    print(f'  A1: C01_Med_D5   = {len(c01_med_d5)}')
+    print(f'  A2: C01_Med_D3   = {len(c01_med_d3)}')
+    print(f'  A3: All_Med_D5   = {len(all_med_d5)}')
+    print(f'  A4: All_Med_D3   = {len(all_med_d3)}')
+    print(f'  B:  C01_CV_D5    = {len(c01_cv_d5)} ({len(CV_FEATURES)} key features)')
+    print(f'  C:  C01_GR       = {len(c01_gr)} ({len(GR_FEATURES)} key features)')
+    print(f'  D:  C01_IQR_D5   = {len(c01_iqr)} ({len(IQR_FEATURES)} key features)')
+    print(f'  F:  Cross-Cluster = {len(ratio_feats)}')
+    print(f'  G:  Fractions    = {len(frac_d5 + frac_d3)}')
+    print(f'  H:  Roughness    = {len(rough_feats)}')
+
+    def _print_group(title, feat_list):
+        present = [f for f in feat_list if f in fm.columns]
+        if not present:
+            return
+        print(f'\n  {title} ({len(present)} features):')
+        for i, f in enumerate(present, 1):
+            valid = fm[f].notna().sum()
+            print(f'    {i:2d}. {f:30s} valid={valid}/{len(fm)}')
+
+    _print_group('Group A1: C01 Median D5', c01_med_d5)
+    _print_group('Group A2: C01 Median D3', c01_med_d3)
+    _print_group('Group A3: All Median D5', all_med_d5)
+    _print_group('Group A4: All Median D3', all_med_d3)
+    _print_group('Group B: C01 CV D5 (heterogeneity)', c01_cv_d5)
+    _print_group('Group C: C01 Growth Rate (D5/D3)', c01_gr)
+    _print_group('Group D: C01 IQR D5 (robust dispersion)', c01_iqr)
+    _print_group('Group F: Cross-Cluster Ratios', ratio_feats)
+    _print_group('Group G: Fraction D5', frac_d5)
+    _print_group('Group G: Fraction D3', frac_d3)
+    if rough_feats:
+        _print_group('Group H: Roughness', rough_feats)
 
     return fm, extended_feats, d3_feats, d5_feats
 
 
-def feature_selection(fm, sel_feats, threshold=0.7):
+def feature_selection(fm, sel_feats, nan_threshold=0.5, var_threshold=1e-6, corr_threshold=0.95):
     print('\n' + '=' * 70)
-    print(f'Step 3b: Feature Selection (Pearson r > {threshold})')
+    print('Step 3b: Feature Selection (No ATP - Matrix Quality Only)')
     print('=' * 70)
 
-    corr_list = []
+    valid_feats = []
+    drop_nan = []
+    drop_var = []
+    
     for f in sel_feats:
-        if f in fm.columns and fm[f].notna().any():
-            valid = fm[[f, 'ATP']].dropna()
-            if len(valid) >= 5:
-                r, p = pearsonr(valid[f], valid['ATP'])
-                corr_list.append((f, r, p))
-
-    corr_df = pd.DataFrame(corr_list, columns=['Feature', 'Pearson_r', 'p_value'])
-    corr_df = corr_df.sort_values('Pearson_r', key=abs, ascending=False)
+        if f not in fm.columns:
+            continue
+        nan_ratio = fm[f].isna().mean()
+        if nan_ratio > nan_threshold:
+            drop_nan.append((f, nan_ratio))
+            continue
+        valid_count = fm[f].notna().sum()
+        if valid_count > 1:
+            var_val = fm[f].dropna().var()
+            if var_val < var_threshold:
+                drop_var.append((f, var_val))
+                continue
+        valid_feats.append(f)
     
-    selected = corr_df[corr_df['Pearson_r'].abs() > threshold]['Feature'].tolist()
+    print(f'\n  Step 1: NaN filter (>{nan_threshold:.0%} missing)')
+    print(f'    Input: {len(sel_feats)} -> Kept: {len(valid_feats)} (Dropped: {len(drop_nan)})')
+    for f, r in drop_nan:
+        print(f'      DROP {f}: NaN={r:.1%}')
     
-    print(f'\nFeature Selection Results:')
-    print(f'  Input features: {len(sel_feats)}')
-    print(f'  Selected: {len(selected)} (|r| > {threshold})')
-    print(f'  Dropped: {len(sel_feats) - len(selected)}')
+    print(f'\n  Step 2: Variance filter (<{var_threshold})')
+    print(f'    Kept: {len(valid_feats)} (Dropped: {len(drop_var)})')
+    for f, v in drop_var:
+        print(f'      DROP {f}: var={v:.2e}')
     
-    print(f'\nTop 15 Features by |Pearson r|:')
-    for i, (_, row) in enumerate(corr_df.head(15).iterrows(), 1):
-        mark = ' ✓' if abs(row['Pearson_r']) > threshold else ''
-        print(f'  {i:2d}. {row["Pearson_r"]:+.4f}  {row["Feature"]:35s} p={row["p_value"]:.2e}{mark}')
+    remaining = valid_feats[:]
+    drop_corr = []
+    
+    fm_valid = fm[remaining].copy()
+    for col in remaining:
+        fm_valid[col] = fm_valid[col].fillna(fm_valid[col].median())
+    
+    corr_matrix = fm_valid.corr().abs()
+    
+    checked = set()
+    for i, f1 in enumerate(remaining):
+        if f1 in checked:
+            continue
+        for j, f2 in enumerate(remaining):
+            if j <= i or f2 in checked:
+                continue
+            if corr_matrix.loc[f1, f2] > corr_threshold:
+                v1 = fm_valid[f1].var()
+                v2 = fm_valid[f2].var()
+                drop_f = f2 if v1 >= v2 else f1
+                keep_f = f1 if v1 >= v2 else f2
+                drop_corr.append((drop_f, keep_f, corr_matrix.loc[f1, f2]))
+                checked.add(drop_f)
+    
+    selected = [f for f in remaining if f not in checked]
+    
+    print(f'\n  Step 3: Redundancy filter (|r| > {corr_threshold})')
+    print(f'    Kept: {len(selected)} (Dropped: {len(drop_corr)})')
+    for drop_f, keep_f, r_val in drop_corr:
+        print(f'      DROP {drop_f}: r={r_val:.4f} with {keep_f}')
+    
+    print(f'\n  Summary: {len(sel_feats)} -> {len(selected)} features')
+    print(f'  Dropped: {len(drop_nan)} (NaN) + {len(drop_var)} (zeroVar) + {len(drop_corr)} (redundant)')
+    
+    corr_df = pd.DataFrame([
+        {'Feature': f, 'NaN_ratio': fm[f].isna().mean(), 'Variance': fm[f].dropna().var()}
+        for f in selected
+    ])
     
     return selected, corr_df
 
 
 def compute_relative_score(fm, d3_feats, d5_feats):
     print('\n' + '=' * 70)
-    print('Step 4b: Relative Growth Score (ΔF = F_D5 - F_D3)')
+    print('Step 4b: Relative Growth Score (dF = F_D5 - F_D3)')
     print('=' * 70)
 
     valid_d3 = ~fm[d3_feats].isnull().any(axis=1)
@@ -276,7 +388,7 @@ def compute_relative_score(fm, d3_feats, d5_feats):
     
     print(f'\nShared PCA (Kaiser): {n_comp_kaiser} PCs with eigenvalue > 1.0')
     for i in range(min(len(eigenvalues), n_comp_kaiser)):
-        mark = ' ✓ (Kaiser)' if eigenvalues[i] > 1.0 else ''
+        mark = ' [K]' if eigenvalues[i] > 1.0 else ''
         print(f'  PC{i+1}: var={eigenvalues[i]:.4f}{mark}')
 
     pca_final = PCA(n_components=n_comp_kaiser, random_state=42)
@@ -297,7 +409,7 @@ def compute_relative_score(fm, d3_feats, d5_feats):
     print(f'\nRelative Score Statistics:')
     print(f'  F_D3: mean={F_d3.mean():.4f}, std={F_d3.std():.4f}')
     print(f'  F_D5: mean={F_d5.mean():.4f}, std={F_d5.std():.4f}')
-    print(f'  ΔF (D5-D3): mean={delta_score.mean():.4f}, std={delta_score.std():.4f}')
+    print(f'  dF (D5-D3): mean={delta_score.mean():.4f}, std={delta_score.std():.4f}')
 
     coef = np.dot(pca_final.components_.T, wts)
     cdf_rel = pd.DataFrame({
@@ -371,12 +483,12 @@ def pca_analysis(fm, sel_feats, cumvar_threshold=0.85):
             score = -score
             wts = -wts
             coef = -coef
-            print(f'\n⚠ Score direction flipped (original r={temp_r:.4f}<0) → now positive')
+            print(f'\n[!] Score direction flipped (original r={temp_r:.4f}<0) -> now positive')
 
     print(f'\nPCA Results ({n_comp} components):')
     for i in range(n_comp):
-        kaiser_mark = ' ✓ (Kaiser)' if eigenvalues[i] > 1.0 else ''
-        cumvar_mark = f' ← CumVar>{cumvar_threshold:.0%}' if i == n_comp - 1 and cv[i] >= cumvar_threshold else ''
+        kaiser_mark = ' [K]' if eigenvalues[i] > 1.0 else ''
+        cumvar_mark = f' <- CumVar>{cumvar_threshold:.0%}' if i == n_comp - 1 and cv[i] >= cumvar_threshold else ''
         print(f'  PC{i + 1}: var={eigenvalues[i]:.4f}, ratio={vr[i]:.1%}, cum={cv[i]:.1%}{kaiser_mark}{cumvar_mark}')
 
     cdf = pd.DataFrame({'Feature': sel_feats, 'Coef': coef, 'AbsCoef': np.abs(coef)}).sort_values(
@@ -508,7 +620,7 @@ def leave_one_patient_out_cv(fm, sel_feats, cumvar_threshold=0.85):
         print(f'\n  Fold: Leave-Out Patient "{test_patient}"')
         print(f'    Train: {len(train_data)} wells | Test: {len(test_data)} wells | PCs: {n_comp}')
         print(f'    Test Pearson r = {test_r:.4f} (p={test_p:.2e})')
-        print(f'    Test Spearman ρ = {test_sp:.4f} (p={test_sp_p:.2e})')
+        print(f'    Test Spearman rho = {test_sp:.4f} (p={test_sp_p:.2e})')
 
     if not cv_results:
         print('\nERROR: No valid CV folds completed!')
@@ -524,8 +636,8 @@ def leave_one_patient_out_cv(fm, sel_feats, cumvar_threshold=0.85):
     print('LOPOCV SUMMARY')
     print(f'{"=" * 50}')
     print(f'Folds completed: {len(cv_df)} / {len(patients)}')
-    print(f'Mean Pearson r  = {mean_r:.4f} ± {std_r:.4f}')
-    print(f'Mean Spearman ρ = {mean_sp:.4f}')
+    print(f'Mean Pearson r  = {mean_r:.4f} +/- {std_r:.4f}')
+    print(f'Mean Spearman rho = {mean_sp:.4f}')
     print(f'\nPer-fold results:')
     for _, row in cv_df.iterrows():
         print(f'  Patient "{row["Test_Patient"]}": r={row["Test_R"]:+.4f} (n={row["Test_Size"]})')
@@ -591,7 +703,7 @@ def external_validation(test_data_path, test_atp_dict, trained_scaler, trained_p
         print(f'Test samples: {valid_test.sum()} wells')
         print(f'Features used: {len(common_feats)} / {len(trained_sel_feats)} (training)')
         print(f'\nPearson r  = {r_test:.4f} (p={p_test:.2e})')
-        print(f'Spearman ρ = {sp_test:.4f} (p={sp_test_p:.2e})')
+        print(f'Spearman rho = {sp_test:.4f} (p={sp_test_p:.2e})')
         
         result_df = pd.DataFrame({
             'Well_ID': ids_test,
@@ -621,18 +733,18 @@ def external_validation(test_data_path, test_atp_dict, trained_scaler, trained_p
 def load_organoid_data_custom(data_base_dir):
     from cluster_utils import PROCESSED_FEATURES
     import glob as glob_module
-    
+
     morph_feats = list(PROCESSED_FEATURES)
-    
+
     data_folders_custom = {}
-    
+
     dir_0701 = os.path.join(data_base_dir, 'FXN_0701', 'measure_excel')
     if not os.path.exists(dir_0701):
         dir_0701 = os.path.join(data_base_dir, 'FXN_20230701', 'measure_excel')
-    
+
     if os.path.exists(dir_0701):
         data_folders_custom['0701'] = dir_0701
-    
+
     possible_0703_names = ['FXN_0703', 'FXN_20230703']
     dir_0703 = None
     for name in possible_0703_names:
@@ -640,73 +752,86 @@ def load_organoid_data_custom(data_base_dir):
         if os.path.exists(candidate):
             dir_0703 = candidate
             break
-    
+
     if dir_0703 is not None:
         data_folders_custom['0703'] = dir_0703
-    
+
     all_dfs = []
     wells_seen = set()
-    
+
     for day, folder in data_folders_custom.items():
         if not os.path.exists(folder):
             continue
-        
+
         xlsx_files = glob_module.glob(os.path.join(folder, '*.xlsx'))
-        
+
         for fpath in sorted(xlsx_files):
             fname = os.path.basename(fpath)
-            
+
             well_id = fname.replace('_0701.xlsx', '').replace('_0703.xlsx', '').replace('.xlsx', '')
-            
+
             if not well_id:
                 continue
-            
+
             well_day_key = (well_id, day)
             if well_day_key in wells_seen:
                 continue
-            
+
             try:
                 tmp = pd.read_excel(fpath)
-                
-                col_mapping = {}
-                if 'Object_Id' not in tmp.columns and 'Index' in tmp.columns:
-                    col_mapping['Index'] = 'Object_Id'
-                
-                if col_mapping:
-                    tmp = tmp.rename(columns=col_mapping)
-                
+
                 if 'Cavity_Ratio' not in tmp.columns and 'Cavity_Volume' in tmp.columns and 'Organoids_Volume_Fill' in tmp.columns:
                     tmp['Cavity_Ratio'] = tmp['Cavity_Volume'] / (tmp['Organoids_Volume_Fill'] + 1e-10)
-                
-                expected_cols = {'Object_Id'} | set(morph_feats)
+
+                expected_cols = {'Index'} | set(morph_feats)
                 actual_cols = set(tmp.columns)
-                
+
                 if not expected_cols.issubset(actual_cols):
                     missing = expected_cols - actual_cols
                     print(f'  SKIP {fname}: missing columns {missing}')
                     continue
-                
+
                 tmp = tmp.dropna(subset=morph_feats)
                 if len(tmp) == 0:
                     continue
-                
+
                 tmp['_well'] = fname.replace('.xlsx', '')
                 tmp['_well_id'] = well_id
                 tmp['_day'] = day
                 all_dfs.append(tmp)
                 wells_seen.add(well_day_key)
-                
+
             except Exception as e:
                 print(f'  ERROR reading {fname}: {e}')
-    
+
     if not all_dfs:
         raise RuntimeError(f'No valid data files found in {data_base_dir}')
-    
+
     df = pd.concat(all_dfs, ignore_index=True)
     wells_sorted = sorted(set(w for w, _ in wells_seen))
-    
+
+    roughness_dfs = []
+    for day in ['0701', '0703']:
+        roughness_dir = os.path.join(data_base_dir, f'FXN_202307{day}', 'roughness')
+        if not os.path.exists(roughness_dir):
+            continue
+        for fp in sorted(glob_module.glob(os.path.join(roughness_dir, '*.xlsx'))):
+            rdf = pd.read_excel(fp)
+            if 'Index' not in rdf.columns or 'Roughness' not in rdf.columns:
+                continue
+            well_name = os.path.splitext(os.path.basename(fp))[0]
+            rdf['_well'] = well_name
+            rdf['_day'] = day
+            rdf['_well_id'] = well_name.split('_')[0] if '_' in well_name else well_name
+            roughness_dfs.append(rdf[['Index', 'Roughness', '_well', '_day', '_well_id']])
+
+    if roughness_dfs:
+        roughness_all = pd.concat(roughness_dfs, ignore_index=True)
+        df = df.merge(roughness_all, on=['Index', '_well', '_day', '_well_id'], how='left')
+        print(f'  Roughness merged: {df["Roughness"].notna().sum():,}/{len(df):,} organoids')
+
     print(f'Loaded custom dataset: {data_base_dir}')
     print(f'  Wells: {len(wells_sorted)}, Objects: {len(df)}')
     print(f'  Days available: {list(data_folders_custom.keys())}')
-    
+
     return df, morph_feats, wells_sorted

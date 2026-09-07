@@ -20,7 +20,7 @@ from .plotting import generate_figures
 def run_pipeline():
     print('\n' + '=' * 70)
     print(' ' * 15 + 'PCA-ATP BRIDGE V2 (STRATIFIED MEDIAN)')
-    print(' ' * 25 + 'Data: FXN_2023_new（ICC）')
+    print(' ' * 25 + 'Data: FXN_2023_new (ICC)')
     print(' ' * 25 + f"Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print('=' * 70)
 
@@ -33,7 +33,7 @@ def run_pipeline():
     
     fm['ATP'] = fm['Well_ID'].map(ATP_DATABASE)
     
-    selected_feats, corr_df = feature_selection(fm, extended_sel, threshold=0.7)
+    selected_feats, corr_df = feature_selection(fm, extended_sel)
     
     print('\n' + '=' * 70)
     print('  METHOD COMPARISON: Extended-PCA (with Feature Selection)')
@@ -85,13 +85,13 @@ def run_pipeline():
             )
             if ext_gc is not None:
                 external_results['GC_GastricCancer'] = res_gc
-                print(f'\n✅ GC (Gastric Cancer) External Validation: r={res_gc["pearson_r"]:.4f}')
+                print(f'\n[OK] GC (Gastric Cancer) External Validation: r={res_gc["pearson_r"]:.4f}')
             else:
-                print(f'\n❌ GC validation failed')
+                print(f'\n[FAIL] GC validation failed')
         else:
-            print(f'\n⚠ ATP file not found: {gc_atp_path}')
+            print(f'\n[WARN] ATP file not found: {gc_atp_path}')
     except Exception as e:
-        print(f'\n❌ Error during GC external validation: {e}')
+        print(f'\n[ERROR] Error during GC external validation: {e}')
     
     try:
         icc005_data_path = os.path.join('Data', 'ICC005_20240424')
@@ -108,15 +108,15 @@ def run_pipeline():
                     )
                     if ext_icc005 is not None:
                         external_results['ICC005_Patient'] = res_icc005
-                        print(f'\n✅ ICC005 (Different Patient) External Validation: r={res_icc005["pearson_r"]:.4f}')
+                        print(f'\n[OK] ICC005 (Different Patient) External Validation: r={res_icc005["pearson_r"]:.4f}')
                     else:
-                        print(f'\n❌ ICC005 validation failed')
+                        print(f'\n[FAIL] ICC005 validation failed')
                 else:
-                    print(f'\n⚠ ICC005 Analysis file format unclear')
+                    print(f'\n[WARN] ICC005 Analysis file format unclear')
             else:
-                print(f'\n⚠ ICC005 Analysis file not found')
+                print(f'\n[WARN] ICC005 Analysis file not found')
     except Exception as e:
-        print(f'\n❌ Error during ICC005 external validation: {e}')
+        print(f'\n[ERROR] Error during ICC005 external validation: {e}')
     
     if external_results:
         print(f'\n{"=" * 50}')
@@ -125,7 +125,7 @@ def run_pipeline():
         print(f'Training set (ICC): r = {res_ext["pearson_r"]:.4f}')
         for name, res in external_results.items():
             drop = res_ext["pearson_r"] - res["pearson_r"]
-            print(f'{name}: r = {res["pearson_r"]:.4f} (Δr = {drop:+.4f})')
+            print(f'{name}: r = {res["pearson_r"]:.4f} (dr = {drop:+.4f})')
     
     print('\n' + '=' * 70)
     print('  nnUNet SEGMENTATION ROBUSTNESS TEST')
@@ -140,16 +140,16 @@ def run_pipeline():
             )
             if nnunet_result is not None:
                 nnunet_df, nnunet_res = nnunet_result
-                print(f'\n✅ nnUNet Robustness Test: r={nnunet_res["pearson_r"]:.4f} (p={nnunet_res["pearson_p"]:.2e})')
+                print(f'\n[OK] nnUNet Robustness Test: r={nnunet_res["pearson_r"]:.4f} (p={nnunet_res["pearson_p"]:.2e})')
                 print(f'   Training (ICC): r={res_ext["pearson_r"]:.4f}')
                 delta_r = res_ext["pearson_r"] - nnunet_res["pearson_r"]
-                print(f'   Δr = {delta_r:+.4f} ({"MINOR" if abs(delta_r) < 0.1 else "MODERATE" if abs(delta_r) < 0.2 else "LARGE"} degradation)')
+                print(f'   dr = {delta_r:+.4f} ({"MINOR" if abs(delta_r) < 0.1 else "MODERATE" if abs(delta_r) < 0.2 else "LARGE"} degradation)')
             else:
-                print(f'\n❌ nnUNet validation failed')
+                print(f'\n[FAIL] nnUNet validation failed')
         else:
-            print(f'\n⚠ nnUNet data path not found: {nnunet_data_path}')
+            print(f'\n[WARN] nnUNet data path not found: {nnunet_data_path}')
     except Exception as e:
-        print(f'\n❌ Error during nnUNet robustness test: {e}')
+        print(f'\n[ERROR] Error during nnUNet robustness test: {e}')
         import traceback
         traceback.print_exc()
     

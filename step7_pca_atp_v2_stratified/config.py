@@ -25,10 +25,13 @@ CONC_MAP = {
 }
 
 CLUSTER_COLORS = {0: '#E74C3C', 1: '#F1C40F', 2: '#2ECC71', 3: '#3498DB'}
-CLUSTER_NAMES = {0: 'Red(H)', 1: 'Yellow(H)', 2: 'Green(I)', 3: 'Blue(D)'}
+CLUSTER_NAMES = {0: 'Cluster 0', 1: 'Cluster 1', 2: 'Cluster 2', 3: 'Cluster 3'}
 
 HEALTHY_CLUSTERS = [0, 1]
+DAMAGED_CLUSTERS = [2, 3]
 MIN_HEALTHY_SAMPLES = 5
+MIN_SAMPLES_FOR_CV = 5
+MIN_SAMPLES_FOR_SKEW = 8
 
 ATP_DATABASE = {
     'B10': 601300, 'B11': 11180000, 'B2': 5391000, 'B3': 6538000,

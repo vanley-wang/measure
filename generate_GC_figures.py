@@ -24,7 +24,7 @@ OUTPUT_DIR = r'D:\Desktop\music\measure\reports\figures\GC_validation'
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 CLUSTER_COLORS = {0: '#E74C3C', 1: '#F39C12', 2: '#27AE60', 3: '#3498DB'}
-CLUSTER_NAMES = {0: '大囊状(H)', 1: '大实心(H)', 2: '小实心(I)', 3: '极小(D)'}
+CLUSTER_NAMES = {0: 'Cluster 0', 1: 'Cluster 1', 2: 'Cluster 2', 3: 'Cluster 3'}
 
 # ============================================================
 # 1. 加载数据 + KMeans + PCA（同前）
@@ -247,7 +247,7 @@ ax.set_ylabel('Fraction (%)'); ax.set_ylim(0, 105)
 ax.legend(fontsize=7, loc='upper right')
 ax.set_title('Phenotype Composition by ATP Level', fontweight='bold')
 
-# B: 大囊状(H)比例 vs ATP
+# B: Cluster 0比例 vs ATP
 ax = axes[1]
 wd2_pct = wd2.groupby(['_well_id', 'ATP_group'])['Cluster'].value_counts(normalize=True).unstack(fill_value=0)
 if 0 in wd2_pct.columns:
@@ -262,12 +262,12 @@ if 0 in wd2_pct.columns:
         if len(idx) > 0:
             ax.scatter(h_well[idx], m.set_index('_well_id').loc[idx, 'log10_ATP'],
                       c=c, s=40, alpha=0.7, label=g)
-    ax.set_xlabel('Large Cystic (H) Fraction (%)')
+    ax.set_xlabel('Cluster 0 Fraction (%)')
     ax.set_ylabel('log10(ATP)')
     ax.legend(fontsize=7)
-    ax.set_title(f'Healthy% vs ATP  r={r_h:.3f}', fontweight='bold')
+    ax.set_title(f'Cluster 0% vs ATP  r={r_h:.3f}', fontweight='bold')
 
-# C: 极小(D)比例 vs ATP
+# C: Cluster 3比例 vs ATP
 ax = axes[2]
 if 3 in wd2_pct.columns:
     d_frac = wd2_pct[3] * 100
@@ -281,10 +281,10 @@ if 3 in wd2_pct.columns:
         if len(idx) > 0:
             ax.scatter(d_well[idx], m.set_index('_well_id').loc[idx, 'log10_ATP'],
                       c=c, s=40, alpha=0.7, label=g)
-    ax.set_xlabel('Small Dense (D) Fraction (%)')
+    ax.set_xlabel('Cluster 3 Fraction (%)')
     ax.set_ylabel('log10(ATP)')
     ax.legend(fontsize=7)
-    ax.set_title(f'Dead% vs ATP  r={r_d:.3f}', fontweight='bold')
+    ax.set_title(f'Cluster 3% vs ATP  r={r_d:.3f}', fontweight='bold')
 
 plt.tight_layout()
 plt.savefig(os.path.join(OUTPUT_DIR, 'fig3_composition.png'), dpi=300, bbox_inches='tight')

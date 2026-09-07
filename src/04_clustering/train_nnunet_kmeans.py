@@ -127,7 +127,7 @@ print(f'  Raw {raw_c3} -> Green(2)  [Vol min = {cluster_stats.loc[raw_c3, "Organ
 print(f'  Raw {raw_c4} -> Blue(3)   [Scatt max = {cluster_stats.loc[raw_c4, "Scatt_Mean"]:.0f}]')
 
 print('\nFinal cluster distribution:')
-names = {0: 'Red(H)', 1: 'Yellow(H)', 2: 'Green(I)', 3: 'Blue(D)'}
+names = {0: 'Cluster 0', 1: 'Cluster 1', 2: 'Cluster 2', 3: 'Cluster 3'}
 for c in range(4):
     cnt = (Data_All['Cluster'] == c).sum()
     print(f'  {names[c]:12s}: {cnt:>8,} ({cnt/len(Data_All)*100:>5.1f}%)')
