@@ -35,28 +35,69 @@ def run_pipeline():
     
     selected_feats, corr_df = feature_selection(fm, extended_sel)
     
+    d3_sel = [c for c in selected_feats if c.endswith('_D3')]
+    d5_sel = [c for c in selected_feats if c.endswith('_D5')]
+    
+    paired_d3 = []
+    paired_d5 = []
+    for f5 in d5_sel:
+        f3 = f5.replace('_D5', '_D3')
+        if f3 in d3_sel:
+            paired_d3.append(f3)
+            paired_d5.append(f5)
+    
+    unpaired_d5 = [f for f in d5_sel if f not in paired_d5]
+    unpaired_d3 = [f for f in d3_sel if f not in paired_d3]
+    
+    print(f'\nDelta-F feature pairing:')
+    print(f'  Paired D3/D5: {len(paired_d3)} features')
+    if unpaired_d5:
+        print(f'  D5-only (excluded): {unpaired_d5}')
+    if unpaired_d3:
+        print(f'  D3-only (excluded): {unpaired_d3}')
+    
     print('\n' + '=' * 70)
-    print('  METHOD COMPARISON: Extended-PCA (with Feature Selection)')
+    print('  METHOD 1: Endpoint F (D5 only)')
     print('=' * 70)
     
     sdf_ext, pca_ext, wts_ext, scaler_ext, cdf_ext = pca_analysis(fm, selected_feats)
     merged_ext, res_ext = atp_correlation(sdf_ext)
     
     print(f'\n{"=" * 50}')
-    print('RESULT: Extended PCA (with Feature Selection)')
+    print('RESULT: Endpoint PCA (D5)')
     print(f'{"=" * 50}')
     if res_ext:
-        print(f'Extended-PCA (new):   Pearson r = {res_ext["pearson_r"]:.4f} (p={res_ext["pearson_p"]:.2e})')
+        print(f'Endpoint F (D5):     Pearson r = {res_ext["pearson_r"]:.4f} (p={res_ext["pearson_p"]:.2e})')
+    
+    print('\n' + '=' * 70)
+    print('  METHOD 2: Delta-F Self-Control (dF = F_D5 - F_D3)')
+    print('=' * 70)
+    
+    sdf_delta, pca_delta, wts_delta, scaler_delta, cdf_delta = compute_relative_score(fm, paired_d3, paired_d5)
+    merged_delta, res_delta = atp_correlation(sdf_delta)
+    
+    print(f'\n{"=" * 50}')
+    print('RESULT: Delta-F Self-Control (dF)')
+    print(f'{"=" * 50}')
+    if res_delta:
+        print(f'dF (D5-D3):          Pearson r = {res_delta["pearson_r"]:.4f} (p={res_delta["pearson_p"]:.2e})')
+        print(f'                      Spearman rho = {res_delta["spearman_rho"]:.4f}')
+        
+        if res_ext:
+            delta_gain = res_delta["pearson_r"] - res_ext["pearson_r"]
+            print(f'\n  dF vs Endpoint: dr = {delta_gain:+.4f} ({"GAIN" if delta_gain > 0 else "LOSS"})')
     
     try:
         import pickle as _pkl
         _pca_pkg = {
-            'scaler': scaler_ext,
-            'pca': pca_ext,
-            'weights': wts_ext,
+            'scaler': scaler_delta,
+            'pca': pca_delta,
+            'weights': wts_delta,
             'selected_features': selected_feats,
+            'd3_features': d3_sel,
+            'd5_features': d5_sel,
         }
-        _pca_path = os.path.join('model', 'PCA_ATP_v2_extended.pkl')
+        _pca_path = os.path.join('model', 'PCA_ATP_v2_delta.pkl')
         os.makedirs('model', exist_ok=True)
         with open(_pca_path, 'wb') as _f:
             _pkl.dump(_pca_pkg, _f)
@@ -122,7 +163,8 @@ def run_pipeline():
         print(f'\n{"=" * 50}')
         print('EXTERNAL VALIDATION SUMMARY')
         print(f'{"=" * 50}')
-        print(f'Training set (ICC): r = {res_ext["pearson_r"]:.4f}')
+        print(f'Training (ICC) Endpoint F: r = {res_ext["pearson_r"]:.4f}')
+        print(f'Training (ICC) Delta-F dF: r = {res_delta["pearson_r"]:.4f}')
         for name, res in external_results.items():
             drop = res_ext["pearson_r"] - res["pearson_r"]
             print(f'{name}: r = {res["pearson_r"]:.4f} (dr = {drop:+.4f})')
@@ -153,11 +195,11 @@ def run_pipeline():
         import traceback
         traceback.print_exc()
     
-    sdf, pca, wts, scaler = sdf_ext, pca_ext, wts_ext, scaler_ext
-    merged, res = merged_ext, res_ext
+    sdf, pca, wts, scaler = sdf_delta, pca_delta, wts_delta, scaler_delta
+    merged, res = merged_delta, res_delta
     sel = selected_feats
-    cdf = cdf_ext
-    print('\nUsing EXTENDED-PCA Score for figures and output')
+    cdf = cdf_delta
+    print('\nUsing DELTA-F (Self-Control) Score for figures and output')
 
     generate_figures(df, ws, fm, merged, res, cdf, pca, sel)
 
@@ -166,7 +208,9 @@ def run_pipeline():
     print('OK ANALYSIS COMPLETE')
     print(f'  Time: {dt:.1f}s | Wells: {len(wells)} | Features: {len(sel)}D')
     if res:
-        print(f"  Result: Pearson r={res['pearson_r']:.4f} (p={res['pearson_p']:.2e}) | Spearman rho={res['spearman_rho']:.4f}")
+        print(f"  Delta-F (dF):  Pearson r={res['pearson_r']:.4f} (p={res['pearson_p']:.2e}) | Spearman rho={res['spearman_rho']:.4f}")
+    if res_ext:
+        print(f"  Endpoint (F):  Pearson r={res_ext['pearson_r']:.4f} (p={res_ext['pearson_p']:.2e}) | Spearman rho={res_ext['spearman_rho']:.4f}")
     print(f'  Output: {FIGURES_DIR}/')
     print('=' * 70 + '\n')
 

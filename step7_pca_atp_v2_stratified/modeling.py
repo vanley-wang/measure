@@ -139,6 +139,12 @@ def stratified_median_aggregation(df, ws, feats, wells):
                 else:
                     row[f'C01_CV_{sn}_D5'] = np.nan
 
+                if n_c01_3 >= MIN_SAMPLES_FOR_CV:
+                    med = c01_3[f].median()
+                    row[f'C01_CV_{sn}_D3'] = (c01_3[f].std() / med) if (med and med != 0) else np.nan
+                else:
+                    row[f'C01_CV_{sn}_D3'] = np.nan
+
             # === Group C: Growth Rate (relative D5/D3, subset only) ===
             if sn in GR_FEATURES:
                 v5 = row.get(f'C01_Med_{sn}_D5')
@@ -174,6 +180,25 @@ def stratified_median_aggregation(df, ws, feats, wells):
             row['C01_C23_OACmRatio_D5'] = c01_oac / c23_oac if c23_oac != 0 else np.nan
         else:
             row['C01_C23_OACmRatio_D5'] = np.nan
+
+        if n_c01_3 >= MIN_HEALTHY_SAMPLES and n_c23_3 >= MIN_HEALTHY_SAMPLES:
+            c01_fill_3 = c01_3['Organoids_Volume_Fill'].median()
+            c23_fill_3 = c23_3['Organoids_Volume_Fill'].median()
+            row['C01_C23_VolRatio_D3'] = c01_fill_3 / c23_fill_3 if c23_fill_3 != 0 else np.nan
+        else:
+            row['C01_C23_VolRatio_D3'] = np.nan
+
+        if n_c01_3 >= MIN_HEALTHY_SAMPLES and n_c23_3 >= MIN_HEALTHY_SAMPLES:
+            row['C01_C23_CountRatio_D3'] = n_c01_3 / n_c23_3
+        else:
+            row['C01_C23_CountRatio_D3'] = np.nan
+
+        if n_c01_3 >= MIN_HEALTHY_SAMPLES and n_c23_3 >= MIN_HEALTHY_SAMPLES:
+            c01_oac_3 = c01_3['Scatt_Mean'].median()
+            c23_oac_3 = c23_3['Scatt_Mean'].median()
+            row['C01_C23_OACmRatio_D3'] = c01_oac_3 / c23_oac_3 if c23_oac_3 != 0 else np.nan
+        else:
+            row['C01_C23_OACmRatio_D3'] = np.nan
 
         # === Group G: Fraction features (cluster proportions) ===
         w5 = ws[(ws['_well_id'] == wid) & (ws['_day'] == '0703')]
@@ -216,12 +241,14 @@ def stratified_median_aggregation(df, ws, feats, wells):
     all_med_d3 = [f'All_Med_{short_names[f]}_D3' for f in feats]
 
     c01_cv_d5 = [f'C01_CV_{sn}_D5' for sn in CV_FEATURES]
+    c01_cv_d3 = [f'C01_CV_{sn}_D3' for sn in CV_FEATURES]
 
     c01_gr = [f'C01_GR_{sn}' for sn in GR_FEATURES]
 
     c01_iqr = [f'C01_IQR_{sn}_D5' for sn in IQR_FEATURES]
 
-    ratio_feats = ['C01_C23_VolRatio_D5', 'C01_C23_CountRatio_D5', 'C01_C23_OACmRatio_D5']
+    ratio_d5_feats = ['C01_C23_VolRatio_D5', 'C01_C23_CountRatio_D5', 'C01_C23_OACmRatio_D5']
+    ratio_d3_feats = ['C01_C23_VolRatio_D3', 'C01_C23_CountRatio_D3', 'C01_C23_OACmRatio_D3']
 
     frac_d5 = ['C0_Frac_D5', 'C1_Frac_D5', 'C01_Frac_D5', 'C23_Frac_D5']
     frac_d3 = ['C0_Frac_D3', 'C1_Frac_D3', 'C01_Frac_D3', 'C23_Frac_D3']
@@ -230,8 +257,8 @@ def stratified_median_aggregation(df, ws, feats, wells):
 
     all_feat_groups = (
         c01_med_d5 + c01_med_d3 + all_med_d5 + all_med_d3
-        + c01_cv_d5 + c01_gr + c01_iqr
-        + ratio_feats + frac_d5 + frac_d3 + rough_feats
+        + c01_cv_d5 + c01_cv_d3 + c01_gr + c01_iqr
+        + ratio_d5_feats + ratio_d3_feats + frac_d5 + frac_d3 + rough_feats
     )
 
     seen = set()
@@ -250,9 +277,11 @@ def stratified_median_aggregation(df, ws, feats, wells):
     print(f'  A3: All_Med_D5   = {len(all_med_d5)}')
     print(f'  A4: All_Med_D3   = {len(all_med_d3)}')
     print(f'  B:  C01_CV_D5    = {len(c01_cv_d5)} ({len(CV_FEATURES)} key features)')
+    print(f'  B2: C01_CV_D3    = {len(c01_cv_d3)} ({len(CV_FEATURES)} key features)')
     print(f'  C:  C01_GR       = {len(c01_gr)} ({len(GR_FEATURES)} key features)')
     print(f'  D:  C01_IQR_D5   = {len(c01_iqr)} ({len(IQR_FEATURES)} key features)')
-    print(f'  F:  Cross-Cluster = {len(ratio_feats)}')
+    print(f'  F:  Cross-Cluster D5 = {len(ratio_d5_feats)}')
+    print(f'  F2: Cross-Cluster D3 = {len(ratio_d3_feats)}')
     print(f'  G:  Fractions    = {len(frac_d5 + frac_d3)}')
     print(f'  H:  Roughness    = {len(rough_feats)}')
 
@@ -270,9 +299,11 @@ def stratified_median_aggregation(df, ws, feats, wells):
     _print_group('Group A3: All Median D5', all_med_d5)
     _print_group('Group A4: All Median D3', all_med_d3)
     _print_group('Group B: C01 CV D5 (heterogeneity)', c01_cv_d5)
+    _print_group('Group B2: C01 CV D3 (heterogeneity)', c01_cv_d3)
     _print_group('Group C: C01 Growth Rate (D5/D3)', c01_gr)
     _print_group('Group D: C01 IQR D5 (robust dispersion)', c01_iqr)
-    _print_group('Group F: Cross-Cluster Ratios', ratio_feats)
+    _print_group('Group F: Cross-Cluster Ratios D5', ratio_d5_feats)
+    _print_group('Group F2: Cross-Cluster Ratios D3', ratio_d3_feats)
     _print_group('Group G: Fraction D5', frac_d5)
     _print_group('Group G: Fraction D3', frac_d3)
     if rough_feats:
@@ -359,7 +390,7 @@ def feature_selection(fm, sel_feats, nan_threshold=0.5, var_threshold=1e-6, corr
 
 def compute_relative_score(fm, d3_feats, d5_feats):
     print('\n' + '=' * 70)
-    print('Step 4b: Relative Growth Score (dF = F_D5 - F_D3)')
+    print('Step 4b: Delta-F Self-Control Score (dF = F_D5 - F_D3)')
     print('=' * 70)
 
     valid_d3 = ~fm[d3_feats].isnull().any(axis=1)
@@ -370,8 +401,8 @@ def compute_relative_score(fm, d3_feats, d5_feats):
     X_d3 = fm.loc[valid, d3_feats].values
     X_d5 = fm.loc[valid, d5_feats].values
 
-    print(f'Day3 features: {X_d3.shape}, Day5 features: {X_d5.shape}')
-    print(f'Complete cases (both timepoints): {len(ids)}')
+    print(f'D3 features: {X_d3.shape[1]}, D5 features: {X_d5.shape[1]}')
+    print(f'Complete cases (both timepoints): {len(ids)}/{len(fm)} wells')
 
     X_combined = np.vstack([X_d3, X_d5])
     
@@ -386,16 +417,25 @@ def compute_relative_score(fm, d3_feats, d5_feats):
     eigenvalues = pca_full.explained_variance_
     n_comp_kaiser = max(2, int(np.sum(eigenvalues > 1.0)))
     
-    print(f'\nShared PCA (Kaiser): {n_comp_kaiser} PCs with eigenvalue > 1.0')
-    for i in range(min(len(eigenvalues), n_comp_kaiser)):
-        mark = ' [K]' if eigenvalues[i] > 1.0 else ''
-        print(f'  PC{i+1}: var={eigenvalues[i]:.4f}{mark}')
+    cumvar_full = np.cumsum(pca_full.explained_variance_ratio_)
+    n_comp_cumvar = int(np.searchsorted(cumvar_full, 0.85)) + 1
+    n_comp = max(n_comp_kaiser, n_comp_cumvar)
+    n_comp = min(n_comp, max_comp)
+    
+    print(f'\nShared PCA Selection:')
+    print(f'  Kaiser (>1.0):      {n_comp_kaiser} PCs')
+    print(f'  CumVar (>85%):       {n_comp_cumvar} PCs')
+    print(f'  Selected:            {n_comp} PCs')
 
-    pca_final = PCA(n_components=n_comp_kaiser, random_state=42)
+    pca_final = PCA(n_components=n_comp, random_state=42)
     X_all_p = pca_final.fit_transform(X_combined_s)
     
     vr = pca_final.explained_variance_ratio_
     wts = vr / vr.sum()
+    
+    print(f'\n  PC weights:')
+    for i in range(n_comp):
+        print(f'    PC{i+1}: var={vr[i]:.1%}, weight={wts[i]:.3f}')
     
     n_samples = len(ids)
     X_d3_p = X_all_p[:n_samples]
@@ -406,10 +446,10 @@ def compute_relative_score(fm, d3_feats, d5_feats):
 
     delta_score = F_d5 - F_d3
 
-    print(f'\nRelative Score Statistics:')
-    print(f'  F_D3: mean={F_d3.mean():.4f}, std={F_d3.std():.4f}')
-    print(f'  F_D5: mean={F_d5.mean():.4f}, std={F_d5.std():.4f}')
-    print(f'  dF (D5-D3): mean={delta_score.mean():.4f}, std={delta_score.std():.4f}')
+    print(f'\n  Score Statistics:')
+    print(f'    F_D3: mean={F_d3.mean():.4f}, std={F_d3.std():.4f}')
+    print(f'    F_D5: mean={F_d5.mean():.4f}, std={F_d5.std():.4f}')
+    print(f'    dF (D5-D3): mean={delta_score.mean():.4f}, std={delta_score.std():.4f}')
 
     coef = np.dot(pca_final.components_.T, wts)
     cdf_rel = pd.DataFrame({
@@ -417,6 +457,10 @@ def compute_relative_score(fm, d3_feats, d5_feats):
         'Coef': coef[:len(d3_feats)],
         'AbsCoef': np.abs(coef[:len(d3_feats)])
     }).sort_values('AbsCoef', ascending=False)
+    
+    print('\n  Top 10 features by dF weight:')
+    for _, r in cdf_rel.head(10).iterrows():
+        print(f"    {r['Coef']:+.3f}  {r['Feature']}")
 
     score_df = pd.DataFrame({
         'Well_ID': ids,
