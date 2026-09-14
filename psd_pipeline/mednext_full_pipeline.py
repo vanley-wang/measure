@@ -1,5 +1,5 @@
 # ============================================================
-# nnUNet ICC 完整 Pipeline
+# MedNext ICC 完整 Pipeline
 # Step 1: K=6 聚类 → 合并为 4 表型
 # Step 2: 逐孔逐表型均值聚合
 # Step 3: Delta = D5 − D3 → 特征穷举搜索 → PCA → ATP
@@ -12,17 +12,15 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 from scipy.stats import pearsonr, spearmanr
 from scipy.spatial.distance import cdist
-from joblib import Parallel, delayed
 
 warnings.filterwarnings('ignore')
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-NNUNET_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                           'nnUNet_FXN')
-D3_DIR = os.path.join(NNUNET_DIR, 'FXN_0701', 'measure_excel')
-D5_DIR = os.path.join(NNUNET_DIR, 'FXN_0703', 'measure_excel')
-MODEL_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'model_nnunet_new')
-OUTPUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'output_nnunet_new')
+MED_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                       'MedNext_FXN_2023')
+D3_DIR = os.path.join(MED_DIR, 'FXN_0701', 'measure_excel')
+D5_DIR = os.path.join(MED_DIR, 'FXN_0703', 'measure_excel')
+MODEL_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'model_mednext')
+OUTPUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'output_mednext')
 os.makedirs(MODEL_DIR, exist_ok=True)
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
@@ -45,7 +43,6 @@ ATP_DB = {
 }
 
 N_SEARCH = 50000
-N_JOBS = -1
 N_PC = 4
 RANDOM_SEED = 42
 
@@ -53,10 +50,9 @@ RANDOM_SEED = 42
 # STEP 1: K=6 聚类 + 自动合并为 4 表型
 # ================================================================
 print('='*60)
-print('  STEP 1: K=6 Clustering + Merge → 4 Phenotypes')
+print('  STEP 1: K=6 Clustering + Merge -> 4 Phenotypes')
 print('='*60)
 
-# 加载所有 Day3 类器官
 dfs_d3 = []
 for f in sorted(os.listdir(D3_DIR)):
     if not f.endswith('.xlsx'): continue
@@ -74,12 +70,10 @@ print(f'  K=6 cluster sizes:')
 for i in range(6):
     print(f'    C{i}: {(k6_labels==i).sum():>6,} ({(k6_labels==i).sum()/len(k6_labels)*100:>5.1f}%)')
 
-# 自动合并：找最近的两个对
 centers = kmeans.cluster_centers_
 dist = cdist(centers, centers)
 np.fill_diagonal(dist, np.inf)
 
-# 找最接近的两对
 pairs = []
 for _ in range(2):
     i, j = np.unravel_index(np.argmin(dist), dist.shape)
@@ -89,35 +83,29 @@ for _ in range(2):
 
 print(f'\n  Merge pairs (closest centers): {pairs}')
 
-# 构建合并映射
 merge_map = {}
 remaining = set(range(6))
 for a, b in pairs:
-    merge_map[a] = a  # 暂存
+    merge_map[a] = a
     merge_map[b] = a
     remaining -= {a, b}
-
-# 剩余两个单独保留
 for r in sorted(remaining):
     merge_map[r] = r
 
-# 重新编号到 0-3，按空腔体积排序
 temp_labels = np.array([merge_map[l] for l in k6_labels])
 unique_temps = sorted(set(merge_map.values()))
 cavity_means = {}
 for u in unique_temps:
     mask = temp_labels == u
     cavity_means[u] = np.mean(X_all[mask, CF.index('Cavity_Volume')])
-
-ordered = sorted(unique_temps, key=lambda u: cavity_means[u])  # 空腔小→大
+ordered = sorted(unique_temps, key=lambda u: cavity_means[u])
 numeric_map = {k6_label: ordered.index(merge_map[k6_label]) for k6_label in range(6)}
 
-print(f'  K6→K4 mapping: {numeric_map}')
+print(f'  K6->K4 mapping: {numeric_map}')
 
-# 每个 K4 类别的描述
 k4_labels = np.array([numeric_map[l] for l in k6_labels])
+names = ['SmallBody','MidTrans','HiScatt','GiantCavity']
 print(f'\n  K=4 merged clusters:')
-names = ['小体积基准型','中等过渡型','高散射实心型','巨大囊泡型']
 for i in range(N_MERGED):
     mask = k4_labels == i
     center = np.mean(X_std[mask], axis=0)
@@ -127,11 +115,9 @@ for i in range(N_MERGED):
         print(f'  {CF_SHORT[t]}={center[t]:+.2f}', end='')
     print()
 
-# 保存
 pickle.dump(kmeans, open(os.path.join(MODEL_DIR, 'kmeans_k6.pkl'), 'wb'))
 pickle.dump(scaler_k6, open(os.path.join(MODEL_DIR, 'scaler_k6.pkl'), 'wb'))
 pickle.dump(numeric_map, open(os.path.join(MODEL_DIR, 'numeric_map.pkl'), 'wb'))
-print(f'\n  Models saved: model_nnunet/')
 
 # ================================================================
 # STEP 2: 逐孔逐表型均值聚合 + Delta
@@ -188,14 +174,13 @@ df_delta = pd.DataFrame(delta_rows, columns=all_feat_names)
 df_delta['Well_ID'] = well_ids
 df_delta['ATP'] = atp_vals
 
-# 移除常数列
 valid_cols = []
 for c in all_feat_names:
     v = df_delta[c].dropna()
     if len(v) > 0 and v.nunique() > 1:
         valid_cols.append(c)
 print(f'  Valid Delta features: {len(valid_cols)}')
-df_delta.to_excel(os.path.join(OUTPUT_DIR, 'nnunet_delta_table.xlsx'), index=False)
+df_delta.to_excel(os.path.join(OUTPUT_DIR, 'mednext_delta_table.xlsx'), index=False)
 
 # ================================================================
 # STEP 3: 特征穷举搜索 + PCA
@@ -213,39 +198,30 @@ np.random.seed(RANDOM_SEED)
 random.seed(RANDOM_SEED)
 
 best_r, best_combo, best_pca, best_scaler, best_weights = 0.0, None, None, None, None
-search_results = []
 
 t0 = time.time()
 for it in range(N_SEARCH):
-    # 随机选特征数 6 ~ n_features
     n_sel = np.random.randint(max(4, n_features//3), n_features+1)
     sel_idx = sorted(np.random.choice(n_features, n_sel, replace=False))
-
     X_sel = X_full[:, sel_idx]
-    # 标准化
     ss = StandardScaler()
     X_std = ss.fit_transform(X_sel)
-    # PCA
     pc = PCA(n_components=N_PC)
     try:
         X_pc = pc.fit_transform(X_std)
     except:
         continue
-    # 方差加权
     wr = pc.explained_variance_ratio_[:N_PC]
     wr = wr / wr.sum()
     score = X_pc @ wr
     r, _ = pearsonr(score, y_atp)
     abs_r = abs(r)
-
-    search_results.append(abs_r)
     if abs_r > best_r:
         best_r = abs_r
         best_combo = sel_idx
         best_pca = pc
         best_scaler = ss
         best_weights = wr
-
     if (it+1) % 10000 == 0:
         elapsed = time.time() - t0
         print(f'  [{it+1}/{N_SEARCH}] best |r|={best_r:.4f}, elapsed={elapsed:.0f}s')
@@ -258,7 +234,7 @@ for idx in best_combo:
     print(f'    {valid_cols[idx]}')
 
 # ================================================================
-# STEP 4: 最终 PCA 分析 + 保存模型
+# STEP 4: 最终 PCA + 保存 + 对比
 # ================================================================
 print(f'\n{"="*60}')
 print(f'  STEP 4: Final PCA & Model Export')
@@ -267,11 +243,9 @@ print(f'{"="*60}')
 X_best = X_full[:, best_combo]
 best_feat_names = [valid_cols[i] for i in best_combo]
 
-# 方差解释
 for i, v in enumerate(best_pca.explained_variance_ratio_):
     print(f'  PC{i+1}: {v*100:>6.1f}% (cum {best_pca.explained_variance_ratio_.cumsum()[i]*100:.1f}%)')
 
-# 综合得分
 X_std_best = best_scaler.transform(X_best)
 pc_scores = best_pca.transform(X_std_best)
 final_score = pc_scores @ best_weights
@@ -279,7 +253,6 @@ r_final, p_final = pearsonr(final_score, y_atp)
 rho_final, p_s = spearmanr(final_score, y_atp)
 print(f'\n  Final Score vs ATP: r={r_final:.4f}, p={p_final:.6f}, rho={rho_final:.4f}')
 
-# 每个 PC 的 Loading
 print(f'\n  PC Loading Matrix:')
 header = '  ' + ' '.join(f'{s:>10s}' for s in [fn.split('_')[-1][:8] for fn in best_feat_names])
 print(header)
@@ -289,23 +262,20 @@ for i in range(N_PC):
         row_str += f'{best_pca.components_[i][j]:>+10.3f}'
     print(row_str)
 
-# Beta 公式
 beta = np.zeros(len(best_combo))
 for i in range(N_PC):
     beta += best_weights[i] * best_pca.components_[i]
 beta /= best_scaler.scale_
-# 调整符号使 r>0
 if np.corrcoef(X_std_best @ (best_pca.components_[:N_PC].T @ best_weights), y_atp)[0,1] < 0:
     beta = -beta
     best_weights = -best_weights
 
-print(f'\n  Score = Σ(βⱼ × ΔFeatureⱼ)')
+print(f'\n  Score = Sum(beta_j x DeltaFeature_j)')
 beta_tuples = list(zip(best_feat_names, beta, np.abs(beta)))
 beta_tuples.sort(key=lambda x: -x[2])
 for name, b, _ in beta_tuples:
-    print(f'  β_{name:<35s} = {b:+.6e}')
+    print(f'  beta_{name:<35s} = {b:+.6e}')
 
-# 保存部署包
 deploy = {
     'scaler': best_scaler,
     'pca': best_pca,
@@ -314,25 +284,27 @@ deploy = {
     'features': best_feat_names,
     'training_r': r_final,
     'numeric_map': numeric_map,
-    'valid_cols': valid_cols,
 }
-pickle.dump(deploy, open(os.path.join(MODEL_DIR, 'nnunet_delta_deploy.pkl'), 'wb'))
+pickle.dump(deploy, open(os.path.join(MODEL_DIR, 'mednext_delta_deploy.pkl'), 'wb'))
 
-# 保存结果
 df_result = pd.DataFrame({'Well_ID': well_ids})
 df_result['ATP'] = df_result['Well_ID'].map(ATP_DB)
-# 计算每个well的完整Score
-X_all_std = best_scaler.transform(df_clean[best_feat_names].values)
 df_result['Score'] = np.nan
 for i, wid in enumerate(df_clean['Well_ID']):
     mask = df_result['Well_ID'] == wid
-    df_result.loc[mask, 'Score'] = float(X_all_std[i] @ best_pca.components_[:N_PC].T @ best_weights)
-df_result.to_excel(os.path.join(OUTPUT_DIR, 'nnunet_prediction.xlsx'), index=False)
+    df_result.loc[mask, 'Score'] = float(X_std_best[i] @ best_pca.components_[:N_PC].T @ best_weights)
+df_result.to_excel(os.path.join(OUTPUT_DIR, 'mednext_prediction.xlsx'), index=False)
 
-print(f'\n  Model saved: model_nnunet/nnunet_delta_deploy.pkl')
-print(f'  Results saved: output/nnunet_prediction.xlsx')
+# ================================================================
+# 最终对比
+# ================================================================
 print(f'\n{"="*60}')
-print(f'  Summary')
+print(f'  FINAL COMPARISON')
 print(f'{"="*60}')
-print(f'  nnUNet Pipeline |r| = {best_r:.4f}')
-print(f'  Original ICC Pipeline |r| = 0.9040  (for reference)')
+print(f'  {"Method":<25s} {"|r|":>8s} {"p":>10s}')
+print(f'  {"-"*45}')
+print(f'  {"Original ICC (Paper)":<25s} {"0.9040":>8s} {"<0.0001":>10s}')
+print(f'  {"nnUNet .nii.gz":<25s} {"0.9117":>8s} {"<0.0001":>10s}')
+print(f'  {"MedNext .nii.gz":<25s} {best_r:>8.4f} {p_final:>10.6f}')
+print(f'\n  Model saved: model_mednext/mednext_delta_deploy.pkl')
+print(f'  Results saved: output_mednext/mednext_prediction.xlsx')
