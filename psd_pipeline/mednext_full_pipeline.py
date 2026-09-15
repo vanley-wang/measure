@@ -53,13 +53,20 @@ print('='*60)
 print('  STEP 1: K=6 Clustering + Merge -> 4 Phenotypes')
 print('='*60)
 
-dfs_d3 = []
+dfs_d3, dfs_d5 = [], []
 for f in sorted(os.listdir(D3_DIR)):
     if not f.endswith('.xlsx'): continue
     df = pd.read_excel(os.path.join(D3_DIR, f))
     dfs_d3.append(df[CF].fillna(0))
-X_all = pd.concat(dfs_d3, ignore_index=True).values
-print(f'  Total Day3 organoids: {len(X_all)}')
+for f in sorted(os.listdir(D5_DIR)):
+    if not f.endswith('.xlsx'): continue
+    df = pd.read_excel(os.path.join(D5_DIR, f))
+    dfs_d5.append(df[CF].fillna(0))
+X3_only = pd.concat(dfs_d3, ignore_index=True).values
+X5_only = pd.concat(dfs_d5, ignore_index=True).values
+print(f'  Day3 organoids: {len(X3_only)}, Day5 organoids: {len(X5_only)}')
+X_all = np.vstack([X3_only, X5_only])
+print(f'  Total D3+D5 organoids: {len(X_all)}')
 
 scaler_k6 = StandardScaler()
 X_std = scaler_k6.fit_transform(X_all)
