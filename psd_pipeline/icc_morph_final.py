@@ -29,10 +29,13 @@ SCATT_IDX = [9, 10]
 
 # ATP
 ICARITIN_ATP = {
-    'E11':12840000,'F2':26980000,'F6':20320000,'F8':17170000,'F9':15830000,'F11':14700000,
-    'B2':5391000,'B3':6538000,'B4':7103000,'C2':4460000,'C3':8336000,'C4':6800000,
-    'B5':1264000,'B6':2548000,'B7':1579000,'C5':330900,'C6':238900,'C7':682100,
-    'B8':3637000,'B9':140300,'B10':601300,'C8':211300,'C9':465900,'C10':211800,
+    'B10':601300,'B11':11180000,'B2':5391000,'B3':6538000,'B4':7103000,
+    'B5':511900,'B6':404500,'B7':403900,'B8':312700,'B9':140300,
+    'C10':211800,'C11':13930000,'C2':6336000,'C3':8336000,'C4':6800000,
+    'C5':330900,'C6':238900,'C7':682100,'C8':211300,'C9':465900,
+    'D11':11240000,'E11':14700000,'F10':21910000,'F11':11180000,
+    'F2':18240000,'F3':14110000,'F4':13740000,'F5':17250000,
+    'F6':20320000,'F7':20000000,'F8':17170000,'F9':15830000,
 }
 GC_ATP = {
     'C3':8638000,'C4':7800000,'C5':7260000,'C8':185300,'C11':24330,'C12':71930,
@@ -161,14 +164,14 @@ def apply_model(df_delta, feat_cols, best_feat, beta, intercept, y_dict):
 # =============================================
 # MAIN
 # =============================================
-ICC_DIR1 = r'D:\Desktop\music\measure\Data\FXN_2023_new（ICC）\FXN_20230701\measure_excel'
+ICC_DIR3 = r'D:\Desktop\music\measure\Data\FXN_2023_new（ICC）\FXN_20230701\measure_excel'
 ICC_DIR5 = r'D:\Desktop\music\measure\Data\FXN_2023_new（ICC）\FXN_20230703\measure_excel'
 
 # === Model 1: ICC Morph + Scatt (11 feats, search) ===
 print("="*60)
 print("  MODEL 1: ICC Morph + Scatt (feature search)")
 print("="*60)
-df1 = load_organoids(ICC_DIR1, ALL_FEATS); df5 = load_organoids(ICC_DIR5, ALL_FEATS)
+df1 = load_organoids(ICC_DIR3, ALL_FEATS); df5 = load_organoids(ICC_DIR5, ALL_FEATS)
 paired = sorted(set(df1['Well'].unique()) & set(df5['Well'].unique()))
 df_delta, fc, scaler_s, km_s, k4_s = build_pipeline(df1, df5, paired, ALL_FEATS, FEAT_SHORT_ALL, CAV_IDX)
 icc_mask = df_delta['Well'].isin(ICARITIN_ATP.keys()).values
@@ -185,7 +188,7 @@ print(f"  Scatt + search: |r|={abs(r_s):.4f} (p={p_s:.6f})")
 print("\n" + "="*60)
 print("  MODEL 2: ICC Pure Morphology (feature search)")
 print("="*60)
-df1m = load_organoids(ICC_DIR1, MORPH); df5m = load_organoids(ICC_DIR5, MORPH)
+df1m = load_organoids(ICC_DIR3, MORPH); df5m = load_organoids(ICC_DIR5, MORPH)
 df_delta_m, fc_m, scaler_m, km_m, k4_m = build_pipeline(df1m, df5m, paired, MORPH, FEAT_SHORT_M, CAV_IDX)
 icc_Xm = df_delta_m.loc[icc_mask, fc_m].fillna(0).values
 # all-features baseline

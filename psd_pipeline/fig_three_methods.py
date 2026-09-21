@@ -91,7 +91,10 @@ def run_one_pipeline(name, d3_dir, d5_dir):
     print(f"\n{'='*60}\n  {name}\n{'='*60}")
     d3_all = pd.concat([pd.read_excel(os.path.join(d3_dir,f))[CF].fillna(0)
                          for f in sorted(os.listdir(d3_dir)) if f.endswith('.xlsx')], ignore_index=True)
-    X_all = d3_all.values
+    d5_all = pd.concat([pd.read_excel(os.path.join(d5_dir,f))[CF].fillna(0)
+                         for f in sorted(os.listdir(d5_dir)) if f.endswith('.xlsx')], ignore_index=True)
+    print(f"  Clustering: D3={len(d3_all)} + D5={len(d5_all)} = {len(d3_all)+len(d5_all)} organoids")
+    X_all = np.vstack([d3_all.values, d5_all.values])
     scaler = StandardScaler(); X_std = scaler.fit_transform(X_all)
     km = KMeans(n_clusters=6, random_state=RANDOM_SEED, n_init=10)
     k6 = km.fit_predict(X_std)
