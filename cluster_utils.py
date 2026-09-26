@@ -102,6 +102,35 @@ RECONSTRUCTED_PROCESSED_FEATURES = (
 )
 
 # ============================================================================
+# 1d. Feature short-name mapping (for compact, readable feature names)
+# ============================================================================
+
+FEATURE_SHORT_NAMES = {
+    'Organoids_Volume_Fill': 'FillVol',
+    'Organoids_Surface': 'SurfArea',
+    'Cavity_Volume': 'CavVol',
+    'CavityNum': 'CavNum',
+    'LongAxis': 'LongAxis',
+    'ShortAxis': 'ShortAxis',
+    'Sphericity': 'Spher',
+    'Scatt_Mean': 'OACm',
+    'Scatt_STD': 'OACs',
+    'Cavity_Ratio': 'CavRatio',
+    'Roughness': 'Rough',
+}
+
+SHORT_TO_LONG = {v: k for k, v in FEATURE_SHORT_NAMES.items()}
+
+# Features where IQR provides additional heterogeneity signal beyond CV
+IQR_FEATURES = []
+
+# Features where CV is most informative (subset to avoid overfitting)
+CV_FEATURES = ['FillVol', 'OACm']
+
+# Features where Growth Rate is most informative
+GR_FEATURES = []
+
+# ============================================================================
 # 2. Phenotype definitions
 # ============================================================================
 

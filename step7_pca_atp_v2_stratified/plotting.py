@@ -23,7 +23,9 @@ CONC_LABELS = {0: 'Control', 20: '20 \u03bcM', 40: '40 \u03bcM', 80: '80 \u03bcM
 
 
 def _shorten(name):
-    return (name.replace('Delta_Healthy_', '\u0394 ')
+    return (name.replace('Delta_Healthy_', '\u0394 C0+C1 ')
+            .replace('Healthy_', 'C0+C1 ')
+            .replace('RelChange_Healthy_', 'RC C0+C1 ')
             .replace('Organoids_', '')
             .replace('_Frac', '%')
             .replace('_', ' '))
@@ -181,7 +183,7 @@ def fig3(df, ws, fm, merged, res, cdf, pca, sel_feats, fp):
     wd5 = ws[ws['_day'] == '0703'].copy()
     wd5['Conc'] = wd5['_well_id'].map(CONC_MAP)
 
-    # --- A: Healthy% dose response ---
+    # --- A: Cluster 0+1 % dose response ---
     ax = axes[0]
     data_h, positions_h = [], []
     for i, c in enumerate(concs):
@@ -198,11 +200,11 @@ def fig3(df, ws, fm, merged, res, cdf, pca, sel_feats, fp):
         patch.set_alpha(0.35)
     ax.set_xticks(concs)
     ax.set_xticklabels([CONC_LABELS[c] for c in concs])
-    ax.set_ylabel('Healthy Fraction (%)')
+    ax.set_ylabel('Cluster 0+1 Fraction (%)')
     _panel_label(ax, 'A')
-    ax.set_title('Healthy% Dose Response', fontweight='bold', loc='left')
+    ax.set_title('Cluster 0+1 % Dose Response', fontweight='bold', loc='left')
 
-    # --- B: Blue% dose response ---
+    # --- B: Cluster 3 % dose response ---
     ax = axes[1]
     data_b, positions_b = [], []
     for i, c in enumerate(concs):
@@ -219,9 +221,9 @@ def fig3(df, ws, fm, merged, res, cdf, pca, sel_feats, fp):
         patch.set_alpha(0.35)
     ax.set_xticks(concs)
     ax.set_xticklabels([CONC_LABELS[c] for c in concs])
-    ax.set_ylabel('Blue (Dead) Fraction (%)')
+    ax.set_ylabel('Cluster 3 Fraction (%)')
     _panel_label(ax, 'B')
-    ax.set_title('Blue% Dose Response', fontweight='bold', loc='left')
+    ax.set_title('Cluster 3 % Dose Response', fontweight='bold', loc='left')
 
     # --- C: Cluster composition stacked bar ---
     ax = axes[2]
@@ -371,10 +373,10 @@ def fig6(df, ws, fm, merged, res, cdf, pca, sel_feats, fp):
     fm_idx = fm_idx.loc[common_wells]
 
     key_features = [
-        ('Red_Frac_D5', 'Red(H) Fraction Day5'),
-        ('Delta_Healthy_Scatt_Mean', '\u0394 Healthy Scatt Mean'),
-        ('Delta_Healthy_Frac', '\u0394 Healthy Fraction'),
-        ('Delta_Healthy_Sphericity', '\u0394 Healthy Sphericity'),
+        ('Red_Frac_D5', 'Cluster 0 Fraction Day5'),
+        ('Delta_Healthy_Scatt_Mean', '\u0394 C0+C1 Scatt Mean'),
+        ('Delta_Healthy_Frac', '\u0394 C0+C1 Fraction'),
+        ('Delta_Healthy_Sphericity', '\u0394 C0+C1 Sphericity'),
     ]
 
     available = [(col, label) for col, label in key_features

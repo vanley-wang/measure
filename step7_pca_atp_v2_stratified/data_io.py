@@ -68,6 +68,12 @@ def load_organoid_data():
     print(f'Loaded {len(df_all):,} organoids ({removed:,} NaN removed)')
     print(f'Features: {len(feats)}/{len(PROCESSED_FEATURES)} available')
 
+    roughness_df = load_roughness_data()
+    if roughness_df is not None:
+        df_all = df_all.merge(roughness_df, on=['Index', '_well', '_day', '_well_id'], how='left')
+        roughness_count = df_all['Roughness'].notna().sum()
+        print(f'Roughness merged: {roughness_count:,}/{len(df_all):,} organoids have roughness data')
+
     d3 = set(df_all[df_all['_day'] == '0701']['_well_id'].unique())
     d5 = set(df_all[df_all['_day'] == '0703']['_well_id'].unique())
     common = sorted(d3 & d5)
@@ -103,3 +109,30 @@ def load_atp_table():
             return atp_df
 
     return None
+
+
+def load_roughness_data(base_dir=None):
+    if base_dir is None:
+        from .config import BASE_DIR as _bd
+        base_dir = _bd
+
+    roughness_dfs = []
+    for day in ['0701', '0703']:
+        roughness_dir = os.path.join(base_dir, f'FXN_202307{day}', 'roughness')
+        if not os.path.exists(roughness_dir):
+            continue
+
+        for fp in sorted(glob.glob(os.path.join(roughness_dir, '*.xlsx'))):
+            df = pd.read_excel(fp)
+            if 'Index' not in df.columns or 'Roughness' not in df.columns:
+                continue
+            well_name = os.path.splitext(os.path.basename(fp))[0]
+            df['_well'] = well_name
+            df['_day'] = day
+            df['_well_id'] = well_name.split('_')[0] if '_' in well_name else well_name
+            roughness_dfs.append(df[['Index', 'Roughness', '_well', '_day', '_well_id']])
+
+    if not roughness_dfs:
+        return None
+
+    return pd.concat(roughness_dfs, ignore_index=True)

@@ -1,0 +1,19 @@
+KMO & Bartlett Test Report
+==================================================
+Samples: 32, Features: 35, d/n: 1.09
+Overall KMO: 0.4461
+Bartlett χ²: 3169.85, df: 595, p: 0.00e+00
+Condition Number κ: 40993.0
+VIF > 10: 35/35, VIF 5-10: 0/35
+
+Top 20 features by VIF:
+   1. VIF=     inf  RelChange_Healthy_Frac
+   2. VIF=     inf  RelChange_Yel_Frac
+   3. VIF=     inf  RelChange_Healthy_CavityNum
+   4. VIF=     inf  RelChange_Healthy_Scatt_STD
+   5. VIF=     inf  RelChange_Healthy_Scatt_Mean
+   6. VIF=     inf  RelChange_Healthy_Sphericity
+   7. VIF=     inf  RelChange_Healthy_Cavity_Volume
+   8. VIF=     inf  RelChange_Healthy_ShortAxis
+   9. VIF=     inf  RelChange_Healthy_LongAxis
+  10. VIF=     inf  RelChange_Healthy_Organoids_Surface
