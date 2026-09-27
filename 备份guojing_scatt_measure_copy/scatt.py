@@ -7,8 +7,9 @@ from pathlib import Path
 import nibabel as nib
 import numpy as np
 import pandas as pd
+from scipy import ndimage as ndi
 from scipy.io import loadmat
-from skimage.measure import label as cc_label
+from skimage.measure import label as cc_label, regionprops_table
 from tqdm import tqdm
 
 
@@ -51,25 +52,51 @@ def load_label_map(label_path):
     return _load_mat_volume(label_path, ['Data_label']).astype(np.int32)
 
 def extract_scatt_stats_fast(label_map, scatt_map):
-    """提取每个 label 区域的散射系数均值和标准差"""
+    """提取每个 label 区域的散射系数统计和空间元数据"""
     assert label_map.shape == scatt_map.shape
-    flat_label = label_map.flatten()
-    flat_scatt = scatt_map.flatten()
+    label_ids = np.unique(label_map[label_map > 0]).astype(np.int32)
+    if label_ids.size == 0:
+        return pd.DataFrame(columns=[
+            'Component_ID', 'Voxel_Count',
+            'Centroid_Axis0', 'Centroid_Axis1', 'Centroid_Axis2',
+            'BBox_Min_Axis0', 'BBox_Min_Axis1', 'BBox_Min_Axis2',
+            'BBox_Max_Axis0', 'BBox_Max_Axis1', 'BBox_Max_Axis2',
+            'Scatt_Mean', 'Scatt_STD', 'Index'
+        ])
 
-    mask = flat_label > 0
-    labels = flat_label[mask]
-    values = flat_scatt[mask]
+    mean_values = np.asarray(ndi.mean(scatt_map, labels=label_map, index=label_ids), dtype=np.float64)
+    std_values = np.sqrt(np.maximum(
+        np.asarray(ndi.variance(scatt_map, labels=label_map, index=label_ids), dtype=np.float64),
+        0.0,
+    ))
 
-    unique_labels = np.unique(labels)
-    means = []
-    stds = []
+    props = regionprops_table(
+        label_map,
+        properties=('label', 'area', 'centroid', 'bbox')
+    )
+    df_props = pd.DataFrame(props)
+    df_props.rename(columns={
+        'label': 'Component_ID',
+        'area': 'Voxel_Count',
+        'centroid-0': 'Centroid_Axis0',
+        'centroid-1': 'Centroid_Axis1',
+        'centroid-2': 'Centroid_Axis2',
+        'bbox-0': 'BBox_Min_Axis0',
+        'bbox-1': 'BBox_Min_Axis1',
+        'bbox-2': 'BBox_Min_Axis2',
+        'bbox-3': 'BBox_Max_Axis0',
+        'bbox-4': 'BBox_Max_Axis1',
+        'bbox-5': 'BBox_Max_Axis2',
+    }, inplace=True)
 
-    for lbl in unique_labels:
-        region_vals = values[labels == lbl]
-        means.append(int(round(np.mean(region_vals))))
-        stds.append(int(round(np.std(region_vals))))
+    df_props['Scatt_Mean'] = np.round(mean_values, 3)
+    df_props['Scatt_STD'] = np.round(std_values, 3)
+    df_props['Component_ID'] = df_props['Component_ID'].astype(np.int32)
+    df_props['Voxel_Count'] = df_props['Voxel_Count'].astype(np.int64)
+    df_props.sort_values('Component_ID', inplace=True)
+    df_props.reset_index(drop=True, inplace=True)
 
-    return unique_labels, means, stds
+    return df_props
 
 
 def build_sample_id(sample_base, date_suffix):
@@ -89,15 +116,12 @@ def process_one_sample(label_path, scatt_path, output_dir, measure_dir, sample_b
         scatt_data = load_scatt_volume(scatt_path)
 
         # 提取统计信息
-        labels, means, stds = extract_scatt_stats_fast(label_data, scatt_data)
-        index = [f"{sample_id}_{i+1}" for i in range(len(labels))]
+        df_scatt = extract_scatt_stats_fast(label_data, scatt_data)
+        if not df_scatt.empty:
+            df_scatt.insert(0, "Index", [f"{sample_id}_{int(component_id)}" for component_id in df_scatt["Component_ID"]])
+            df_scatt.insert(1, "Sample_ID", sample_id)
 
         # 保存单独的散射表格
-        df_scatt = pd.DataFrame({
-            "Index": index,
-            "Scatt_Mean": means,
-            "Scatt_STD": stds
-        })
         df_scatt.to_excel(output_path, index=False)
 
         # 合并到原有的量化表格（如果存在）
