@@ -143,32 +143,34 @@ def process_one_root_folder(root_dir):
             if fname.endswith('_label.mat')
         ]
         mode_name = 'MAT'
-    elif os.path.isdir(nii_dir) or os.path.isdir(seg_dir):
-        all_nii_files = sorted(glob.glob(os.path.join(root_dir, '**', '*.nii*'), recursive=True))
-        paired = {}
+    elif os.path.isdir(nii_dir) and os.path.isdir(seg_dir):
+        raw_files = [
+            path for path in sorted(glob.glob(os.path.join(nii_dir, '*.nii*')))
+            if not _stem_without_nii_suffix(path).endswith('-seg')
+        ]
+        seg_files = sorted(glob.glob(os.path.join(seg_dir, '*.nii*')))
 
-        for path in all_nii_files:
-            stem = _stem_without_nii_suffix(path)
-            if stem.endswith('-seg'):
-                sample_base = stem[:-4]
-                bucket = paired.setdefault(sample_base, {'raw': [], 'seg': []})
-                bucket['seg'].append(path)
-            else:
-                sample_base = stem
-                bucket = paired.setdefault(sample_base, {'raw': [], 'seg': []})
-                bucket['raw'].append(path)
+        raw_map = {}
+        for path in raw_files:
+            sample_base = _stem_without_nii_suffix(path)
+            raw_map[sample_base] = path
+
+        seg_map = {}
+        for path in seg_files:
+            sample_base = _stem_without_nii_suffix(path)
+            if sample_base.endswith('-seg'):
+                sample_base = sample_base[:-4]
+            seg_map[sample_base] = path
 
         file_items = []
-        for sample_base in sorted(paired):
-            raw_candidates = paired[sample_base]['raw']
-            seg_candidates = paired[sample_base]['seg']
+        for sample_base in sorted(raw_map):
+            raw_path = raw_map[sample_base]
+            seg_path = seg_map.get(sample_base)
 
-            if not raw_candidates or not seg_candidates:
-                print(f"⚠️ 缺少配对文件: {sample_base}")
+            if seg_path is None:
+                print(f"⚠️ 缺少分割文件: {sample_base}")
                 continue
 
-            raw_path = raw_candidates[0]
-            seg_path = seg_candidates[0]
             file_items.append((seg_path, raw_path, sample_base))
         mode_name = 'NII'
     else:
