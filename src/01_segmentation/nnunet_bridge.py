@@ -18,12 +18,14 @@ BATCHES = [
     {
         'date_folder': 'FXN_0701',
         'raw_dir': 'FXN_0701_fixed',
-        'pred_dir': 'prediction\\FXN_0701',
+        'pred_dir': 'prediction\\FXN_0701_seg',
+        'legacy_pred_dir': 'prediction\\FXN_0701',
     },
     {
         'date_folder': 'FXN_0703',
         'raw_dir': 'FXN_0703_fixed',
-        'pred_dir': 'prediction\\FXN_0703',
+        'pred_dir': 'prediction\\FXN_0703_seg',
+        'legacy_pred_dir': 'prediction\\FXN_0703',
     }
 ]
 
@@ -99,6 +101,7 @@ def process_batch(batch_cfg, base_dir):
     date_folder = batch_cfg['date_folder']
     raw_dir = os.path.join(base_dir, batch_cfg['raw_dir'])
     pred_dir = os.path.join(base_dir, batch_cfg['pred_dir'])
+    legacy_pred_dir = os.path.join(base_dir, batch_cfg.get('legacy_pred_dir', '')) if batch_cfg.get('legacy_pred_dir') else None
     out_root = os.path.join(base_dir, date_folder)
     date_suffix = date_folder.replace('FXN_', '')  # e.g. 0701
 
@@ -106,8 +109,11 @@ def process_batch(batch_cfg, base_dir):
         print(f"[WARN] Raw dir not exist, skip: {raw_dir}")
         return
     if not os.path.exists(pred_dir):
-        print(f"[WARN] Prediction dir not exist, skip: {pred_dir}")
-        return
+        if legacy_pred_dir and os.path.exists(legacy_pred_dir):
+            pred_dir = legacy_pred_dir
+        else:
+            print(f"[WARN] Prediction dir not exist, skip: {pred_dir}")
+            return
 
     # 收集原始图文件
     raw_files = sorted(glob.glob(os.path.join(raw_dir, '*_0000.nii.gz')))

@@ -29,19 +29,28 @@ CLUSTER_TO_LABEL_MAP = {
     3: 4,   # 蓝 -> Material 4
 }
 
+# 直接用于可视化的灰度值映射：把 1-4 拉开到更容易在 Amira 里肉眼看到的范围
+# 0 仍然保留给背景
+CLUSTER_TO_VIS_MAP = {
+    0: 64,
+    1: 128,
+    2: 192,
+    3: 255,
+}
+
 
 # ================= 2. 核心处理函数 (工作单元) =================
 def process_single_well_task(args):
     """
     并行任务函数
-    args: (root_folder, well_name, output_dir)
+    args: (root_folder, well_name, output_dir, merge_dir)
     """
-    root_folder, well_name, output_dir = args
+    root_folder, well_name, output_dir, merge_dir = args
 
     # 构建路径
     # 读取 seg_label 下的 _label.mat (这是最原始、准确的 ID 来源)
     mat_path = os.path.join(root_folder, "seg_label", f"{well_name}_label.mat")
-    excel_path = os.path.join(root_folder, "cluster_merge", f"{well_name}_merge.xlsx")
+    excel_path = os.path.join(merge_dir, f"{well_name}_merge.xlsx")
 
     # 检查文件是否存在
     if not os.path.exists(mat_path) or not os.path.exists(excel_path):
@@ -115,7 +124,16 @@ def process_single_well_task(args):
 
         tifffile.imwrite(save_path, final_label_vol)
 
-        return f"✅ {well_name}: 处理完成"
+        # 额外保存一份更适合直接肉眼观察的版本，避免 0-4 范围在 Amira 里看起来几乎是黑的
+        vis_label_vol = np.zeros_like(final_label_vol, dtype=np.uint8)
+        for cluster_id, label_val in CLUSTER_TO_LABEL_MAP.items():
+            vis_label_vol[final_label_vol == label_val] = CLUSTER_TO_VIS_MAP.get(cluster_id, label_val)
+
+        vis_save_name = f"{well_name}_Unified_Labels_vis.tif"
+        vis_save_path = os.path.join(output_dir, vis_save_name)
+        tifffile.imwrite(vis_save_path, vis_label_vol)
+
+        return f"✅ {well_name}: 处理完成 (label + vis)"
 
     except Exception as e:
         return f"❌ {well_name} 出错: {type(e).__name__}: {e}"
@@ -132,15 +150,20 @@ if __name__ == "__main__":
     for folder_name in target_folders:
         full_folder_path = os.path.join(base_path, folder_name)
         output_dir = os.path.join(full_folder_path, "cluster_amira")
-        merge_dir = os.path.join(full_folder_path, "cluster_merge")
 
-        if not os.path.exists(merge_dir): continue
+        merge_dir = os.path.join(full_folder_path, "cluster_merge")
+        if not os.path.exists(merge_dir):
+            alt_merge_dir = os.path.join(full_folder_path, "cluster_merge_GMM")
+            if os.path.exists(alt_merge_dir):
+                merge_dir = alt_merge_dir
+            else:
+                continue
 
         files = [f for f in os.listdir(merge_dir) if f.endswith('_merge.xlsx')]
 
         for f in files:
             well_name = f.replace('_merge.xlsx', '')
-            all_tasks.append((full_folder_path, well_name, output_dir))
+            all_tasks.append((full_folder_path, well_name, output_dir, merge_dir))
 
     total_files = len(all_tasks)
     if total_files == 0:
