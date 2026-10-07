@@ -1,40 +1,7 @@
-![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-29/089a2586-5262-44d3-aca4-8c4f796daaec/b4201752c48294413d1d4443dc8bfeac00e12750f1254e49450f57f2c1db46a2.jpg)
-
-# 硕 士 学 位 论 ᮷
-
-# 题 目:基于OCT 的肿瘤类器官形态定量分析研究
-
-研 究 生 张琳翊
-
-专 业 生物医学工程
-
-指导ᮉ师 徐铭恩 教授
-
-王 玲 教授
-
-完成ᰕ期 2024 年 5 月
-
-# 杭州电子科技大学硕士学位论᮷
 
 # 基于 OCT的肿瘤类器官形态定量分析研究
 
-研 究 生： 张琳翊
-
-指导ᮉ师： 徐铭恩 教 授
-
-王 玲 教 授
-
-2024 年 5 月
-
-Dissertation Submitted to Hangzhou Dianzi University for the Degree of Master
-
 # Quantitative analysis of tumor organoid morphology based on OCT
-
-Candidate: Zhang Linyi
-
-Supervisor: Prof. Xu Mingen Prof. Wang Ling
-
-May, 2024
 
 ## 摘 要
 
