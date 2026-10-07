@@ -15,6 +15,8 @@ N_WORKERS = 8
 BASE = "Data/nnUNet_FXN_2023"
 BATCHES = ['FXN_0701', 'FXN_0703']
 
+MERGE_DIR_CANDIDATES = ['cluster_merge', 'cluster_merge_GMM']
+
 # 聚类颜色映射 (R, G, B)
 # 论文标准四类表型 (cluster_category.md):
 # 0=大囊状健康类器官(红/Cluster1), 1=大实心健康类器官(黄/Cluster2),
@@ -117,7 +119,20 @@ def process_one_well(args):
         Image.fromarray(rgb_z).save(os.path.join(out_dir, f"{well_name}_Z_MIP.png"))
         Image.fromarray(rgb_y).save(os.path.join(out_dir, f"{well_name}_Y_MIP.png"))
 
-        return f"[OK] {well_name}: Z/Y MIP 已保存"
+        # 5. 生成一个可直接打开的总览图，避免你在 Amira 里手动调显示
+        fig, axes = plt.subplots(1, 2, figsize=(12, 6), dpi=200)
+        axes[0].imshow(rgb_z)
+        axes[0].set_title('Z MIP')
+        axes[0].axis('off')
+        axes[1].imshow(rgb_y)
+        axes[1].set_title('Y MIP')
+        axes[1].axis('off')
+        fig.suptitle(well_name)
+        fig.tight_layout()
+        fig.savefig(os.path.join(out_dir, f"{well_name}_overview.png"), bbox_inches='tight', pad_inches=0.05)
+        plt.close(fig)
+
+        return f"[OK] {well_name}: Z/Y MIP + overview 已保存"
 
     except Exception as e:
         return f"[ERR] {well_name}: {e}"
@@ -128,10 +143,15 @@ def main():
     for batch in BATCHES:
         root = os.path.join(BASE, batch)
         label_dir = os.path.join(root, 'seg_label')
-        merge_dir = os.path.join(root, 'cluster_merge')
+        merge_dir = None
+        for candidate in MERGE_DIR_CANDIDATES:
+            candidate_dir = os.path.join(root, candidate)
+            if os.path.exists(candidate_dir):
+                merge_dir = candidate_dir
+                break
         out_dir = os.path.join(root, 'cluster_mip_new')
 
-        if not os.path.exists(merge_dir):
+        if merge_dir is None:
             print(f"[WARN] 跳过 {batch}: 无 cluster_merge 目录")
             continue
 
