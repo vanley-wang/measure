@@ -17,9 +17,9 @@ from scipy.spatial.distance import cdist
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DATA_DIR = os.path.join(PROJECT_DIR, 'Data', 'FXN_2023_new（ICC）')
-DAY3_MEASURE_DIR = os.path.join(DATA_DIR, 'FXN_20230701', 'measure_excel')
-DAY5_MEASURE_DIR = os.path.join(DATA_DIR, 'FXN_20230703', 'measure_excel')
+DEFAULT_DATA_DIR = os.path.join(PROJECT_DIR, 'Data', 'nnUNet_FXN_2023')
+LEGACY_DATA_DIR = os.path.join(PROJECT_DIR, 'Data', 'FXN_2023_new（ICC）')
+DATA_DIR = os.environ.get('FXN_DATA_DIR', DEFAULT_DATA_DIR if os.path.isdir(DEFAULT_DATA_DIR) else LEGACY_DATA_DIR)
 MODEL_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'model')
 os.makedirs(MODEL_DIR, exist_ok=True)
 
@@ -37,7 +37,18 @@ PHENOTYPE_DESC = {0: '巨大囊泡型', 1: '中等过渡型', 2: '小体积基�
 K_VALUE = 6
 
 
-def load_measure_files(measure_dir):
+def resolve_measure_dir(day_key):
+    candidates = [
+        os.path.join(DATA_DIR, f'FXN_{day_key}', 'measure_excel'),      # nnUNet_FXN_2023/FXN_0701
+        os.path.join(DATA_DIR, f'FXN_2023{day_key}', 'measure_excel'),  # FXN_2023_new（ICC）/FXN_20230701
+    ]
+    for p in candidates:
+        if os.path.isdir(p):
+            return p
+    raise FileNotFoundError(f'Cannot find measure_excel for day {day_key} under {DATA_DIR}')
+
+
+def load_measure_files(measure_dir, time_label):
     dfs = []
     for fname in os.listdir(measure_dir):
         if not fname.endswith('.xlsx'):
@@ -45,6 +56,7 @@ def load_measure_files(measure_dir):
         fpath = os.path.join(measure_dir, fname)
         df = pd.read_excel(fpath)
         df['Source_File'] = fname
+        df['TimePoint'] = time_label
         dfs.append(df)
     if not dfs:
         raise FileNotFoundError(f'No xlsx found in {measure_dir}')
@@ -52,15 +64,23 @@ def load_measure_files(measure_dir):
 
 
 def main():
-    # 1) 加载 Day3 全量数据
-    print('Loading Day3 data...')
-    df_day3 = load_measure_files(DAY3_MEASURE_DIR)
+    day3_dir = resolve_measure_dir('0701')
+    day5_dir = resolve_measure_dir('0703')
+    print(f'DATA_DIR: {DATA_DIR}')
+    print(f'Day3 dir: {day3_dir}')
+    print(f'Day5 dir: {day5_dir}')
+
+    # 1) 加载 Day3 + Day5 联合数据
+    print('Loading Day3 + Day5 data...')
+    df_day3 = load_measure_files(day3_dir, '0701')
+    df_day5 = load_measure_files(day5_dir, '0703')
+    df_all = pd.concat([df_day3, df_day5], ignore_index=True)
 
     # 2) 提取特征
-    missing = [f for f in FEATURES if f not in df_day3.columns]
+    missing = [f for f in FEATURES if f not in df_all.columns]
     if missing:
         raise KeyError(f'Missing features: {missing}')
-    X = df_day3[FEATURES].fillna(0).values
+    X = df_all[FEATURES].fillna(0).values
 
     # 3) 标准化 + 保存 scaler
     scaler = StandardScaler()
@@ -101,17 +121,22 @@ def main():
     # 7) 统计合并后的分布
     unique, counts = np.unique(labels_merged, return_counts=True)
     total = len(labels_merged)
-    print('\n合并后表型分布 (Day3全量):')
+    print('\n合并后表型分布 (Day3+Day5联合):')
     for u, c in zip(unique, counts):
         print(f'  Type {u} ({PHENOTYPE_DESC[u]}): {c} ({100*c/total:.1f}%)')
 
-    # 8) 保存标好标签的 Day3 数据供 Step2 使用
-    df_day3['Cluster_K6'] = labels_k6
-    df_day3['Cluster'] = labels_merged
-    df_day3['Phenotype'] = [PHENOTYPE_DESC[l] for l in labels_merged]
-    out_path = os.path.join(MODEL_DIR, 'day3_labeled.pkl')
-    df_day3.to_pickle(out_path)
-    print(f'\nDay3 labeled data saved: {out_path}')
+    # 8) 保存标好标签的联合数据（兼容旧文件名）
+    df_all['Cluster_K6'] = labels_k6
+    df_all['Cluster'] = labels_merged
+    df_all['Phenotype'] = [PHENOTYPE_DESC[l] for l in labels_merged]
+
+    out_path_all = os.path.join(MODEL_DIR, 'day_all_labeled.pkl')
+    df_all.to_pickle(out_path_all)
+    print(f'\nLabeled all-day data saved: {out_path_all}')
+
+    out_path_compat = os.path.join(MODEL_DIR, 'day3_labeled.pkl')
+    df_all.to_pickle(out_path_compat)
+    print(f'Compatibility copy saved: {out_path_compat}')
 
     print('\nStep 1 complete.')
 

@@ -39,8 +39,8 @@ ATP_DB = {
     'F6': 20320000, 'F7': 20000000, 'F8': 17170000, 'F9': 15830000
 }
 
-N_ITER = 100000
-N_JOBS = -1
+N_ITER = int(os.environ.get('DELTA_SEARCH_ITER', '100000'))
+N_JOBS = int(os.environ.get('DELTA_SEARCH_JOBS', '-1'))
 N_PC = 4
 
 

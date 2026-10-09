@@ -46,8 +46,8 @@ ATP_DATABASE = {
 }
 
 N_COMPONENTS = 4
-N_ITERATIONS = 200000  # 穷举搜索次数
-N_JOBS = -1
+N_ITERATIONS = int(os.environ.get('PAPER_SEARCH_ITER', '200000'))  # 穷举搜索次数
+N_JOBS = int(os.environ.get('PAPER_SEARCH_JOBS', '-1'))
 
 
 def load_analysis_table():

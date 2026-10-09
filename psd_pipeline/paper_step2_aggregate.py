@@ -13,9 +13,9 @@ import numpy as np
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DATA_DIR = os.path.join(PROJECT_DIR, 'Data', 'FXN_2023_new（ICC）')
-DAY3_MEASURE_DIR = os.path.join(DATA_DIR, 'FXN_20230701', 'measure_excel')
-DAY5_MEASURE_DIR = os.path.join(DATA_DIR, 'FXN_20230703', 'measure_excel')
+DEFAULT_DATA_DIR = os.path.join(PROJECT_DIR, 'Data', 'nnUNet_FXN_2023')
+LEGACY_DATA_DIR = os.path.join(PROJECT_DIR, 'Data', 'FXN_2023_new（ICC）')
+DATA_DIR = os.environ.get('FXN_DATA_DIR', DEFAULT_DATA_DIR if os.path.isdir(DEFAULT_DATA_DIR) else LEGACY_DATA_DIR)
 MODEL_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'model')
 OUTPUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'output')
 os.makedirs(OUTPUT_DIR, exist_ok=True)
@@ -44,6 +44,17 @@ AGGREGATES = {
     'Scatt_STD_Avg':      ('mean', 'Scatt_STD'),
     'CavityNum_Avg':      ('mean', 'CavityNum'),
 }
+
+
+def resolve_measure_dir(day_key):
+    candidates = [
+        os.path.join(DATA_DIR, f'FXN_{day_key}', 'measure_excel'),      # nnUNet_FXN_2023/FXN_0701
+        os.path.join(DATA_DIR, f'FXN_2023{day_key}', 'measure_excel'),  # FXN_2023_new（ICC）/FXN_20230701
+    ]
+    for p in candidates:
+        if os.path.isdir(p):
+            return p
+    raise FileNotFoundError(f'Cannot find measure_excel for day {day_key} under {DATA_DIR}')
 
 
 def compute_well_stats(df_well):
@@ -79,6 +90,12 @@ def load_measure_files(measure_dir):
 
 
 def main():
+    day3_measure_dir = resolve_measure_dir('0701')
+    day5_measure_dir = resolve_measure_dir('0703')
+    print(f'DATA_DIR: {DATA_DIR}')
+    print(f'Day3 dir: {day3_measure_dir}')
+    print(f'Day5 dir: {day5_measure_dir}')
+
     with open(os.path.join(MODEL_DIR, 'scaler_k6.pkl'), 'rb') as f:
         scaler = pickle.load(f)
     with open(os.path.join(MODEL_DIR, 'kmeans_k6.pkl'), 'rb') as f:
@@ -87,7 +104,7 @@ def main():
     all_rows = []
     well_count = 0
 
-    for measure_dir, day_label in [(DAY3_MEASURE_DIR, '0701'), (DAY5_MEASURE_DIR, '0703')]:
+    for measure_dir, day_label in [(day3_measure_dir, '0701'), (day5_measure_dir, '0703')]:
         dfs = load_measure_files(measure_dir)
         for fname, df in sorted(dfs.items()):
             well_name = fname.replace('.xlsx', '')
