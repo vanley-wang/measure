@@ -271,6 +271,140 @@ class Preprocessor:
 
 
 # ============================================================================
+# 3b. Simple log-volume preprocessor (for raw 11-feature KMeans models)
+# ============================================================================
+
+class LogVolumeScaler:
+    """
+    Minimal preprocessor: log1p-transform skewed size features, then StandardScaler.
+
+    Works with raw 11-feature measure_excel tables. Unlike the full Preprocessor
+    class, this one does NOT drop features, engineer Cavity_Ratio, or run PCA.
+    It's used by MedNext-style KMeans models trained directly on 11 raw features
+    with log1p applied to size/volume features.
+
+    Pickle-safe when this module (cluster_utils) is importable.
+    """
+    def __init__(self, feature_names, log_features):
+        self.feature_names = list(feature_names)
+        self.log_features = list(log_features)
+        self.log_mask = np.array(
+            [f in log_features for f in feature_names], dtype=bool
+        )
+        self.scaler = StandardScaler()
+        self._fitted = False
+
+    def _apply_log(self, X):
+        X_out = np.array(X, dtype=np.float64).copy()
+        X_out[:, self.log_mask] = np.maximum(X_out[:, self.log_mask], 0)
+        X_out[:, self.log_mask] = np.log1p(X_out[:, self.log_mask])
+        return X_out
+
+    def fit(self, X, y=None):
+        X_log = self._apply_log(X)
+        self.scaler.fit(X_log)
+        self._fitted = True
+        return self
+
+    def transform(self, X):
+        X_log = self._apply_log(X)
+        return self.scaler.transform(X_log)
+
+    def fit_transform(self, X, y=None):
+        return self.fit(X).transform(X)
+
+
+class CavityBoostedPreprocessor:
+    """
+    Preprocessing pipeline with enhanced cavity feature weight.
+
+    Input: 11 raw features from measure_excel (feature_names)
+    Output: 12-dimensional standardized array for KMeans
+
+    Steps:
+      1. Compute Cavity_Ratio = Cavity_Volume / Volume_Fill  (engineered)
+      2. Build 12-dim array: [11 raw features, Cavity_Ratio appended]
+      3. Boost Cavity_Ratio by a multiplier (gives it more distance weight)
+      4. log1p transform size/cavity features (long-tail distributions)
+      5. StandardScaler on all 12 features
+
+    feature_names lists only the 11 raw features so cluster-merge.py can
+    validate columns against measure_excel tables.
+    """
+    def __init__(self, feature_names, log_features, cavity_ratio_boost=20.0):
+        # Raw feature names (11, matching measure_excel columns)
+        self.feature_names = list(feature_names)
+        self.log_features = list(log_features)
+        self.cavity_ratio_boost = cavity_ratio_boost
+
+        # Build internal 12-dim feature list: raw 11 + Cavity_Ratio at end
+        self._internal_features = list(feature_names) + ['Cavity_Ratio']
+        self._ratio_idx = len(self._internal_features) - 1
+
+        # log_mask for 12-dim internal array
+        self._log_mask = np.array(
+            [f in log_features for f in self._internal_features], dtype=bool
+        )
+        # Cavity_Ratio is NOT log1p'd (it's already a 0-1 ratio)
+        self._log_mask[self._ratio_idx] = False
+
+        self.scaler = StandardScaler()
+        self._fitted = False
+
+    def _build_internal(self, X):
+        """Convert input (11 raw features) to 12-dim internal array."""
+        # Try DataFrame first
+        if isinstance(X, pd.DataFrame):
+            df = X.copy()
+            if 'Cavity_Ratio' not in df.columns:
+                vol = df['Organoids_Volume_Fill'].clip(lower=1)
+                df['Cavity_Ratio'] = df['Cavity_Volume'] / vol
+            # Reorder to internal feature order
+            arr = df[self._internal_features].values.astype(np.float64)
+        else:
+            arr = np.array(X, dtype=np.float64).copy()
+            # If input is already 12-dim, pass through
+            if arr.shape[1] == len(self._internal_features):
+                pass
+            elif arr.shape[1] == len(self.feature_names):
+                # Assume columns are in feature_names order; append Cavity_Ratio
+                vol_col = self.feature_names.index('Organoids_Volume_Fill')
+                cav_col = self.feature_names.index('Cavity_Volume')
+                vol = np.maximum(arr[:, vol_col], 1.0)
+                cav_ratio = arr[:, cav_col] / vol
+                arr = np.column_stack([arr, cav_ratio])
+            else:
+                raise ValueError(f"Expected {len(self.feature_names)} or "
+                                 f"{len(self._internal_features)} cols, got {arr.shape[1]}")
+        return arr
+
+    def _apply_transforms(self, arr):
+        """Apply boost + log1p to internal 12-dim array."""
+        arr = arr.copy()
+        # Boost Cavity_Ratio
+        arr[:, self._ratio_idx] = arr[:, self._ratio_idx] * self.cavity_ratio_boost
+        # log1p on log features
+        arr[:, self._log_mask] = np.maximum(arr[:, self._log_mask], 0)
+        arr[:, self._log_mask] = np.log1p(arr[:, self._log_mask])
+        return arr
+
+    def fit(self, X, y=None):
+        arr = self._build_internal(X)
+        arr_trans = self._apply_transforms(arr)
+        self.scaler.fit(arr_trans)
+        self._fitted = True
+        return self
+
+    def transform(self, X):
+        arr = self._build_internal(X)
+        arr_trans = self._apply_transforms(arr)
+        return self.scaler.transform(arr_trans)
+
+    def fit_transform(self, X, y=None):
+        return self.fit(X).transform(X)
+
+
+# ============================================================================
 # 4. Phenotype mapping (from raw cluster IDs to biological phenotypes)
 # ============================================================================
 
